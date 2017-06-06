@@ -1,0 +1,120 @@
+{
+  "format_version" : "1.0",
+  "generated_by" : "cytoscape-3.5.0",
+  "target_cytoscapejs_version" : "~2.1",
+  "data" : {
+    "shared_name" : "SampleNetwork",
+    "name" : "SimpleNetwork",
+    "SUID" : 52,
+    "__Annotations" : [ "canvas=foreground|fontFamily=Arial|color=-16777216|x=-525.5|y=-88.0|zoom=1.0|z=0|fontSize=16|text=TEST|type=org.cytoscape.view.presentation.annotations.TextAnnotation|fontStyle=0|uuid=24c51dbc-d39b-430d-bbbb-5ca197f846cd" ],
+    "selected" : true
+  },
+  "elements" : {
+    "nodes" : [ {
+      "data" : {
+        "id" : "74",
+        "shared_name" : "Node D",
+        "name" : "Node D",
+        "SUID" : 74,
+        "selected" : false
+      },
+      "position" : {
+        "x" : -220.0,
+        "y" : -99.0
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "68",
+        "shared_name" : "Node C",
+        "name" : "Node C",
+        "SUID" : 68,
+        "selected" : false
+      },
+      "position" : {
+        "x" : -359.0,
+        "y" : -167.0
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "66",
+        "shared_name" : "Node B",
+        "name" : "Node B",
+        "SUID" : 66,
+        "selected" : false
+      },
+      "position" : {
+        "x" : -359.0,
+        "y" : -40.0
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "64",
+        "shared_name" : "Node A",
+        "name" : "Node A",
+        "SUID" : 64,
+        "selected" : false
+      },
+      "position" : {
+        "x" : -505.0,
+        "y" : -114.0
+      },
+      "selected" : false
+    } ],
+    "edges" : [ {
+      "data" : {
+        "id" : "76",
+        "source" : "68",
+        "target" : "74",
+        "shared_name" : "Node C (interacts with) Node D",
+        "name" : "Node C (interacts with) Node D",
+        "interaction" : "interacts with",
+        "SUID" : 76,
+        "shared_interaction" : "interacts with",
+        "selected" : false
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "78",
+        "source" : "66",
+        "target" : "74",
+        "shared_name" : "Node B (interacts with) Node D",
+        "name" : "Node B (interacts with) Node D",
+        "interaction" : "interacts with",
+        "SUID" : 78,
+        "shared_interaction" : "interacts with",
+        "selected" : false
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "72",
+        "source" : "66",
+        "target" : "68",
+        "shared_name" : "Node B (interacts with) Node C",
+        "name" : "Node B (interacts with) Node C",
+        "interaction" : "interacts with",
+        "SUID" : 72,
+        "shared_interaction" : "interacts with",
+        "selected" : false
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "70",
+        "source" : "64",
+        "target" : "66",
+        "shared_name" : "Node A (interacts with) Node B",
+        "name" : "Node A (interacts with) Node B",
+        "interaction" : "interacts with",
+        "SUID" : 70,
+        "shared_interaction" : "interacts with",
+        "selected" : false
+      },
+      "selected" : false
+    } ]
+  }
+}
