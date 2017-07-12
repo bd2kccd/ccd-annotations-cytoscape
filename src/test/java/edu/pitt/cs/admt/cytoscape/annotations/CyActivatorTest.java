@@ -7,9 +7,7 @@ import junit.framework.TestSuite;
 /**
  * Unit test for CyActivator
  */
-public class CyActivatorTest
-    extends TestCase
-{
+public class CyActivatorTest extends TestCase {
     /**
      * Create the test case
      *
