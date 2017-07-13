@@ -1,7 +1,7 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db;
 
 /**
- * Created by Nikos R. Katsipoulakis on 7/12/17.
+ * @author Nikos R. Katsipoulakis
  */
 public class Edge {
   
