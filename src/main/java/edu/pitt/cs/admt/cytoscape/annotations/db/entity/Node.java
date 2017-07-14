@@ -1,4 +1,6 @@
-package edu.pitt.cs.admt.cytoscape.annotations.db;
+package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
+
+import com.google.common.base.Preconditions;
 
 /**
  * @author Nikos R. Katsipoulakis
@@ -8,6 +10,7 @@ public class Node {
   private int suid;
   
   public Node(int suid) {
+    Preconditions.checkArgument(suid >= 0);
     this.suid = suid;
   }
   
@@ -16,6 +19,7 @@ public class Node {
   }
   
   public void setSuid(int suid) {
+    Preconditions.checkArgument(suid >= 0);
     this.suid = suid;
   }
   
