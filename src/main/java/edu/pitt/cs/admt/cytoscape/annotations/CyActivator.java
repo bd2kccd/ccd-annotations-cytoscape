@@ -2,6 +2,7 @@ package edu.pitt.cs.admt.cytoscape.annotations;
 
 import java.util.Properties;
 
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.application.swing.CytoPanelComponent;
@@ -40,6 +41,7 @@ public class CyActivator extends AbstractCyActivator {
     @Override
     public void start(BundleContext context) {
         CyNetworkManager networkManager = getService(context, CyNetworkManager.class);
+        CyApplicationManager applicationManager = getService(context, CyApplicationManager.class);
         CyNetworkNaming networkNaming = getService(context, CyNetworkNaming.class);
         CyNetworkFactory networkFactory = getService(context, CyNetworkFactory.class);
         CyNetworkView networkView = getService(context, CyNetworkView.class);
@@ -59,7 +61,7 @@ public class CyActivator extends AbstractCyActivator {
         registerService(context, createAnnotationAction, CyAction.class, new Properties());
 
         // Trying to add to control panel
-        CCDControlPanel ccdControlPanel = new CCDControlPanel(networkViewManager, annotationManager, textAnnotationFactory);
+        CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, networkViewManager, annotationManager, textAnnotationFactory);
         registerService(context, ccdControlPanel, CytoPanelComponent.class, new Properties());
         ControlPanelAction controlPanelAction = new ControlPanelAction(application, ccdControlPanel);
         registerService(context, controlPanelAction, CyAction.class, new Properties());
