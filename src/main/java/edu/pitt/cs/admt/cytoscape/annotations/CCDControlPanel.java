@@ -6,6 +6,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +17,11 @@ import javax.swing.*;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.model.CyColumn;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyRow;
+import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewManager;
@@ -102,8 +109,9 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
                     args.put("color", String.valueOf(-16777216));
                     args.put("canvas", "foreground");
                     args.put("text", annotationText.getText());
-                    Annotation annotation = annotationFactory.createAnnotation(TextAnnotation.class, networkView, args);
+                    TextAnnotation annotation = annotationFactory.createAnnotation(TextAnnotation.class, networkView, args);
                     annotationManager.addAnnotation(annotation);
+                    addToTableColumn(cyApplicationManager.getCurrentNetwork(), annotation);
                     annotationsList.setText("Added: " + annotationText.getText());
                 }
             }
@@ -118,6 +126,16 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         this.add(new JLabel("\n"));   // line break
         this.add(annotationsList);
         this.setVisible(true);
+    }
+
+    public void addToTableColumn(final CyNetwork cyNetwork, final TextAnnotation annotation) {
+        CyTable networkTable = cyNetwork.getDefaultNetworkTable();
+        if (networkTable.getColumn(CCD_ANNOTATION_ATTRIBUTE) == null) {
+            networkTable.createListColumn(CCD_ANNOTATION_ATTRIBUTE, String.class, false, new ArrayList<String>(0));
+        }
+        List<String> row = cyNetwork.getRow(cyNetwork, CyNetwork.LOCAL_ATTRS).getList(CCD_ANNOTATION_ATTRIBUTE, String.class);
+        row.add(annotation.getUUID().toString() + "|" + annotation.getText());
+        cyNetwork.getRow(cyNetwork, CyNetwork.LOCAL_ATTRS).set(CCD_ANNOTATION_ATTRIBUTE, row);
     }
 
     public Component getComponent() {
