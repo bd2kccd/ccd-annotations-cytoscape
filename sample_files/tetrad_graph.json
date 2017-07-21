@@ -1,0 +1,3401 @@
+{
+  "nodes": [
+    {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 781,
+      "centerY": 779,
+      "name": "spending_per_stdt"
+    },
+    {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 779,
+      "centerY": 175,
+      "name": "grad_rate"
+    },
+    {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 177,
+      "centerY": 781,
+      "name": "stdt_clss_stndng"
+    },
+    {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 905,
+      "centerY": 477,
+      "name": "rjct_rate"
+    },
+    {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 174,
+      "centerY": 177,
+      "name": "tst_scores"
+    },
+    {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 479,
+      "centerY": 905,
+      "name": "stdt_accept_rate"
+    },
+    {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 51,
+      "centerY": 480,
+      "name": "stdt_tchr_ratio"
+    },
+    {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 477,
+      "centerY": 51,
+      "name": "fac_salary"
+    }
+  ],
+  "edgesSet": [
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 781,
+        "centerY": 779,
+        "name": "spending_per_stdt"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 905,
+        "centerY": 477,
+        "name": "rjct_rate"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.56
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.23
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.08
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.13
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 51,
+        "centerY": 480,
+        "name": "stdt_tchr_ratio"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 177,
+        "centerY": 781,
+        "name": "stdt_clss_stndng"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.98
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.02
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 51,
+        "centerY": 480,
+        "name": "stdt_tchr_ratio"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 174,
+        "centerY": 177,
+        "name": "tst_scores"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.78
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.21
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.01
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 479,
+        "centerY": 905,
+        "name": "stdt_accept_rate"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 779,
+        "centerY": 175,
+        "name": "grad_rate"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.92
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.07
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.01
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 781,
+        "centerY": 779,
+        "name": "spending_per_stdt"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 51,
+        "centerY": 480,
+        "name": "stdt_tchr_ratio"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 0
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.15
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.16
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.07
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.62
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 174,
+        "centerY": 177,
+        "name": "tst_scores"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 477,
+        "centerY": 51,
+        "name": "fac_salary"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 0
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.32
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.2
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.07
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.41
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 905,
+        "centerY": 477,
+        "name": "rjct_rate"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 479,
+        "centerY": 905,
+        "name": "stdt_accept_rate"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.98
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.02
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 905,
+        "centerY": 477,
+        "name": "rjct_rate"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 174,
+        "centerY": 177,
+        "name": "tst_scores"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 0
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.83
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.06
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.11
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 779,
+        "centerY": 175,
+        "name": "grad_rate"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 174,
+        "centerY": 177,
+        "name": "tst_scores"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 0
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.34
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.66
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 479,
+        "centerY": 905,
+        "name": "stdt_accept_rate"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 477,
+        "centerY": 51,
+        "name": "fac_salary"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 0
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.36
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.13
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.25
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.26
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 779,
+        "centerY": 175,
+        "name": "grad_rate"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 51,
+        "centerY": 480,
+        "name": "stdt_tchr_ratio"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.99
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.01
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 177,
+        "centerY": 781,
+        "name": "stdt_clss_stndng"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 174,
+        "centerY": 177,
+        "name": "tst_scores"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 0
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.18
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.11
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.71
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 779,
+        "centerY": 175,
+        "name": "grad_rate"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 477,
+        "centerY": 51,
+        "name": "fac_salary"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.92
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.08
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.0
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 781,
+        "centerY": 779,
+        "name": "spending_per_stdt"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 174,
+        "centerY": 177,
+        "name": "tst_scores"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 0
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.32
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.04
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.18
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.46
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 177,
+        "centerY": 781,
+        "name": "stdt_clss_stndng"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 781,
+        "centerY": 779,
+        "name": "spending_per_stdt"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.87
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.01
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.1
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.02
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 477,
+        "centerY": 51,
+        "name": "fac_salary"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 905,
+        "centerY": 477,
+        "name": "rjct_rate"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.72
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.1
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.16
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.02
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 781,
+        "centerY": 779,
+        "name": "spending_per_stdt"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 477,
+        "centerY": 51,
+        "name": "fac_salary"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 0
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.11
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.23
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.17
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.49
+        }
+      ]
+    },
+    {
+      "node1": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 177,
+        "centerY": 781,
+        "name": "stdt_clss_stndng"
+      },
+      "node2": {
+        "nodeType": {
+          "ordinal": 0
+        },
+        "centerX": 905,
+        "centerY": 477,
+        "name": "rjct_rate"
+      },
+      "endpoint1": {
+        "ordinal": 0
+      },
+      "endpoint2": {
+        "ordinal": 1
+      },
+      "dashed": false,
+      "properties": [],
+      "edgeTypeProbabilities": [
+        {
+          "edgeType": "nil",
+          "probability": 0.47
+        },
+        {
+          "edgeType": "ta",
+          "probability": 0.29
+        },
+        {
+          "edgeType": "at",
+          "probability": 0.01
+        },
+        {
+          "edgeType": "ca",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "ac",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "cc",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "aa",
+          "probability": 0.0
+        },
+        {
+          "edgeType": "tt",
+          "probability": 0.23
+        }
+      ]
+    }
+  ],
+  "edgeLists": {
+    "rjct_rate": [
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.56
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.23
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.08
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.13
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 479,
+          "centerY": 905,
+          "name": "stdt_accept_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.98
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.02
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.0
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.83
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.06
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.11
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.72
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.1
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.16
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.02
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 177,
+          "centerY": 781,
+          "name": "stdt_clss_stndng"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.47
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.29
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.01
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.23
+          }
+        ]
+      }
+    ],
+    "grad_rate": [
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 479,
+          "centerY": 905,
+          "name": "stdt_accept_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 779,
+          "centerY": 175,
+          "name": "grad_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.92
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.07
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.01
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 779,
+          "centerY": 175,
+          "name": "grad_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.34
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.66
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 779,
+          "centerY": 175,
+          "name": "grad_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 51,
+          "centerY": 480,
+          "name": "stdt_tchr_ratio"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.99
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.01
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.0
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 779,
+          "centerY": 175,
+          "name": "grad_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.92
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.08
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.0
+          }
+        ]
+      }
+    ],
+    "tst_scores": [
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 51,
+          "centerY": 480,
+          "name": "stdt_tchr_ratio"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.78
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.21
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.01
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.32
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.2
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.07
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.41
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.83
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.06
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.11
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 779,
+          "centerY": 175,
+          "name": "grad_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.34
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.66
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 177,
+          "centerY": 781,
+          "name": "stdt_clss_stndng"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.18
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.11
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.71
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.32
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.04
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.18
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.46
+          }
+        ]
+      }
+    ],
+    "stdt_clss_stndng": [
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 51,
+          "centerY": 480,
+          "name": "stdt_tchr_ratio"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 177,
+          "centerY": 781,
+          "name": "stdt_clss_stndng"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.98
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.02
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.0
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 177,
+          "centerY": 781,
+          "name": "stdt_clss_stndng"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.18
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.11
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.71
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 177,
+          "centerY": 781,
+          "name": "stdt_clss_stndng"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.87
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.01
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.1
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.02
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 177,
+          "centerY": 781,
+          "name": "stdt_clss_stndng"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.47
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.29
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.01
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.23
+          }
+        ]
+      }
+    ],
+    "stdt_accept_rate": [
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 479,
+          "centerY": 905,
+          "name": "stdt_accept_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 779,
+          "centerY": 175,
+          "name": "grad_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.92
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.07
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.01
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 479,
+          "centerY": 905,
+          "name": "stdt_accept_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.98
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.02
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.0
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 479,
+          "centerY": 905,
+          "name": "stdt_accept_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.36
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.13
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.25
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.26
+          }
+        ]
+      }
+    ],
+    "stdt_tchr_ratio": [
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 51,
+          "centerY": 480,
+          "name": "stdt_tchr_ratio"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 177,
+          "centerY": 781,
+          "name": "stdt_clss_stndng"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.98
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.02
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.0
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 51,
+          "centerY": 480,
+          "name": "stdt_tchr_ratio"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.78
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.21
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.01
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 51,
+          "centerY": 480,
+          "name": "stdt_tchr_ratio"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.15
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.16
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.07
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.62
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 779,
+          "centerY": 175,
+          "name": "grad_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 51,
+          "centerY": 480,
+          "name": "stdt_tchr_ratio"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.99
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.01
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.0
+          }
+        ]
+      }
+    ],
+    "spending_per_stdt": [
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.56
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.23
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.08
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.13
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 51,
+          "centerY": 480,
+          "name": "stdt_tchr_ratio"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.15
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.16
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.07
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.62
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.32
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.04
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.18
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.46
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 177,
+          "centerY": 781,
+          "name": "stdt_clss_stndng"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.87
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.01
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.1
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.02
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.11
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.23
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.17
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.49
+          }
+        ]
+      }
+    ],
+    "fac_salary": [
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 174,
+          "centerY": 177,
+          "name": "tst_scores"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.32
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.2
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.07
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.41
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 479,
+          "centerY": 905,
+          "name": "stdt_accept_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.36
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.13
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.25
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.26
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 779,
+          "centerY": 175,
+          "name": "grad_rate"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.92
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.08
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.0
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 905,
+          "centerY": 477,
+          "name": "rjct_rate"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 1
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.72
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.1
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.16
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.02
+          }
+        ]
+      },
+      {
+        "node1": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 781,
+          "centerY": 779,
+          "name": "spending_per_stdt"
+        },
+        "node2": {
+          "nodeType": {
+            "ordinal": 0
+          },
+          "centerX": 477,
+          "centerY": 51,
+          "name": "fac_salary"
+        },
+        "endpoint1": {
+          "ordinal": 0
+        },
+        "endpoint2": {
+          "ordinal": 0
+        },
+        "dashed": false,
+        "properties": [],
+        "edgeTypeProbabilities": [
+          {
+            "edgeType": "nil",
+            "probability": 0.11
+          },
+          {
+            "edgeType": "ta",
+            "probability": 0.23
+          },
+          {
+            "edgeType": "at",
+            "probability": 0.17
+          },
+          {
+            "edgeType": "ca",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "ac",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "cc",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "aa",
+            "probability": 0.0
+          },
+          {
+            "edgeType": "tt",
+            "probability": 0.49
+          }
+        ]
+      }
+    ]
+  },
+  "ambiguousTriples": [],
+  "underLineTriples": [],
+  "dottedUnderLineTriples": [],
+  "stuffRemovedSinceLastTripleAccess": false,
+  "highlightedEdges": [],
+  "namesHash": {
+    "stdt_accept_rate": {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 479,
+      "centerY": 905,
+      "name": "stdt_accept_rate"
+    },
+    "rjct_rate": {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 905,
+      "centerY": 477,
+      "name": "rjct_rate"
+    },
+    "stdt_tchr_ratio": {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 51,
+      "centerY": 480,
+      "name": "stdt_tchr_ratio"
+    },
+    "tst_scores": {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 174,
+      "centerY": 177,
+      "name": "tst_scores"
+    },
+    "fac_salary": {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 477,
+      "centerY": 51,
+      "name": "fac_salary"
+    },
+    "grad_rate": {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 779,
+      "centerY": 175,
+      "name": "grad_rate"
+    },
+    "stdt_clss_stndng": {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 177,
+      "centerY": 781,
+      "name": "stdt_clss_stndng"
+    },
+    "spending_per_stdt": {
+      "nodeType": {
+        "ordinal": 0
+      },
+      "centerX": 781,
+      "centerY": 779,
+      "name": "spending_per_stdt"
+    }
+  },
+  "pattern": false,
+  "pag": false
+}
