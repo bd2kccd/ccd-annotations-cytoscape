@@ -13,7 +13,7 @@ import java.util.Properties;
 /**
  * @author Nikos R. Katsipoulakis
  */
-class StorageDelegate {
+public class StorageDelegate {
   
   private JDBCConnection connection = null;
 

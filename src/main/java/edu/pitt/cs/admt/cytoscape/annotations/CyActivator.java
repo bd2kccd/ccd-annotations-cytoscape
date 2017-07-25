@@ -8,6 +8,7 @@ import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.session.CyNetworkNaming;
 import org.cytoscape.task.read.LoadVizmapFileTaskFactory;
@@ -59,6 +60,10 @@ public class CyActivator extends AbstractCyActivator {
 
         CreateAnnotationAction createAnnotationAction = new CreateAnnotationAction(application, dialogTaskManager, createAnnotationTaskFactory);
         registerService(context, createAnnotationAction, CyAction.class, new Properties());
+
+        // listeners
+        NetworkListener networkListener = new NetworkListener();
+        registerService(context, networkListener, NetworkAddedListener.class, new Properties());
 
         // Trying to add to control panel
         CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, networkViewManager, annotationManager, textAnnotationFactory);
