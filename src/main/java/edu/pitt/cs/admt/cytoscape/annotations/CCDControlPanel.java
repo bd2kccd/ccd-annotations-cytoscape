@@ -124,7 +124,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
                     TextAnnotation annotation = annotationFactory.createAnnotation(TextAnnotation.class, networkView, args);
                     annotationManager.addAnnotation(annotation);
                     addToTableColumn(cyApplicationManager.getCurrentNetwork(), annotation, nodes, edges);
-                    annotationsList.setText("Added: " + annotationText.getText());
+//                    annotationsList.setText("Added: " + annotationText.getText());
                 }
             }
         });
