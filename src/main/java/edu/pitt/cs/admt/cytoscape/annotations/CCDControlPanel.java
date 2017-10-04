@@ -56,12 +56,12 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         this.networkViewManager = networkViewManager;
         this.annotationManager = annotationManager;
         this.annotationFactory = annotationFactory;
-        JLabel label = new JLabel("New Annotation\n");
-        final JTextArea annotationText = new JTextArea("New Annotation");
+        JLabel label = new JLabel("New CCD Annotation\n");
+        JTextArea annotationText = new JTextArea("CCD annotation text");
         annotationText.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(final FocusEvent e) {
-                if(annotationText.getText().equals("New Annotation")) {
+                if(annotationText.getText().equals("CCD annotation text")) {
                     annotationText.setText("");
                 }
             }
@@ -69,7 +69,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
             @Override
             public void focusLost(final FocusEvent e) {
                 if(annotationText.getText().isEmpty()) {
-                    annotationText.setText("New Annotation");
+                    annotationText.setText("CCD annotation text");
                 }
             }
         });
@@ -124,6 +124,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
                     TextAnnotation annotation = annotationFactory.createAnnotation(TextAnnotation.class, networkView, args);
                     annotationManager.addAnnotation(annotation);
                     addToTableColumn(cyApplicationManager.getCurrentNetwork(), annotation, nodes, edges);
+                    annotationText.setText("CCD annotation text");
 //                    annotationsList.setText("Added: " + annotationText.getText());
                 }
             }
@@ -134,6 +135,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         this.add(label);
 //        this.add(annotationText);
         this.add(scrollPane);
+        this.add(new JLabel("\n"));   // line break
         this.add(button);
         this.add(new JLabel("\n"));   // line break
         this.add(annotationsList);
@@ -175,7 +177,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     }
 
     public String getTitle() {
-        return "Annotations";
+        return "CCD Annotations";
     }
 
     public Icon getIcon() {
