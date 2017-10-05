@@ -76,13 +76,6 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         annotationText.setPreferredSize(new Dimension(300, 200));
         annotationText.setLineWrap(true);
         annotationsList = new JLabel("");
-        /*SpinnerNumberModel numberModel = new SpinnerNumberModel(
-                new Integer(20),    // value
-                new Integer(0),     // min
-                new Integer(100),   // max
-                new Integer(1)      // step
-        );*/
-//        final JSpinner numberChooser = new JSpinner(numberModel);
         JButton button = new JButton("Create");
 
         button.addActionListener(new ActionListener() {

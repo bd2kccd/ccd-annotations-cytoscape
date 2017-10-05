@@ -58,8 +58,8 @@ public class CyActivator extends AbstractCyActivator {
         CreateAnnotationTaskFactory createAnnotationTaskFactory = new CreateAnnotationTaskFactory(networkManager, networkView);
         registerService(context, createAnnotationTaskFactory, TaskFactory.class, new Properties());
 
-        CreateAnnotationAction createAnnotationAction = new CreateAnnotationAction(application, dialogTaskManager, createAnnotationTaskFactory);
-        registerService(context, createAnnotationAction, CyAction.class, new Properties());
+        // CreateAnnotationAction createAnnotationAction = new CreateAnnotationAction(application, dialogTaskManager, createAnnotationTaskFactory);
+        // registerService(context, createAnnotationAction, CyAction.class, new Properties());
 
         // listeners
         NetworkListener networkListener = new NetworkListener();
