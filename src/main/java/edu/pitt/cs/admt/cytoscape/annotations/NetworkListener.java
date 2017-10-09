@@ -3,6 +3,7 @@ package edu.pitt.cs.admt.cytoscape.annotations;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.NetworkStorageUtility;
@@ -72,6 +73,7 @@ public class NetworkListener implements NetworkAddedListener {
         List<CyEdge> cyEdges = CyTableUtil.getEdgesInState(cyNetwork, "selected", false);
 
         // map to entities
+        // get list of nodes
         List<Node> nodes = cyNodes
                 .stream()
                 .map(CyNode::getSUID)
@@ -79,6 +81,7 @@ public class NetworkListener implements NetworkAddedListener {
                 .map(Node::new)
                 .collect(Collectors.toList());
 
+        // get list of edges
         List<Edge> edges = cyEdges
                 .stream()
                 .map(edge -> {
@@ -88,7 +91,9 @@ public class NetworkListener implements NetworkAddedListener {
                     return new Edge(suid, source, dest);})
                 .collect(Collectors.toList());
 
+        // get list of CCD annotations
         List<String> cyAnnotations = cyNetwork.getRow(cyNetwork, CyNetwork.LOCAL_ATTRS).getList(ANNOTATION_ATTRIBUTE, String.class);
+        System.out.println("Annotations: " + cyAnnotations.toString());
         List<String> texts = new ArrayList<>(0);
         if (cyAnnotations != null) {
             for (String s: cyAnnotations) {
@@ -100,20 +105,65 @@ public class NetworkListener implements NetworkAddedListener {
                 texts.add(text);
             }
         }
+
         List<Annotation> annotations = new ArrayList<>(0);
         for (int i = 0; i < texts.size(); i++) {
             annotations.add(new Annotation(i, texts.get(i)));
         }
 
+        // get extended attributes
         List<ExtendedAttribute> extendedAttributes = new ArrayList<>(0);
         extendedAttributes.add(
                 new ExtendedAttribute(1, "Posterior Probabilities", ExtendedAttributeType.FLOAT));
+        extendedAttributes.add(
+                new ExtendedAttribute(2, "Comment", ExtendedAttributeType.STRING));
 
-//        CyTable nodeTable = cyNetwork.getDefaultNodeTable();
-//        List<CyRow> rows = nodeTable.getAllRows();
-//        for (CyRow row: rows) {
-//            row.
-//        }
+        // get annotation to entity mappings
+        System.out.println("Getting annotation to entity mappings");
+
+        // annotation to node mapping
+        System.out.println("Node annotations");
+        CyTable nodeTable = cyNetwork.getDefaultNodeTable();
+        List<CyRow> rows = nodeTable.getAllRows();
+        for (CyRow row: rows) {
+            System.out.println("Row");
+            if (row.isSet("suid")) {
+                System.out.println("SUID: " + row.getRaw("suid"));
+            } else {
+                System.out.println("suid column not found");
+            }
+            if (row.isSet("name")) {
+                System.out.println("Name: " + row.get("name", String.class));
+            } else {
+                System.out.println("name column not found");
+            }
+            if (row.isSet(ANNOTATION_SET_ATTRIBUTE)) {
+                System.out.println("Annotation set: " + row.get(ANNOTATION_SET_ATTRIBUTE, List.class).toString());
+            }
+            System.out.println();
+        }
+
+        // annotation to edge mapping
+        System.out.println("Edge annotations");
+        CyTable edgeTable = cyNetwork.getDefaultEdgeTable();
+        rows = edgeTable.getAllRows();
+        for (CyRow row: rows) {
+            System.out.println("Row");
+            if (row.isSet("suid")) {
+                System.out.println("SUID: " + row.getRaw("suid"));
+            } else {
+                System.out.println("suid column not found");
+            }
+            if (row.isSet("name")) {
+                System.out.println("Name: " + row.get("name", String.class));
+            } else {
+                System.out.println("name column not found");
+            }
+            if (row.isSet(ANNOTATION_SET_ATTRIBUTE)) {
+                System.out.println("Annotation set: " + row.get(ANNOTATION_SET_ATTRIBUTE, List.class).toString());
+            }
+            System.out.println();
+        }
 
         try {
             storageDelegate.init("Cytoscape");
