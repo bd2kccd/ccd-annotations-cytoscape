@@ -96,14 +96,21 @@ public class NetworkListener implements NetworkAddedListener {
         System.out.println("Annotations: " + cyAnnotations.toString());
         List<String> texts = new ArrayList<>(0);
         if (cyAnnotations != null) {
-            for (String s: cyAnnotations) {
-                int index = s.indexOf("text=");
-                String s2 = s.substring(index);
-                int barIndex = s2.indexOf("|");
-                String text = s2.substring(5, barIndex);
-                System.out.println(text);
-                texts.add(text);
-            }
+            texts = cyAnnotations
+                    .stream()
+                    .map(str -> {
+                        String text = str.substring(str.indexOf("text="));
+                        return text.substring(5, text.indexOf("|")); })
+                    .collect(Collectors.toList());
+
+//            for (String s: cyAnnotations) {
+//                int index = s.indexOf("text=");
+//                String s2 = s.substring(index);
+//                int barIndex = s2.indexOf("|");
+//                String text = s2.substring(5, barIndex);
+//                System.out.println(text);
+//                texts.add(text);
+//            }
         }
 
         List<Annotation> annotations = new ArrayList<>(0);
