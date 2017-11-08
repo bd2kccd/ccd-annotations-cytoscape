@@ -56,7 +56,17 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         this.networkViewManager = networkViewManager;
         this.annotationManager = annotationManager;
         this.annotationFactory = annotationFactory;
-        JLabel label = new JLabel("New CCD Annotation\n");
+        // title
+        JLabel label = new JLabel("New CCD Annotation\n", SwingConstants.CENTER);
+
+        // extended attribute selection
+        final String[] attributeOptions = { "Posterior Probability", "Plaintext" };
+        final SpinnerListModel listModel = new SpinnerListModel(attributeOptions);
+        final JSpinner attributeSpinner = new JSpinner(listModel);
+        ((JSpinner.DefaultEditor) attributeSpinner.getEditor()).getTextField().setEditable(false);
+        ((JSpinner.DefaultEditor) attributeSpinner.getEditor()).getTextField().setPreferredSize(new Dimension(150, 20));
+
+        // annotation data
         JTextArea annotationText = new JTextArea("CCD annotation text");
         annotationText.addFocusListener(new FocusListener() {
             @Override
@@ -73,7 +83,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
                 }
             }
         });
-        annotationText.setPreferredSize(new Dimension(300, 200));
+        annotationText.setPreferredSize(new Dimension(300, 100));
         annotationText.setLineWrap(true);
         annotationsList = new JLabel("");
         JButton button = new JButton("Create");
@@ -123,15 +133,62 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
             }
         });
 
+        // search box
+        JPanel searchPanel = new JPanel();
+        JLabel searchLabel = new JLabel("\n\nSearch\n", SwingConstants.CENTER);
+        JTextArea searchText = new JTextArea("Search");
+        searchText.setPreferredSize(new Dimension(300, 100));
+        searchText.setLineWrap(true);
+        searchText.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(final FocusEvent e) {
+                if(searchText.getText().equals("Search")) {
+                    searchText.setText("");
+                }
+            }
+
+            @Override
+            public void focusLost(final FocusEvent e) {
+                if(searchText.getText().isEmpty()) {
+                    searchText.setText("Search");
+                }
+            }
+        });
+
+        JButton searchButton = new JButton("Search");
+        JButton clearButton = new JButton("Clear");
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Searching...");
+            }
+        });
+
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Clearing...");
+            }
+        });
+
+
         JScrollPane scrollPane = new JScrollPane(annotationText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVisible(true);
         this.add(label);
+        this.add(new JTextArea("\n\n"));    // line break
+        this.add(attributeSpinner);
 //        this.add(annotationText);
         this.add(scrollPane);
-        this.add(new JLabel("\n"));   // line break
+        this.add(new JTextArea("\n"));      // line break
         this.add(button);
-        this.add(new JLabel("\n"));   // line break
+        this.add(new JLabel("\n"));    // line break
         this.add(annotationsList);
+        this.add(new JLabel("\n\n"));    // line break
+        this.add(searchLabel);
+        this.add(searchText);
+        this.add(searchButton);
+        this.add(clearButton);
         this.setVisible(true);
     }
 
