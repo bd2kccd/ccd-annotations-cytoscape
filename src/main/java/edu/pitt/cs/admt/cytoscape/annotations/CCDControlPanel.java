@@ -60,7 +60,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         JLabel label = new JLabel("New CCD Annotation\n", SwingConstants.CENTER);
 
         // extended attribute selection
-        final String[] attributeOptions = { "Posterior Probability", "Plaintext" };
+        final String[] attributeOptions = { "Comment", "Posterior Probability" };
         final SpinnerListModel listModel = new SpinnerListModel(attributeOptions);
         final JSpinner attributeSpinner = new JSpinner(listModel);
         ((JSpinner.DefaultEditor) attributeSpinner.getEditor()).getTextField().setEditable(false);
