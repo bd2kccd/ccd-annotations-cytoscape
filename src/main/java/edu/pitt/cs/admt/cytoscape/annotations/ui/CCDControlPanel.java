@@ -1,4 +1,4 @@
-package edu.pitt.cs.admt.cytoscape.annotations;
+package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -15,6 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.*;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CytoPanelComponent;
@@ -172,7 +177,14 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
             }
         });
 
-
+        // Java FX Experiment
+        final JFXPanel fxPanel = new JFXPanel();
+        final Label fxSearchLabel = new Label("\nSearch\n");
+        StackPane holder = new StackPane();
+        Scene scene = new Scene(new Group());
+        holder.getChildren().add(fxSearchLabel);
+        holder.setStyle("-fx-background-color: #EEEEEE");
+        ((Group)scene.getRoot()).getChildren().add(holder);
         JScrollPane scrollPane = new JScrollPane(annotationText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVisible(true);
         this.add(label);
@@ -185,6 +197,8 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         this.add(new JLabel("\n"));    // line break
         this.add(annotationsList);
         this.add(new JLabel("\n\n"));    // line break
+        this.add(fxPanel);
+        fxPanel.setScene(scene);
         this.add(searchLabel);
         this.add(searchText);
         this.add(searchButton);

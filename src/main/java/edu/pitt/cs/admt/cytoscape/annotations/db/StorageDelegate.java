@@ -241,7 +241,7 @@ public class StorageDelegate {
     connection.commit();
   }
   
-  private static Object converToObject(byte[] binaryObject)
+  private static Object convertToObject(byte[] binaryObject)
       throws IOException, ClassNotFoundException {
     try (ByteArrayInputStream byteStream = new ByteArrayInputStream(binaryObject)) {
       try (ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {

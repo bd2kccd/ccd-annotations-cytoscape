@@ -1,4 +1,4 @@
-package edu.pitt.cs.admt.cytoscape.annotations;
+package edu.pitt.cs.admt.cytoscape.annotations.network;
 
 import java.util.ArrayList;
 import java.util.Collections;
