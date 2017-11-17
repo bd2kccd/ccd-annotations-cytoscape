@@ -52,19 +52,17 @@ class AnnotationSchema {
   
   static final String CREATE_ANNOT_TABLE = "CREATE TABLE " + ANNOTATION_TABLE +
       "(" +
-      "suid INTEGER PRIMARY KEY, " +
-      "description VARCHAR(64) DEFAULT 'N/A', " +
-      "CONSTRAINT id_annot CHECK(suid >= 0)" +
-      ")";
+      "id UUID PRIMARY KEY, " +
+      "description VARCHAR(64) DEFAULT 'N/A')";
   
   static final String CREATE_ANNOT_TO_NODE_TABLE = "CREATE TABLE " + ANNOT_TO_NODE_TABLE +
       "(" +
-      "a_id INTEGER NOT NULL, " +
+      "a_id UUID NOT NULL, " +
       "suid INTEGER NOT NULL, " +
       "ext_attr_id INTEGER, " +
       "ext_attr_value LONGVARBINARY, " +
       "FOREIGN KEY (a_id) REFERENCES " + ANNOTATION_TABLE +
-      "(suid) ON DELETE CASCADE ON UPDATE CASCADE, " +
+      "(id) ON DELETE CASCADE ON UPDATE CASCADE, " +
       "FOREIGN KEY (suid) REFERENCES " + NODE_TABLE +
       "(suid) ON DELETE CASCADE ON UPDATE CASCADE," +
       "CONSTRAINT ann_node_unique UNIQUE (a_id, suid) " +
@@ -76,12 +74,12 @@ class AnnotationSchema {
   
   static final String CREATE_ANNOT_TO_EDGE_TABLE = "CREATE TABLE " + ANNOT_TO_EDGE_TABLE
       + " (" +
-      "a_id INTEGER NOT NULL, " +
+      "a_id UUID NOT NULL, " +
       "suid INTEGER NOT NULL, " +
       "ext_attr_id INTEGER, " +
       "ext_attr_value LONGVARBINARY, " +
       "FOREIGN KEY (a_id) REFERENCES " + ANNOTATION_TABLE +
-      "(suid) ON DELETE CASCADE ON UPDATE CASCADE, " +
+      "(id) ON DELETE CASCADE ON UPDATE CASCADE, " +
       "FOREIGN KEY (suid) REFERENCES " + EDGE_TABLE +
       "(suid) ON DELETE CASCADE ON UPDATE CASCADE, " +
       "CONSTRAINT ann_edge_unique UNIQUE (a_id, suid) " +
@@ -104,7 +102,7 @@ class AnnotationSchema {
   static final String INSERT_EDGE = "INSERT INTO " + EDGE_TABLE + "(suid, source, destination) " +
       "VALUES (?,?,?)";
 
-  static final String INSERT_ANNOT = "INSERT INTO " + ANNOTATION_TABLE + "(suid,description) " +
+  static final String INSERT_ANNOT = "INSERT INTO " + ANNOTATION_TABLE + "(id,description) " +
       "VALUES (?,?)";
 
   static final String INSERT_ANNOT_TO_NODE = "INSERT INTO " + ANNOT_TO_NODE_TABLE +

@@ -9,6 +9,7 @@ import java.io.*;
 import java.sql.*;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.UUID;
 
 /**
  * @author Nikos R. Katsipoulakis
@@ -135,12 +136,13 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void insertAnnotation(int annotationId, String description) throws IllegalArgumentException,
+  void insertAnnotation(UUID annotationId, String description) throws IllegalArgumentException,
       SQLException {
+    if (annotationId == null) throw new IllegalArgumentException("null annotationId provided");
     connection.setAutoCommit(false);
     Preconditions.checkArgument(description.length() < 64);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_ANNOT);
-    statement.setInt(1, annotationId);
+    statement.setObject(1, annotationId);
     statement.setString(2, description);
     statement.execute();
     connection.commit();
@@ -151,7 +153,7 @@ public class StorageDelegate {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_ANNOT);
     for (Annotation a : annotations) {
-      statement.setInt(1, a.getId());
+      statement.setObject(1, a.getId());
       statement.setString(2, a.getDescription());
       statement.addBatch();
     }
@@ -159,9 +161,9 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void attachAnnotationToNode(int annotationId, int nodeId, Integer extendedAttributeId,
+  void attachAnnotationToNode(UUID annotationId, int nodeId, Integer extendedAttributeId,
                               Object value) throws SQLException, IOException {
-    Preconditions.checkArgument(annotationId >= 0 && nodeId >= 0);
+    Preconditions.checkArgument(nodeId >= 0);
     if (extendedAttributeId != null)
       Preconditions.checkArgument(extendedAttributeId >= 0);
     if (value != null)
@@ -170,7 +172,7 @@ public class StorageDelegate {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema
         .INSERT_ANNOT_TO_NODE);
-    statement.setInt(1, annotationId);
+    statement.setObject(1, annotationId);
     statement.setInt(2, nodeId);
     if (extendedAttributeId != null)
       statement.setInt(3, extendedAttributeId);
@@ -184,9 +186,9 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void attachAnnotationToEdge(int annotationId, int edgeId, Integer extendedAttributeId,
+  void attachAnnotationToEdge(UUID annotationId, int edgeId, Integer extendedAttributeId,
                               Object value) throws SQLException, IOException {
-    Preconditions.checkArgument(annotationId >= 0 && edgeId >= 0);
+    Preconditions.checkArgument(edgeId >= 0);
     if (extendedAttributeId != null)
       Preconditions.checkArgument(extendedAttributeId >= 0);
     if (value != null)
@@ -195,7 +197,7 @@ public class StorageDelegate {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema
         .INSERT_ANNOT_TO_EDGE);
-    statement.setInt(1, annotationId);
+    statement.setObject(1, annotationId);
     statement.setInt(2, edgeId);
     if (extendedAttributeId != null)
       statement.setInt(3, extendedAttributeId);

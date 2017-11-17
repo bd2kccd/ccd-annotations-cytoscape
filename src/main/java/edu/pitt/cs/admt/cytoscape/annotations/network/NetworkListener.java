@@ -1,9 +1,6 @@
 package edu.pitt.cs.admt.cytoscape.annotations.network;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.NetworkStorageUtility;
@@ -115,7 +112,7 @@ public class NetworkListener implements NetworkAddedListener {
 
         List<Annotation> annotations = new ArrayList<>(0);
         for (int i = 0; i < texts.size(); i++) {
-            annotations.add(new Annotation(i, texts.get(i)));
+            annotations.add(new Annotation(UUID.fromString(String.valueOf(i)), texts.get(i)));
         }
 
         // get extended attributes
