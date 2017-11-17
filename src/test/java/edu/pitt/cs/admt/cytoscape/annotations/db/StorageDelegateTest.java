@@ -1,10 +1,12 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db;
 
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.ExtendedAttributeType;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -178,6 +180,7 @@ public class StorageDelegateTest {
   @Test
   public void insertAnnotationExtendedAttributeTest() {
     StorageDelegate delegate = new StorageDelegate();
+    UUID firstUUID = UUID.randomUUID();
     try {
       delegate.init("insert_ann_ext_attr_test");
     } catch (SQLException e) {
@@ -217,6 +220,43 @@ public class StorageDelegateTest {
           ExtendedAttributeType.BOOLEAN);
     } catch (SQLException e) {
       assertTrue("irregular SQL exception thrown (4)", false);
+    }
+    try {
+      delegate.insertAnnotation(firstUUID, "first annot");
+    } catch (SQLException e) {
+      assertTrue("failed to add annotation", false);
+    }
+    try {
+      delegate.insertNewNode(1);
+    } catch (SQLException e) {
+      assertTrue("failed to add node", false);
+    }
+    try {
+      delegate.attachAnnotationToNode(firstUUID, 1, 1, new Float(0.1234F));
+    } catch (SQLException e) {
+      e.printStackTrace();
+      assertTrue("SQL exception when attaching annotation to node", false);
+    } catch (IOException e) {
+      e.printStackTrace();
+      assertTrue("IO exception when attaching annotation to node", false);
+    }
+    Collection<AnnotToEntity> attributes = null;
+    try {
+      attributes = delegate.getExtendedAttributeValues(firstUUID);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      assertTrue("SQL exception when retrieving values to nodes", false);
+    } catch (IOException e) {
+      e.printStackTrace();
+      assertTrue("IO exception when retrieving values to nodes", false);
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      assertTrue("Class Not Found exception when retrieving values to nodes", false);
+    }
+    for (AnnotToEntity a : attributes) {
+      Float f = (Float) a.getValue();
+      assertTrue("unexpected value extracted", f == 0.1234F);
+      break;
     }
     delegate.close();
   }

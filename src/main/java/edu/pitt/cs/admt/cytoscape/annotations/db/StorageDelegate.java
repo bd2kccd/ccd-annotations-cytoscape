@@ -4,12 +4,11 @@ import com.google.common.base.Preconditions;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.*;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.*;
 import java.sql.*;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Nikos R. Katsipoulakis
@@ -243,7 +242,66 @@ public class StorageDelegate {
     connection.commit();
   }
   
-  private static Object converToObject(byte[] binaryObject)
+  Collection<ExtendedAttribute> getAllAnnotationToExtendedAttributes() throws SQLException {
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema
+        .SELECT_ALL_EXT_ATTRS);
+    List<ExtendedAttribute> attributes = new ArrayList<>();
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      ExtendedAttributeType type = null;
+      String serialType = rs.getString(3);
+      if (serialType.equals("BOOLEAN"))
+        type = ExtendedAttributeType.BOOLEAN;
+      else if (serialType.equals("INT"))
+        type = ExtendedAttributeType.INT;
+      else if (serialType.equals("FLOAT"))
+        type = ExtendedAttributeType.FLOAT;
+      else if (serialType.equals("CHAR"))
+        type = ExtendedAttributeType.CHAR;
+      else if (serialType.equals("STRING"))
+        type = ExtendedAttributeType.STRING;
+      ExtendedAttribute attribute = new ExtendedAttribute(rs.getInt(1), rs.getString(2), type);
+    }
+    return attributes;
+  }
+  
+  Collection<AnnotToEntity> getAllExtendedAttributeValues() throws SQLException, IOException,
+      ClassNotFoundException {
+    List<AnnotToEntity> collection = new ArrayList<>();
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema
+        .SELECT_ALL_EXT_ATTRS_VALUES);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      UUID uuid = (UUID) rs.getObject(1);
+      Object value = convertToObject(rs.getBytes(4));
+      AnnotToEntity entity = new AnnotToEntity(uuid, rs.getInt(2), rs.getInt(3), value);
+      collection.add(entity);
+    }
+    statement.close();
+    return collection;
+  }
+  
+  Collection<AnnotToEntity> getExtendedAttributeValues(final UUID annotationId) throws SQLException,
+      IOException, ClassNotFoundException {
+    if (annotationId == null)
+      throw new IllegalArgumentException("null UUID provided.");
+    List<AnnotToEntity> collection = new ArrayList<>();
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema
+        .SELECT_EXT_ATTR_VALUES_WITH_ANNOT_ID);
+    statement.setObject(1, annotationId);
+    statement.setObject(2, annotationId);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      UUID uuid = (UUID) rs.getObject(1);
+      Object value = convertToObject(rs.getBytes(4));
+      AnnotToEntity entity = new AnnotToEntity(uuid, rs.getInt(2), rs.getInt(3), value);
+      collection.add(entity);
+    }
+    statement.close();
+    return collection;
+  }
+  
+  private static Object convertToObject(byte[] binaryObject)
       throws IOException, ClassNotFoundException {
     try (ByteArrayInputStream byteStream = new ByteArrayInputStream(binaryObject)) {
       try (ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
