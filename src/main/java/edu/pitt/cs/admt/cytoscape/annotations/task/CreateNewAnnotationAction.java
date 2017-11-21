@@ -1,4 +1,4 @@
-package edu.pitt.cs.admt.cytoscape.annotations;
+package edu.pitt.cs.admt.cytoscape.annotations.task;
 
 import java.awt.event.ActionEvent;
 

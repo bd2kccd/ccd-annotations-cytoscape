@@ -1,4 +1,4 @@
-package edu.pitt.cs.admt.cytoscape.annotations;
+package edu.pitt.cs.admt.cytoscape.annotations.task;
 
 import org.cytoscape.model.CyNetworkManager;
 import org.cytoscape.view.model.CyNetworkView;

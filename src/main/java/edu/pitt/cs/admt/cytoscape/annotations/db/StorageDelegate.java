@@ -242,6 +242,7 @@ public class StorageDelegate {
     connection.commit();
   }
   
+
   Collection<ExtendedAttribute> getAllAnnotationToExtendedAttributes() throws SQLException {
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema
         .SELECT_ALL_EXT_ATTRS);
@@ -300,7 +301,7 @@ public class StorageDelegate {
     statement.close();
     return collection;
   }
-  
+
   private static Object convertToObject(byte[] binaryObject)
       throws IOException, ClassNotFoundException {
     try (ByteArrayInputStream byteStream = new ByteArrayInputStream(binaryObject)) {

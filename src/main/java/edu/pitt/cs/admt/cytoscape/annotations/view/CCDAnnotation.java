@@ -1,4 +1,4 @@
-package edu.pitt.cs.admt.cytoscape.annotations;
+package edu.pitt.cs.admt.cytoscape.annotations.view;
 
 import org.cytoscape.view.presentation.annotations.TextAnnotation;
 
