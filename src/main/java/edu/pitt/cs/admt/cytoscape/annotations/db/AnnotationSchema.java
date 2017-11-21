@@ -113,4 +113,14 @@ class AnnotationSchema {
 
   static final String INSERT_ANNOT_EXT_ATTR = "INSERT INTO " + ANNOT_EXT_ATTR_TABLE +
       "(id,name,type) VALUES(?,?,?)";
+  
+  static final String SELECT_ALL_EXT_ATTRS = "SELECT id, name, type, description FROM " +
+      ANNOT_EXT_ATTR_TABLE + "";
+  
+  static final String SELECT_ALL_EXT_ATTRS_VALUES = "SELECT * FROM " + ANNOT_TO_NODE_TABLE +
+      " UNION SELECT * FROM " + ANNOT_TO_EDGE_TABLE;
+  
+  static final String SELECT_EXT_ATTR_VALUES_WITH_ANNOT_ID = "SELECT * FROM " +
+      ANNOT_TO_NODE_TABLE + " WHERE a_id = ? UNION SELECT * FROM " + ANNOT_TO_EDGE_TABLE + " " +
+      "WHERE a_id = ?";
 }
