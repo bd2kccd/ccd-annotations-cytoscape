@@ -1,0 +1,107 @@
+{
+  "format_version" : "1.0",
+  "generated_by" : "cytoscape-3.5.1",
+  "target_cytoscapejs_version" : "~2.1",
+  "data" : {
+    "shared_name" : "/Users/mas450/ccd/cytoscape-annotations/sample_files/test.txt",
+    "name" : "/Users/mas450/ccd/cytoscape-annotations/sample_files/test.txt",
+    "SUID" : 118,
+    "__Annotations" : [ ],
+    "selected" : true
+  },
+  "elements" : {
+    "nodes" : [ {
+      "data" : {
+        "id" : "131",
+        "shared_name" : "X4",
+        "name" : "X4",
+        "SUID" : 131,
+        "selected" : false
+      },
+      "position" : {
+        "x" : -29.60641615883033,
+        "y" : -0.02782222278674845
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "130",
+        "shared_name" : "X3",
+        "name" : "X3",
+        "SUID" : 130,
+        "selected" : false
+      },
+      "position" : {
+        "x" : -58.88465284153052,
+        "y" : 28.910376176482615
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "129",
+        "shared_name" : "X2",
+        "name" : "X2",
+        "SUID" : 129,
+        "selected" : false
+      },
+      "position" : {
+        "x" : 11.807447764961378,
+        "y" : 78.62290954589844
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "128",
+        "shared_name" : "X1",
+        "name" : "X1",
+        "SUID" : 128,
+        "selected" : true
+      },
+      "position" : {
+        "x" : 87.9735016185236,
+        "y" : 9.669757924607136
+      },
+      "selected" : true
+    } ],
+    "edges" : [ {
+      "data" : {
+        "id" : "134",
+        "source" : "129",
+        "target" : "130",
+        "shared_name" : "X2 (-->) X3",
+        "name" : "X2 (-->) X3",
+        "interaction" : "-->",
+        "SUID" : 134,
+        "shared_interaction" : "-->",
+        "selected" : false
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "133",
+        "source" : "128",
+        "target" : "131",
+        "shared_name" : "X1 (-->) X4",
+        "name" : "X1 (-->) X4",
+        "interaction" : "-->",
+        "SUID" : 133,
+        "shared_interaction" : "-->",
+        "selected" : false
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "132",
+        "source" : "128",
+        "target" : "129",
+        "shared_name" : "X1 (-->) X2",
+        "name" : "X1 (-->) X2",
+        "interaction" : "-->",
+        "SUID" : 132,
+        "shared_interaction" : "-->",
+        "selected" : false
+      },
+      "selected" : false
+    } ]
+  }
+}

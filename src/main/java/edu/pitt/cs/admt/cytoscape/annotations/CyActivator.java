@@ -2,11 +2,17 @@ package edu.pitt.cs.admt.cytoscape.annotations;
 
 import java.util.Properties;
 
+import edu.pitt.cs.admt.cytoscape.annotations.network.NetworkListener;
+import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
+import edu.pitt.cs.admt.cytoscape.annotations.ui.CCDControlPanel;
+import edu.pitt.cs.admt.cytoscape.annotations.ui.ControlPanelAction;
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CySwingApplication;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.model.CyNetworkFactory;
 import org.cytoscape.model.CyNetworkManager;
+import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.session.CyNetworkNaming;
 import org.cytoscape.task.read.LoadVizmapFileTaskFactory;
@@ -40,6 +46,7 @@ public class CyActivator extends AbstractCyActivator {
     @Override
     public void start(BundleContext context) {
         CyNetworkManager networkManager = getService(context, CyNetworkManager.class);
+        CyApplicationManager applicationManager = getService(context, CyApplicationManager.class);
         CyNetworkNaming networkNaming = getService(context, CyNetworkNaming.class);
         CyNetworkFactory networkFactory = getService(context, CyNetworkFactory.class);
         CyNetworkView networkView = getService(context, CyNetworkView.class);
@@ -55,11 +62,15 @@ public class CyActivator extends AbstractCyActivator {
         CreateAnnotationTaskFactory createAnnotationTaskFactory = new CreateAnnotationTaskFactory(networkManager, networkView);
         registerService(context, createAnnotationTaskFactory, TaskFactory.class, new Properties());
 
-        CreateAnnotationAction createAnnotationAction = new CreateAnnotationAction(application, dialogTaskManager, createAnnotationTaskFactory);
-        registerService(context, createAnnotationAction, CyAction.class, new Properties());
+        // CreateAnnotationAction createAnnotationAction = new CreateAnnotationAction(application, dialogTaskManager, createAnnotationTaskFactory);
+        // registerService(context, createAnnotationAction, CyAction.class, new Properties());
+
+        // listeners
+        NetworkListener networkListener = new NetworkListener();
+        registerService(context, networkListener, NetworkAddedListener.class, new Properties());
 
         // Trying to add to control panel
-        CCDControlPanel ccdControlPanel = new CCDControlPanel(networkViewManager, annotationManager, textAnnotationFactory);
+        CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, networkViewManager, annotationManager, textAnnotationFactory);
         registerService(context, ccdControlPanel, CytoPanelComponent.class, new Properties());
         ControlPanelAction controlPanelAction = new ControlPanelAction(application, ccdControlPanel);
         registerService(context, controlPanelAction, CyAction.class, new Properties());
