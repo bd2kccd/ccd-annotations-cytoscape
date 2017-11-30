@@ -10,6 +10,7 @@ import org.hsqldb.jdbc.JDBCDriver;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -19,11 +20,13 @@ public class StorageDelegate {
   
   private JDBCConnection connection = null;
 
-  public StorageDelegate() {
+  private final String id;
 
+  public StorageDelegate() {
+    id = UUID.randomUUID().toString();
   }
 
-  public void init(String dbName) throws SQLException {
+  public void init() throws SQLException {
     Properties properties = new Properties();
     JDBCDriver driver = null;
     try {
@@ -35,7 +38,7 @@ public class StorageDelegate {
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     }
-    connection = (JDBCConnection) driver.getConnection("jdbc:hsqldb:mem:" + dbName +
+    connection = (JDBCConnection) driver.getConnection("jdbc:hsqldb:mem:" + id +
         "_ccd_annot_db", properties);
     connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
     connection.commit();
@@ -356,6 +359,179 @@ public class StorageDelegate {
     resultSet.close();
     statement.close();
     return collection;
+  }
+
+  Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
+      @NotNull String name, Function<Object, Boolean> predicate,
+      ExtendedAttributeType type, boolean desc, int limit)
+      throws SQLException, IOException, ClassNotFoundException {
+    List<AnnotToEntity> unlimited = (List<AnnotToEntity>)
+        selectEntitiesWithAnnotationNameAndPredicateOrdered(name, predicate, type, desc);
+    if (unlimited.size() <= limit) {
+      return unlimited;
+    } else {
+      Collection<AnnotToEntity> collection = new ArrayList<>();
+      for (int i = 0; i < limit; i++) {
+        collection.add(unlimited.get(i));
+      }
+      return unlimited;
+    }
+  }
+
+
+  Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
+      @NotNull String name, Function<Object, Boolean> predicate,
+      ExtendedAttributeType type, boolean desc) throws SQLException, IOException, ClassNotFoundException {
+    List<AnnotToEntity> collection = (List<AnnotToEntity>)
+        selectEntitiesWithAnnotationNameAndPredicate(name, predicate);
+    switch (type) {
+      case INT:
+        sortInteger(collection, desc);
+      case FLOAT:
+        sortFloat(collection, desc);
+      case STRING:
+        sortString(collection, desc);
+      case CHAR:
+        sortChar(collection, desc);
+    }
+    return collection;
+  }
+
+  private void sortChar(List<AnnotToEntity> collection, boolean desc) {
+    Comparator<AnnotToEntity> comparator = null;
+    if (!desc) {
+      comparator = new Comparator<AnnotToEntity>() {
+        @Override
+        public int compare(AnnotToEntity o1, AnnotToEntity o2) {
+          Character c1 = (Character) o1.getValue();
+          Character c2 = (Character) o2.getValue();
+          return Character.compare(Character.toLowerCase(c1), Character.toLowerCase(c2));
+        }
+      };
+    } else {
+      comparator = new Comparator<AnnotToEntity>() {
+        @Override
+        public int compare(AnnotToEntity o1, AnnotToEntity o2) {
+          Character c1 = (Character) o1.getValue();
+          Character c2 = (Character) o2.getValue();
+          return -1 * Character.compare(Character.toLowerCase(c1), Character.toLowerCase(c2));
+        }
+      };
+    }
+    Collections.sort(collection, comparator);
+  }
+
+  private void sortString(List<AnnotToEntity> collection, boolean desc) {
+    Comparator<AnnotToEntity> comparator = null;
+    if (!desc) {
+      comparator = new Comparator<AnnotToEntity>() {
+        @Override
+        public int compare(AnnotToEntity o1, AnnotToEntity o2) {
+          String s1 = (String) o1.getValue();
+          String s2 = (String) o2.getValue();
+          return s1.compareTo(s2);
+        }
+      };
+    } else {
+      comparator = new Comparator<AnnotToEntity>() {
+        @Override
+        public int compare(AnnotToEntity o1, AnnotToEntity o2) {
+          String s1 = (String) o1.getValue();
+          String s2 = (String) o2.getValue();
+          return -1 * s1.compareTo(s2);
+        }
+      };
+    }
+    Collections.sort(collection, comparator);
+  }
+
+  private void sortInteger(List<AnnotToEntity> collection, boolean desc) {
+    Comparator<AnnotToEntity> comparator = null;
+    if (!desc) {
+      comparator = new Comparator<AnnotToEntity>() {
+        @Override
+        public int compare(AnnotToEntity o1, AnnotToEntity o2) {
+          Integer i1 = (Integer) o1.getValue();
+          Integer i2 = (Integer) o2.getValue();
+          if (i1 == i2)
+            return 0;
+          else if (i1 > i2)
+            return 1;
+          else
+            return  -1;
+        }
+      };
+    } else {
+      comparator = new Comparator<AnnotToEntity>() {
+        @Override
+        public int compare(AnnotToEntity o1, AnnotToEntity o2) {
+          Integer i1 = (Integer) o1.getValue();
+          Integer i2 = (Integer) o2.getValue();
+          if (i1 == i2)
+            return 0;
+          else if (i1 < i2)
+            return 1;
+          else
+            return  -1;
+        }
+      };
+    }
+    Collections.sort(collection, comparator);
+  }
+
+  private void sortFloat(List<AnnotToEntity> collection, boolean desc) {
+    Comparator<AnnotToEntity> comparator = null;
+    if (!desc) {
+      comparator = new Comparator<AnnotToEntity>() {
+        @Override
+        public int compare(AnnotToEntity o1, AnnotToEntity o2) {
+          Float i1 = (Float) o1.getValue();
+          Float i2 = (Float) o2.getValue();
+          if (i1 == i2)
+            return 0;
+          else if (i1 > i2)
+            return 1;
+          else
+            return  -1;
+        }
+      };
+    } else {
+      comparator = new Comparator<AnnotToEntity>() {
+        @Override
+        public int compare(AnnotToEntity o1, AnnotToEntity o2) {
+          Float i1 = (Float) o1.getValue();
+          Float i2 = (Float) o2.getValue();
+          if (i1 == i2)
+            return 0;
+          else if (i1 < i2)
+            return 1;
+          else
+            return  -1;
+        }
+      };
+    }
+    Collections.sort(collection, comparator);
+  }
+
+  Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicate(
+      @NotNull String name, Function<Object, Boolean> predicate)
+      throws SQLException, IOException, ClassNotFoundException {
+    Collection<AnnotToEntity> nodes = selectNodesWithAnnotation(name);
+    Collection<AnnotToEntity> edges = selectEdgesWithAnnotation(name);
+    Collection<AnnotToEntity> collection = new ArrayList<>();
+    for (AnnotToEntity a : nodes) {
+      if (predicate.apply(a.getValue()))
+        collection.add(a);
+    }
+    for (AnnotToEntity a : edges) {
+      if (predicate.apply(a.getValue()))
+        collection.add(a);
+    }
+    return collection;
+  }
+
+  public String getId() {
+    return id;
   }
 
 }

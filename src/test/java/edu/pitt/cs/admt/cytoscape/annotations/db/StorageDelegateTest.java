@@ -18,21 +18,24 @@ public class StorageDelegateTest {
 
   @Test
   public void initTest() {
-    StorageDelegate delegate = new StorageDelegate();
+    StorageDelegateFactory factory = StorageDelegateFactory.INSTANCE;
+    StorageDelegate delegate = factory.newDelegate();
     try {
-      delegate.init("init_test");
+      delegate.init();
     } catch (SQLException e) {
       e.printStackTrace();
       assertTrue("unexpected SQLException thrown (1)", false);
     }
     delegate.close();
+    factory.destroyDelegate(delegate.getId());
   }
 
   @Test
   public void insertNodeTest() {
-    StorageDelegate delegate = new StorageDelegate();
+    StorageDelegateFactory factory = StorageDelegateFactory.INSTANCE;
+    StorageDelegate delegate = factory.newDelegate();
     try {
-      delegate.init("insert_node_test");
+      delegate.init();
     } catch (SQLException e) {
       assertTrue("unexpected SQLException thrown (0)", false);
     }
@@ -52,20 +55,20 @@ public class StorageDelegateTest {
     thrown = false;
     try {
       delegate.insertNewNode(-1);
-    } catch (SQLException e) {
-      thrown = true;
-    } catch (IllegalArgumentException e) {
+    } catch (Exception e) {
       thrown = true;
     }
     assertTrue("insertion of negative node-id allowed", thrown);
     delegate.close();
+    factory.destroyDelegate(delegate.getId());
   }
 
   @Test
   public void insertEdgeTest() {
-    StorageDelegate delegate = new StorageDelegate();
+    StorageDelegateFactory factory = StorageDelegateFactory.INSTANCE;
+    StorageDelegate delegate = factory.newDelegate();
     try {
-      delegate.init("insert_edge_test");
+      delegate.init();
     } catch (SQLException e) {
       assertTrue("unexpected SQLException thrown (1)", false);
     }
@@ -96,14 +99,16 @@ public class StorageDelegateTest {
       assertTrue("insertion of normal edge failed", false);
     }
     delegate.close();
+    factory.destroyDelegate(delegate.getId());
   }
 
   @Test
   public void insertAnnotationTest() {
+    StorageDelegateFactory factory = StorageDelegateFactory.INSTANCE;
+    StorageDelegate delegate = factory.newDelegate();
     UUID firstUUID = UUID.randomUUID();
-    StorageDelegate delegate = new StorageDelegate();
     try {
-      delegate.init("insert_annotation_test");
+      delegate.init();
     } catch (SQLException e) {
       assertTrue("unexpected SQLException thrown (1)", false);
     }
@@ -118,11 +123,7 @@ public class StorageDelegateTest {
     boolean thrown = false;
     try {
       delegate.insertAnnotation(null, null, ExtendedAttributeType.CHAR, "should-fail");
-    } catch (SQLException e) {
-      thrown = true;
-    } catch (IllegalArgumentException e) {
-      thrown = true;
-    } catch (Exception e) {
+    }catch (Exception e) {
       thrown = true;
     }
     assertTrue("insertion with null id", thrown);
@@ -146,6 +147,7 @@ public class StorageDelegateTest {
       assertTrue("insertion of normal annotation failed", false);
     }
     delegate.close();
+    factory.destroyDelegate(delegate.getId());
   }
   
 }
