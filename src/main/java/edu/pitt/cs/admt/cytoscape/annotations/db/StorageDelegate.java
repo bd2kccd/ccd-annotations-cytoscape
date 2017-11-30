@@ -220,38 +220,6 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  Optional<Collection<AnnotToEntity>> getAnnotationsToNodes() throws SQLException, IOException,
-      ClassNotFoundException {
-    String sqlStatement = "SELECT * FROM " + AnnotationSchema.ANNOT_TO_NODE_TABLE;
-    return getAnnotationToEntities(sqlStatement);
-  }
-
-  Optional<Collection<AnnotToEntity>> getAnnotationsToEdges() throws SQLException, IOException,
-      ClassNotFoundException {
-    String sqlStatement = "SELECT * FROM " + AnnotationSchema.ANNOT_TO_EDGE_TABLE;
-    return getAnnotationToEntities(sqlStatement);
-  }
-
-  private Optional<Collection<AnnotToEntity>> getAnnotationToEntities(String sqlStatement)
-      throws SQLException, IOException, ClassNotFoundException {
-    PreparedStatement statement = connection.prepareStatement(sqlStatement);
-    ResultSet resultSet = statement.executeQuery();
-    Collection<AnnotToEntity> annotToEntities = new ArrayList<>();
-    while (resultSet.next()) {
-      int annotationId = resultSet.getInt(1);
-      int nodeId = resultSet.getInt(2);
-      Integer extendedAttributeId = resultSet.getInt(3);
-      byte[] binaryValue = resultSet.getBytes(4);
-      if (!resultSet.wasNull()) {
-        annotToEntities.add(new AnnotToEntity(annotationId, nodeId, extendedAttributeId,
-            convertToObject(binaryValue)));
-      } else {
-        annotToEntities.add(new AnnotToEntity(annotationId, nodeId, null, null));
-      }
-    }
-    return annotToEntities.size() > 0 ? Optional.of(annotToEntities) : Optional.empty();
-  }
-
   void insertAnnotationExtendedAttribute(int extendedAttributeId, String name,
                                          ExtendedAttributeType type)
       throws IllegalArgumentException, SQLException {
