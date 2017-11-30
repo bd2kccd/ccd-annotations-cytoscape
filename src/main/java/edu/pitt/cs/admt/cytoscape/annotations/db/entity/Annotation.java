@@ -10,13 +10,19 @@ import java.util.UUID;
 public class Annotation {
   
   private UUID id;
+
+  private String name;
+
+  private ExtendedAttributeType type;
   
   private String description;
   
-  public Annotation(UUID id, String description) {
+  public Annotation(UUID id, String name, ExtendedAttributeType type, String description) {
     if (description != null)
       Preconditions.checkArgument(description.length() <= 64);
     this.id = id;
+    this.name = name;
+    this.type = type;
     this.description = description;
   }
   
@@ -26,6 +32,22 @@ public class Annotation {
   
   public void setId(UUID id) {
     this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public ExtendedAttributeType getType() {
+    return type;
+  }
+
+  public void setType(ExtendedAttributeType type) {
+    this.type = type;
   }
   
   public String getDescription() {

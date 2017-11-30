@@ -14,20 +14,15 @@ public class AnnotToEntity {
   
   private int entityId;
   
-  private Integer extendedAttributeId;
-  
   private Object value;
   
-  public AnnotToEntity(UUID annotationId, int entityId, Integer extendedAttributeId, Object value) {
+  public AnnotToEntity(UUID annotationId, int entityId, Object value) {
     Preconditions.checkArgument(entityId >= 0);
-    if (extendedAttributeId != null)
-      Preconditions.checkArgument(extendedAttributeId >= 0);
     if (value != null)
       Preconditions.checkArgument(value instanceof Character || value instanceof Boolean ||
       value instanceof Integer || value instanceof Float || value instanceof String);
     this.annotationId = annotationId;
     this.entityId = entityId;
-    this.extendedAttributeId = extendedAttributeId;
     this.value = value;
   }
   
@@ -46,16 +41,6 @@ public class AnnotToEntity {
   public void setEntityId(int entityId) {
     Preconditions.checkArgument(entityId >= 0);
     this.entityId = entityId;
-  }
-  
-  public Integer getExtendedAttributeId() {
-    return extendedAttributeId;
-  }
-  
-  public void setExtendedAttributeId(Integer extendedAttributeId) {
-    if (extendedAttributeId != null)
-      Preconditions.checkArgument(extendedAttributeId >= 0);
-    this.extendedAttributeId = extendedAttributeId;
   }
   
   public Object getValue() {
