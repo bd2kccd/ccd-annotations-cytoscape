@@ -50,10 +50,13 @@ public class StorageDelegate {
   }
 
   public void close() {
-    try {
-      connection.close();
-    } catch (SQLException e) {
-      e.printStackTrace();
+    if (connection != null) {
+      try {
+        connection.close();
+        connection = null;
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
     }
   }
   
@@ -87,7 +90,7 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void insertNewNode(int nodeId) throws SQLException {
+  void insertNode(int nodeId) throws SQLException {
     if (nodeId < 0) throw new IllegalArgumentException("negative value provided: " + nodeId);
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_NODE);
@@ -122,7 +125,7 @@ public class StorageDelegate {
     return nodes;
   }
 
-  void insertNewEdge(int edgeId, int source, int destination) throws SQLException {
+  void insertEdge(int edgeId, int source, int destination) throws SQLException {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_EDGE);
     statement.setInt(1, edgeId);
@@ -196,7 +199,8 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void attachAnnotationToNode(@NotNull UUID annotationId, @NotNull int nodeId, Object value)
+  void attachAnnotationToNode(@NotNull UUID annotationId, @Nullable UUID cytoscapeAnnotationId,
+                              @NotNull int nodeId, Object value)
       throws SQLException, IOException {
     if (nodeId < 0) throw new IllegalArgumentException("negative node id");
     if (annotationId == null) throw new IllegalArgumentException("null annotation id");
@@ -207,7 +211,11 @@ public class StorageDelegate {
     PreparedStatement statement = connection.prepareStatement(
         AnnotationSchema.INSERT_ANNOT_TO_NODE);
     statement.setObject(1, annotationId);
-    statement.setInt(2, nodeId);
+    if (cytoscapeAnnotationId == null)
+      statement.setNull(2, Types.JAVA_OBJECT);
+    else
+      statement.setObject(2, cytoscapeAnnotationId);
+    statement.setInt(3, nodeId);
     if (value != null)
       statement.setBytes(4, convertToBinary(value));
     else
@@ -216,7 +224,8 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void attachAnnotationToEdge(@NotNull UUID annotationId, @NotNull int edgeId, Object value)
+  void attachAnnotationToEdge(@NotNull UUID annotationId, @Nullable UUID cytoscapeAnnotationId,
+                              @NotNull int edgeId, Object value)
       throws SQLException, IOException {
     if (edgeId < 0) throw new IllegalArgumentException("negative edge id");
     if (annotationId == null) throw new IllegalArgumentException("null annotation id");
@@ -226,7 +235,11 @@ public class StorageDelegate {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_ANNOT_TO_EDGE);
     statement.setObject(1, annotationId);
-    statement.setInt(2, edgeId);
+    if (cytoscapeAnnotationId == null)
+      statement.setNull(2, Types.JAVA_OBJECT);
+    else
+      statement.setObject(2, cytoscapeAnnotationId);
+    statement.setInt(3, edgeId);
     if (value != null)
       statement.setBytes(4, convertToBinary(value));
     else
@@ -265,20 +278,22 @@ public class StorageDelegate {
       SQLException, IOException, ClassNotFoundException {
     Collection<AnnotToEntity> collection = new ArrayList<>();
     PreparedStatement statement;
-    if (annotationId == null)
+    if (annotationId == null) {
       statement = connection.prepareStatement(
           AnnotationSchema.SELECT_ALL_ANNOT_VALUES);
-    else
+    } else {
       statement = connection.prepareStatement(
-        AnnotationSchema.SELECT_ANNOT_VALUES_WITH_ANNOT_ID);
-    statement.setObject(1, annotationId);
-    statement.setObject(2, annotationId);
+          AnnotationSchema.SELECT_ANNOT_VALUES_WITH_ANNOT_ID);
+      statement.setObject(1, annotationId);
+      statement.setObject(2, annotationId);
+    }
     ResultSet rs = statement.executeQuery();
     while (rs.next()) {
       UUID uuid = (UUID) rs.getObject(1);
-      Integer suid = rs.getInt(2);
-      Object value = convertToObject(rs.getBytes(3));
-      collection.add(new AnnotToEntity(uuid, suid, value));
+      UUID cyId = (UUID) rs.getObject(2);
+      Integer suid = rs.getInt(3);
+      Object value = convertToObject(rs.getBytes(4));
+      collection.add(new AnnotToEntity(uuid, cyId, suid, value));
     }
     rs.close();
     statement.close();
@@ -323,9 +338,10 @@ public class StorageDelegate {
     Collection<AnnotToEntity> collection = new ArrayList<>();
     while (resultSet.next()) {
       UUID uuid = (UUID) resultSet.getObject(1);
-      Integer suid = resultSet.getInt(2);
-      Object value = convertToObject(resultSet.getBytes(3));
-      collection.add(new AnnotToEntity(uuid, suid, value));
+      UUID cyId = (UUID) resultSet.getObject(2);
+      Integer suid = resultSet.getInt(3);
+      Object value = convertToObject(resultSet.getBytes(4));
+      collection.add(new AnnotToEntity(uuid, cyId, suid, value));
     }
     resultSet.close();
     statement.close();
@@ -352,9 +368,10 @@ public class StorageDelegate {
     Collection<AnnotToEntity> collection = new ArrayList<>();
     while (resultSet.next()) {
       UUID uuid = (UUID) resultSet.getObject(1);
-      Integer suid = resultSet.getInt(2);
-      Object value = convertToObject(resultSet.getBytes(3));
-      collection.add(new AnnotToEntity(uuid, suid, value));
+      UUID cyId = (UUID) resultSet.getObject(2);
+      Integer suid = resultSet.getInt(3);
+      Object value = convertToObject(resultSet.getBytes(4));
+      collection.add(new AnnotToEntity(uuid, cyId, suid, value));
     }
     resultSet.close();
     statement.close();

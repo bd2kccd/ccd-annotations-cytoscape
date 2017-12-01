@@ -56,8 +56,9 @@ class AnnotationSchema {
   static final String CREATE_ANNOT_TO_NODE_TABLE = "CREATE TABLE " + ANNOT_TO_NODE_TABLE +
       "(" +
       "a_id UUID NOT NULL, " +
+      "cy_a_id UUID, " +
       "suid INTEGER NOT NULL, " +
-      "ext_attr_value LONGVARBINARY, " +
+      "value LONGVARBINARY, " +
       "FOREIGN KEY (a_id) REFERENCES " + ANNOTATION_TABLE +
       "(id) ON DELETE CASCADE ON UPDATE CASCADE, " +
       "FOREIGN KEY (suid) REFERENCES " + NODE_TABLE +
@@ -68,8 +69,9 @@ class AnnotationSchema {
   static final String CREATE_ANNOT_TO_EDGE_TABLE = "CREATE TABLE " + ANNOT_TO_EDGE_TABLE
       + " (" +
       "a_id UUID NOT NULL, " +
+      "cy_a_id UUID, " +
       "suid INTEGER NOT NULL, " +
-      "ext_attr_value LONGVARBINARY, " +
+      "value LONGVARBINARY, " +
       "FOREIGN KEY (a_id) REFERENCES " + ANNOTATION_TABLE +
       "(id) ON DELETE CASCADE ON UPDATE CASCADE, " +
       "FOREIGN KEY (suid) REFERENCES " + EDGE_TABLE +
@@ -86,10 +88,10 @@ class AnnotationSchema {
       "(id, name, type, description) VALUES (?,?,?,?)";
 
   static final String INSERT_ANNOT_TO_NODE = "INSERT INTO " + ANNOT_TO_NODE_TABLE +
-      "(a_id, suid, ext_attr_value) VALUES (?,?,?)";
+      "(a_id, cy_a_id, suid, value) VALUES (?,?,?,?)";
 
   static final String INSERT_ANNOT_TO_EDGE = "INSERT INTO " + ANNOT_TO_EDGE_TABLE +
-      "(a_id, suid, ext_attr_value) VALUES (?,?,?)";
+      "(a_id, cy_a_id, suid, value) VALUES (?,?,?,?)";
 
   static final String SELECT_ALL_NODES = "SELECT suid FROM " + NODE_TABLE;
 
@@ -98,19 +100,20 @@ class AnnotationSchema {
   static final String SELECT_ALL_ANNOTATIONS = "SELECT id, name, type, description FROM " +
       ANNOTATION_TABLE;
   
-  static final String SELECT_ALL_ANNOT_VALUES = "SELECT a_id, suid, ext_attr_value FROM " +
+  static final String SELECT_ALL_ANNOT_VALUES = "SELECT a_id, cy_a_id, suid, value FROM " +
       ANNOT_TO_NODE_TABLE +
-      " UNION SELECT a_id, suid, ext_attr_value FROM " + ANNOT_TO_EDGE_TABLE;
+      " UNION SELECT a_id, cy_a_id, suid, value FROM " + ANNOT_TO_EDGE_TABLE;
   
-  static final String SELECT_ANNOT_VALUES_WITH_ANNOT_ID = "SELECT a_id, suid, ext_attr_value FROM " +
-      ANNOT_TO_NODE_TABLE + " WHERE a_id = ? UNION SELECT a_id, suid, ext_attr_value FROM " +
+  static final String SELECT_ANNOT_VALUES_WITH_ANNOT_ID = "SELECT a_id, cy_a_id, suid, " +
+      "value FROM " +
+      ANNOT_TO_NODE_TABLE + " WHERE a_id = ? UNION SELECT a_id, cy_a_id, suid, value FROM " +
       ANNOT_TO_EDGE_TABLE + " " + "WHERE a_id = ?";
 
-  static final String SELECT_ANNOT_TO_NODES_ON_NAME = "SELECT a_id, suid, ext_attr_value FROM " +
+  static final String SELECT_ANNOT_TO_NODES_ON_NAME = "SELECT a_id, cy_a_id, suid, value FROM " +
       ANNOT_TO_NODE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_NODE_TABLE + ".a_id = " +
       ANNOTATION_TABLE + ".id WHERE " + ANNOTATION_TABLE + ".name = ?";
 
-  static final String SELECT_ANNOT_TO_EDGES_ON_NAME = "SELECT a_id, suid, ext_attr_value FROM " +
+  static final String SELECT_ANNOT_TO_EDGES_ON_NAME = "SELECT a_id, cy_a_id, suid, value FROM " +
       ANNOT_TO_EDGE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_EDGE_TABLE + ".a_id = " +
       ANNOTATION_TABLE + ".id WHERE " + ANNOTATION_TABLE + ".name = ?";
 }

@@ -34,21 +34,21 @@ public class StorageDelegateTest {
       assertTrue("unexpected SQLException thrown (0)", false);
     }
     try {
-      delegate.insertNewNode(1);
+      delegate.insertNode(1);
     } catch (SQLException e) {
       e.printStackTrace();
       assertTrue("first insertion of node " + 1 + " failed.", false);
     }
     boolean thrown = false;
     try {
-      delegate.insertNewNode(1);
+      delegate.insertNode(1);
     } catch (SQLException e) {
       thrown = true;
     }
     assertTrue("second insertion of node " + 1 + " succeeded", thrown);
     thrown = false;
     try {
-      delegate.insertNewNode(-1);
+      delegate.insertNode(-1);
     } catch (Exception e) {
       thrown = true;
     }
@@ -66,27 +66,27 @@ public class StorageDelegateTest {
       assertTrue("unexpected SQLException thrown (1)", false);
     }
     try {
-      delegate.insertNewNode(1);
-      delegate.insertNewNode(2);
+      delegate.insertNode(1);
+      delegate.insertNode(2);
     } catch (SQLException e) {
       e.printStackTrace();
     }
     boolean thrown = false;
     try {
-      delegate.insertNewEdge(-1, 1, 2);
+      delegate.insertEdge(-1, 1, 2);
     } catch (SQLException e) {
       thrown = true;
     }
     assertTrue("insertion of edge with negative id allowed", thrown);
     thrown = false;
     try {
-      delegate.insertNewEdge(1, 4, 5);
+      delegate.insertEdge(1, 4, 5);
     } catch (SQLException e) {
       thrown = true;
     }
     assertTrue("insertion of edge to non existing nodes is allowed", thrown);
     try {
-      delegate.insertNewEdge(1, 1, 2);
+      delegate.insertEdge(1, 1, 2);
     } catch (SQLException e) {
       e.printStackTrace();
       assertTrue("insertion of normal edge failed", false);
@@ -105,9 +105,9 @@ public class StorageDelegateTest {
       assertTrue("unexpected SQLException thrown (1)", false);
     }
     try {
-      delegate.insertNewNode(1);
-      delegate.insertNewNode(2);
-      delegate.insertNewEdge(1, 1, 2);
+      delegate.insertNode(1);
+      delegate.insertNode(2);
+      delegate.insertEdge(1, 1, 2);
     } catch (SQLException e) {
       e.printStackTrace();
       assertTrue("insertion of nodes and edges failed", false);

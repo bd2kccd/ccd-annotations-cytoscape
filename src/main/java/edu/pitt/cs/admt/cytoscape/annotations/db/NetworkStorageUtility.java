@@ -23,9 +23,11 @@ public class NetworkStorageUtility {
     storageDelegate.insertEdges(edges);
     storageDelegate.insertAnnotations(annotations);
     for (AnnotToEntity e : annotationToNode)
-      storageDelegate.attachAnnotationToNode(e.getAnnotationId(), e.getEntityId(), e.getValue());
+      storageDelegate.attachAnnotationToNode(e.getAnnotationId(), e.getCytoscapeAnnotationId(),
+          e.getEntityId(), e.getValue());
     for (AnnotToEntity e : annotationToEdge)
-      storageDelegate.attachAnnotationToEdge(e.getAnnotationId(), e.getEntityId(), e.getValue());
+      storageDelegate.attachAnnotationToEdge(e.getAnnotationId(), e.getCytoscapeAnnotationId(),
+          e.getEntityId(), e.getValue());
   }
 
   public static @Nullable Collection<Node> exportNodes(StorageDelegate delegate)
