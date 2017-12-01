@@ -5,7 +5,7 @@ import com.sun.istack.internal.NotNull;
 /**
  * @author Nikos R. Katsipoulakis
  */
-public enum ExtendedAttributeType {
+public enum AnnotationValueType {
   CHAR("CHAR"),
   BOOLEAN("BOOLEAN"),
   INT("INT"),
@@ -14,7 +14,7 @@ public enum ExtendedAttributeType {
   
   private final String name;
   
-  private ExtendedAttributeType(String s) {
+  private AnnotationValueType(String s) {
     name = s;
   }
   
@@ -41,18 +41,18 @@ public enum ExtendedAttributeType {
     }
   }
 
-  public static ExtendedAttributeType parse(@NotNull final String s) {
+  public static AnnotationValueType parse(@NotNull final String s) {
     switch (s) {
       case "BOOLEAN":
-        return ExtendedAttributeType.BOOLEAN;
+        return AnnotationValueType.BOOLEAN;
       case "INT":
-        return ExtendedAttributeType.INT;
+        return AnnotationValueType.INT;
       case "FLOAT":
-        return ExtendedAttributeType.FLOAT;
+        return AnnotationValueType.FLOAT;
       case "CHAR":
-        return ExtendedAttributeType.CHAR;
+        return AnnotationValueType.CHAR;
       case "STRING":
-        return ExtendedAttributeType.STRING;
+        return AnnotationValueType.STRING;
       default:
         throw new IllegalArgumentException("invalid literal given: " + s);
     }

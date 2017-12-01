@@ -158,7 +158,7 @@ public class StorageDelegate {
   }
 
   void insertAnnotation(@NotNull UUID annotationId, @NotNull String name,
-                        @NotNull ExtendedAttributeType type, String description)
+                        @NotNull AnnotationValueType type, String description)
       throws IllegalArgumentException, SQLException {
     if (annotationId == null) throw new IllegalArgumentException("null annotationId provided");
     if (name.equals("") || name.length() == 0)
@@ -243,7 +243,7 @@ public class StorageDelegate {
     while (rs.next()) {
       UUID uuid = (UUID) rs.getObject(1);
       String name = rs.getString(2);
-      ExtendedAttributeType type = ExtendedAttributeType.parse(rs.getString(3));
+      AnnotationValueType type = AnnotationValueType.parse(rs.getString(3));
       String description = rs.getString(4);
       collection.add(new Annotation(uuid, name, type, description));
     }
@@ -363,7 +363,7 @@ public class StorageDelegate {
 
   Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
       @NotNull String name, Function<Object, Boolean> predicate,
-      ExtendedAttributeType type, boolean desc, int limit)
+      AnnotationValueType type, boolean desc, int limit)
       throws SQLException, IOException, ClassNotFoundException {
     List<AnnotToEntity> unlimited = (List<AnnotToEntity>)
         selectEntitiesWithAnnotationNameAndPredicateOrdered(name, predicate, type, desc);
@@ -381,7 +381,7 @@ public class StorageDelegate {
 
   Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
       @NotNull String name, Function<Object, Boolean> predicate,
-      ExtendedAttributeType type, boolean desc) throws SQLException, IOException, ClassNotFoundException {
+      AnnotationValueType type, boolean desc) throws SQLException, IOException, ClassNotFoundException {
     List<AnnotToEntity> collection = (List<AnnotToEntity>)
         selectEntitiesWithAnnotationNameAndPredicate(name, predicate);
     switch (type) {

@@ -1,8 +1,6 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
 
-import com.google.common.base.Preconditions;
-
-import java.io.File;
+import com.sun.istack.internal.NotNull;
 import java.util.UUID;
 
 /**
@@ -16,11 +14,14 @@ public class AnnotToEntity {
   
   private Object value;
   
-  public AnnotToEntity(UUID annotationId, int entityId, Object value) {
-    Preconditions.checkArgument(entityId >= 0);
-    if (value != null)
-      Preconditions.checkArgument(value instanceof Character || value instanceof Boolean ||
-      value instanceof Integer || value instanceof Float || value instanceof String);
+  public AnnotToEntity(@NotNull UUID annotationId, int entityId, Object value) {
+    if (entityId < 0) throw new IllegalArgumentException("negative id given.");
+    if (value != null) {
+      if (!(value instanceof Character) && !(value instanceof Boolean) &&
+          !(value instanceof Integer) && !(value instanceof Float) && !(value instanceof String))
+        throw new IllegalArgumentException("invalid value type: " +
+            value.getClass().getSimpleName());
+    }
     this.annotationId = annotationId;
     this.entityId = entityId;
     this.value = value;
@@ -30,7 +31,7 @@ public class AnnotToEntity {
     return annotationId;
   }
   
-  public void setAnnotationId(UUID annotationId) {
+  public void setAnnotationId(@NotNull UUID annotationId) {
     this.annotationId = annotationId;
   }
   
@@ -39,7 +40,7 @@ public class AnnotToEntity {
   }
   
   public void setEntityId(int entityId) {
-    Preconditions.checkArgument(entityId >= 0);
+    if (entityId < 0) throw new IllegalArgumentException("negative id given.");
     this.entityId = entityId;
   }
   
@@ -48,9 +49,12 @@ public class AnnotToEntity {
   }
   
   public void setValue(Object value) {
-    if (value != null)
-      Preconditions.checkArgument(value instanceof Character || value instanceof Boolean ||
-          value instanceof Integer || value instanceof Float || value instanceof String);
+    if (value != null) {
+      if (!(value instanceof Character) && !(value instanceof Boolean) &&
+          !(value instanceof Integer) && !(value instanceof Float) && !(value instanceof String))
+        throw new IllegalArgumentException("invalid value type: " +
+            value.getClass().getSimpleName());
+    }
     this.value = value;
   }
 }

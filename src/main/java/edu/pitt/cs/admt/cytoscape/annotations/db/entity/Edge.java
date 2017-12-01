@@ -1,7 +1,5 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
 
-import com.google.common.base.Preconditions;
-
 /**
  * @author Nikos R. Katsipoulakis
  */
@@ -14,7 +12,8 @@ public class Edge {
   private int destination;
   
   public Edge(int suid, int source, int destination) {
-    Preconditions.checkArgument(suid >= 0 && source >= 0 && destination >= 0);
+    if (suid < 0 || source < 0 || destination < 0)
+      throw new IllegalArgumentException("invalid arguments given");
     this.suid = suid;
     this.source = source;
     this.destination = destination;
@@ -25,7 +24,8 @@ public class Edge {
   }
   
   public void setSuid(int suid) {
-    Preconditions.checkArgument(suid >= 0);
+    if (suid < 0)
+      throw new IllegalArgumentException("negative id given");
     this.suid = suid;
   }
   
@@ -34,7 +34,8 @@ public class Edge {
   }
   
   public void setSource(int source) {
-    Preconditions.checkArgument(source >= 0);
+    if (source < 0)
+      throw new IllegalArgumentException("negative source given");
     this.source = source;
   }
   
@@ -43,7 +44,8 @@ public class Edge {
   }
   
   public void setDestination(int destination) {
-    Preconditions.checkArgument(destination >= 0);
+    if (destination < 0)
+      throw new IllegalArgumentException("negative destination given");
     this.destination = destination;
   }
   

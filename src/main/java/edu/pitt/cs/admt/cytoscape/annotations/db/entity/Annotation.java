@@ -13,11 +13,11 @@ public class Annotation {
 
   private String name;
 
-  private ExtendedAttributeType type;
+  private AnnotationValueType type;
   
   private String description;
   
-  public Annotation(UUID id, String name, ExtendedAttributeType type, String description) {
+  public Annotation(UUID id, String name, AnnotationValueType type, String description) {
     if (description != null)
       Preconditions.checkArgument(description.length() <= 64);
     this.id = id;
@@ -42,11 +42,11 @@ public class Annotation {
     this.name = name;
   }
 
-  public ExtendedAttributeType getType() {
+  public AnnotationValueType getType() {
     return type;
   }
 
-  public void setType(ExtendedAttributeType type) {
+  public void setType(AnnotationValueType type) {
     this.type = type;
   }
   

@@ -9,20 +9,15 @@ public enum StorageDelegateFactory {
 
   INSTANCE;
 
-  private ConcurrentHashMap<String, StorageDelegate> index;
+  private static final ConcurrentHashMap<String, StorageDelegate> index = new ConcurrentHashMap<>();
 
-  StorageDelegateFactory() {
-    index = new ConcurrentHashMap<>();
-  }
-
-  public StorageDelegate newDelegate() {
+  public static StorageDelegate newDelegate() {
     StorageDelegate delegate = new StorageDelegate();
-    index.putIfAbsent(delegate.getId(), delegate);
-    return index.get(delegate.getId());
+    return index.putIfAbsent(delegate.getId(), delegate);
   }
 
-  public void destroyDelegate(String id) {
-    index.remove(id);
+  public static boolean destroyDelegate(StorageDelegate delegate) {
+    return index.remove(delegate.getId(), delegate);
   }
 
 }

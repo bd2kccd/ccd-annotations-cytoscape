@@ -1,12 +1,8 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db;
 
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.ExtendedAttributeType;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
 import org.junit.Test;
-
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -18,8 +14,7 @@ public class StorageDelegateTest {
 
   @Test
   public void initTest() {
-    StorageDelegateFactory factory = StorageDelegateFactory.INSTANCE;
-    StorageDelegate delegate = factory.newDelegate();
+    StorageDelegate delegate = StorageDelegateFactory.newDelegate();
     try {
       delegate.init();
     } catch (SQLException e) {
@@ -27,13 +22,12 @@ public class StorageDelegateTest {
       assertTrue("unexpected SQLException thrown (1)", false);
     }
     delegate.close();
-    factory.destroyDelegate(delegate.getId());
+    StorageDelegateFactory.destroyDelegate(delegate);
   }
 
   @Test
   public void insertNodeTest() {
-    StorageDelegateFactory factory = StorageDelegateFactory.INSTANCE;
-    StorageDelegate delegate = factory.newDelegate();
+    StorageDelegate delegate = StorageDelegateFactory.newDelegate();
     try {
       delegate.init();
     } catch (SQLException e) {
@@ -60,13 +54,12 @@ public class StorageDelegateTest {
     }
     assertTrue("insertion of negative node-id allowed", thrown);
     delegate.close();
-    factory.destroyDelegate(delegate.getId());
+    StorageDelegateFactory.destroyDelegate(delegate);
   }
 
   @Test
   public void insertEdgeTest() {
-    StorageDelegateFactory factory = StorageDelegateFactory.INSTANCE;
-    StorageDelegate delegate = factory.newDelegate();
+    StorageDelegate delegate = StorageDelegateFactory.newDelegate();
     try {
       delegate.init();
     } catch (SQLException e) {
@@ -99,13 +92,12 @@ public class StorageDelegateTest {
       assertTrue("insertion of normal edge failed", false);
     }
     delegate.close();
-    factory.destroyDelegate(delegate.getId());
+    StorageDelegateFactory.destroyDelegate(delegate);
   }
 
   @Test
   public void insertAnnotationTest() {
-    StorageDelegateFactory factory = StorageDelegateFactory.INSTANCE;
-    StorageDelegate delegate = factory.newDelegate();
+    StorageDelegate delegate = StorageDelegateFactory.newDelegate();
     UUID firstUUID = UUID.randomUUID();
     try {
       delegate.init();
@@ -122,7 +114,8 @@ public class StorageDelegateTest {
     }
     boolean thrown = false;
     try {
-      delegate.insertAnnotation(null, null, ExtendedAttributeType.CHAR, "should-fail");
+      delegate.insertAnnotation(null, null, AnnotationValueType.CHAR,
+          "should-fail");
     }catch (Exception e) {
       thrown = true;
     }
@@ -132,7 +125,7 @@ public class StorageDelegateTest {
     for (int i = 0; i < 65; ++i)
       builder.append("a");
     try {
-      delegate.insertAnnotation(firstUUID, "some-ann", ExtendedAttributeType.CHAR,
+      delegate.insertAnnotation(firstUUID, "some-ann", AnnotationValueType.CHAR,
           builder.toString());
     } catch (IllegalArgumentException e) {
       thrown = true;
@@ -141,13 +134,13 @@ public class StorageDelegateTest {
     }
     assertTrue("insertion with long description", thrown);
     try {
-      delegate.insertAnnotation(firstUUID, "some-ann", ExtendedAttributeType.CHAR,
+      delegate.insertAnnotation(firstUUID, "some-ann", AnnotationValueType.CHAR,
           "annotation test alpha");
     } catch (SQLException e) {
       assertTrue("insertion of normal annotation failed", false);
     }
     delegate.close();
-    factory.destroyDelegate(delegate.getId());
+    StorageDelegateFactory.destroyDelegate(delegate);
   }
   
 }
