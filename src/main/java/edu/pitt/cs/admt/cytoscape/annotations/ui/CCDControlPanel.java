@@ -8,6 +8,7 @@ import java.awt.event.FocusListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.*;
+
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -54,13 +58,15 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     private final CyNetworkViewManager networkViewManager;
     private final AnnotationManager annotationManager;
     private final AnnotationFactory<TextAnnotation> annotationFactory;
+    private final StorageDelegate storageDelegate;
     private JLabel annotationsList;
 
-    public CCDControlPanel(final CyApplicationManager cyApplicationManager, final CyNetworkViewManager networkViewManager, final AnnotationManager annotationManager, final AnnotationFactory<TextAnnotation> annotationFactory) {
+    public CCDControlPanel(final CyApplicationManager cyApplicationManager, final CyNetworkViewManager networkViewManager, final AnnotationManager annotationManager, final AnnotationFactory<TextAnnotation> annotationFactory, final StorageDelegate storageDelegate) {
         this.cyApplicationManager = cyApplicationManager;
         this.networkViewManager = networkViewManager;
         this.annotationManager = annotationManager;
         this.annotationFactory = annotationFactory;
+        this.storageDelegate = storageDelegate;
         // title
         JLabel label = new JLabel("New CCD Annotation\n", SwingConstants.CENTER);
 
@@ -144,6 +150,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         JTextArea searchText = new JTextArea("Search");
         searchText.setPreferredSize(new Dimension(300, 100));
         searchText.setLineWrap(true);
+        // TODO: Look into JTextArea property change methods (https://stackoverflow.com/questions/6478577/how-to-make-a-text-field-for-searchingwith-tips-like-a-google-search)
         searchText.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(final FocusEvent e) {
@@ -163,12 +170,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         JButton searchButton = new JButton("Search");
         JButton clearButton = new JButton("Clear");
 
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Searching...");
-            }
-        });
+        searchButton.addActionListener(new SearchActionListener(this.storageDelegate, searchText.getText()));
 
         clearButton.addActionListener(new ActionListener() {
             @Override
@@ -246,5 +248,31 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
 
     public Icon getIcon() {
         return null;
+    }
+
+    public class SearchActionListener implements ActionListener {
+        private StorageDelegate storageDelegate;
+        private String searchString;
+
+        public SearchActionListener(final StorageDelegate storageDelegate, final String searchString) {
+            super();
+            System.out.println("Creating action listener");
+            System.out.println("search string: " + searchString);
+            this.storageDelegate = new StorageDelegate();
+            this.searchString = searchString;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Running action performed");
+            try {
+                Collection<AnnotToEntity> result = this.storageDelegate.searchAnnotations(this.searchString);
+                for (AnnotToEntity entity: result) {
+                    System.out.println(entity.getValue());
+                }
+                this.storageDelegate.close();
+            } catch (Exception exc) {
+                exc.printStackTrace();
+            }
+        }
     }
 }

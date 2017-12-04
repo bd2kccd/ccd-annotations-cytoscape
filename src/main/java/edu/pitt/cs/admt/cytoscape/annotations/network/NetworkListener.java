@@ -19,6 +19,7 @@ import org.cytoscape.model.CyTable;
 import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.model.events.NetworkAddedEvent;
 import org.cytoscape.model.events.NetworkAddedListener;
+import org.hsqldb.lib.Storage;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
@@ -28,6 +29,11 @@ public class NetworkListener implements NetworkAddedListener {
     private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
     private static final String ANNOTATION_SET_ATTRIBUTE = "__Annotation_Set";
     private static final String ANNOTATION_ATTRIBUTE="__Annotations";
+    private final StorageDelegate storageDelegate;
+
+    public NetworkListener(StorageDelegate storageDelegate) {
+        this.storageDelegate = storageDelegate;
+    }
 
     public void handleEvent(final NetworkAddedEvent networkAddedEvent) {
         final CyNetwork network = networkAddedEvent.getNetwork();
@@ -61,9 +67,6 @@ public class NetworkListener implements NetworkAddedListener {
     }
 
     private void importToDatabase(final CyNetwork cyNetwork) {
-        // Get storage delegate
-        StorageDelegate storageDelegate = new StorageDelegate();
-
         // No nodes and edges at this point should be selected
         // get list of all nodes and edges
         List<CyNode> cyNodes = CyTableUtil.getNodesInState(cyNetwork, "selected", false);
@@ -118,9 +121,9 @@ public class NetworkListener implements NetworkAddedListener {
         // get extended attributes
         List<ExtendedAttribute> extendedAttributes = new ArrayList<>(0);
         extendedAttributes.add(
-                new ExtendedAttribute(1, "Posterior Probabilities", ExtendedAttributeType.FLOAT));
+                new ExtendedAttribute(2, "Posterior Probabilities", ExtendedAttributeType.FLOAT));
         extendedAttributes.add(
-                new ExtendedAttribute(2, "Comment", ExtendedAttributeType.STRING));
+                new ExtendedAttribute(1, "Comment", ExtendedAttributeType.STRING));
 
         // get annotation to entity mappings
         System.out.println("Getting annotation to entity mappings");
@@ -170,11 +173,14 @@ public class NetworkListener implements NetworkAddedListener {
         }
 
         try {
-            storageDelegate.init("Cytoscape");
-            NetworkStorageUtility.importToDatabase(storageDelegate,
+            this.storageDelegate.init("Cytoscape");
+            NetworkStorageUtility.importToDatabase(this.storageDelegate,
                     nodes, edges, annotations, extendedAttributes,
                     Collections.emptyList(), Collections.emptyList());
             System.out.println("Database loaded");
+            this.storageDelegate.insertAnnotationExtendedAttribute(0, "Comment", ExtendedAttributeType.STRING);
+            this.storageDelegate.insertAnnotationExtendedAttribute(1, "Posterior Probability", ExtendedAttributeType.FLOAT);
+            System.out.println("Extended attributes loaded");
         } catch (Exception e) {
             System.out.println("Database load failed");
             e.printStackTrace();

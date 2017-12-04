@@ -2,6 +2,7 @@ package edu.pitt.cs.admt.cytoscape.annotations;
 
 import java.util.Properties;
 
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.network.NetworkListener;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.ui.CCDControlPanel;
@@ -65,12 +66,16 @@ public class CyActivator extends AbstractCyActivator {
         // CreateAnnotationAction createAnnotationAction = new CreateAnnotationAction(application, dialogTaskManager, createAnnotationTaskFactory);
         // registerService(context, createAnnotationAction, CyAction.class, new Properties());
 
+        // Database service
+        final StorageDelegate storageDelegate = new StorageDelegate();
+//        registerService(context, storageDelegate, StorageDelegate.class, new Properties());
+
         // listeners
-        NetworkListener networkListener = new NetworkListener();
+        NetworkListener networkListener = new NetworkListener(storageDelegate);
         registerService(context, networkListener, NetworkAddedListener.class, new Properties());
 
         // Trying to add to control panel
-        CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, networkViewManager, annotationManager, textAnnotationFactory);
+        CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, networkViewManager, annotationManager, textAnnotationFactory, storageDelegate);
         registerService(context, ccdControlPanel, CytoPanelComponent.class, new Properties());
         ControlPanelAction controlPanelAction = new ControlPanelAction(application, ccdControlPanel);
         registerService(context, controlPanelAction, CyAction.class, new Properties());

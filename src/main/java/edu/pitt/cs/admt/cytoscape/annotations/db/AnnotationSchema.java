@@ -123,4 +123,8 @@ class AnnotationSchema {
   static final String SELECT_EXT_ATTR_VALUES_WITH_ANNOT_ID = "SELECT * FROM " +
       ANNOT_TO_NODE_TABLE + " WHERE a_id = ? UNION SELECT * FROM " + ANNOT_TO_EDGE_TABLE + " " +
       "WHERE a_id = ?";
+
+  static final String SEARCH_ANNOTATIONS = "SELECT * FROM " +
+          ANNOT_TO_NODE_TABLE + " WHERE ext_attr_value LIKE %?% UNION SELECT * FROM " + ANNOT_TO_EDGE_TABLE + " " +
+          "WHERE ext_attr_value LIKE %?%";
 }

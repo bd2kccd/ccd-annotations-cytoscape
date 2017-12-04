@@ -210,7 +210,7 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void insertAnnotationExtendedAttribute(int extendedAttributeId, String name,
+  public void insertAnnotationExtendedAttribute(int extendedAttributeId, String name,
                                          ExtendedAttributeType type)
       throws IllegalArgumentException, SQLException {
     Preconditions.checkArgument(extendedAttributeId >= 0);
@@ -291,6 +291,25 @@ public class StorageDelegate {
         .SELECT_EXT_ATTR_VALUES_WITH_ANNOT_ID);
     statement.setObject(1, annotationId);
     statement.setObject(2, annotationId);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      UUID uuid = (UUID) rs.getObject(1);
+      Object value = convertToObject(rs.getBytes(4));
+      AnnotToEntity entity = new AnnotToEntity(uuid, rs.getInt(2), rs.getInt(3), value);
+      collection.add(entity);
+    }
+    statement.close();
+    return collection;
+  }
+
+  public Collection<AnnotToEntity> searchAnnotations(final String searchString) throws SQLException, IOException, ClassNotFoundException {
+    if (searchString == null) {
+      throw new IllegalArgumentException("Search string cannot be null");
+    }
+    List<AnnotToEntity> collection = new ArrayList<>();
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema.SEARCH_ANNOTATIONS);
+    statement.setObject(1, searchString);
+    statement.setObject(2, searchString);
     ResultSet rs = statement.executeQuery();
     while (rs.next()) {
       UUID uuid = (UUID) rs.getObject(1);
