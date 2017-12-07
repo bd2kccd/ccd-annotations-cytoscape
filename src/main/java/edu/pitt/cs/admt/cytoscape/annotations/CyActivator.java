@@ -60,7 +60,7 @@ public class CyActivator extends AbstractCyActivator {
         AnnotationManager annotationManager = getService(context, AnnotationManager.class);
         AnnotationFactory<TextAnnotation> textAnnotationFactory = getService(context, AnnotationFactory.class, "(type=TextAnnotation.class)");
 
-        CreateAnnotationTaskFactory createAnnotationTaskFactory = new CreateAnnotationTaskFactory(networkManager, networkView);
+        CreateAnnotationTaskFactory createAnnotationTaskFactory = new CreateAnnotationTaskFactory(applicationManager, annotationManager, textAnnotationFactory);
         registerService(context, createAnnotationTaskFactory, TaskFactory.class, new Properties());
 
         // CreateAnnotationAction createAnnotationAction = new CreateAnnotationAction(application, dialogTaskManager, createAnnotationTaskFactory);
@@ -75,7 +75,7 @@ public class CyActivator extends AbstractCyActivator {
         registerService(context, networkListener, NetworkAddedListener.class, new Properties());
 
         // Trying to add to control panel
-        CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, networkViewManager, annotationManager, textAnnotationFactory, storageDelegate);
+        CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, networkViewManager, annotationManager, textAnnotationFactory, storageDelegate, createAnnotationTaskFactory);
         registerService(context, ccdControlPanel, CytoPanelComponent.class, new Properties());
         ControlPanelAction controlPanelAction = new ControlPanelAction(application, ccdControlPanel);
         registerService(context, controlPanelAction, CyAction.class, new Properties());

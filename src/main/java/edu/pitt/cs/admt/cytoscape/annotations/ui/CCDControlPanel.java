@@ -19,6 +19,7 @@ import javax.swing.*;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
+import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -59,14 +60,23 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     private final AnnotationManager annotationManager;
     private final AnnotationFactory<TextAnnotation> annotationFactory;
     private final StorageDelegate storageDelegate;
+    private final CreateAnnotationTaskFactory createAnnotationTaskFactory;
     private JLabel annotationsList;
+    private String annotationName;
 
-    public CCDControlPanel(final CyApplicationManager cyApplicationManager, final CyNetworkViewManager networkViewManager, final AnnotationManager annotationManager, final AnnotationFactory<TextAnnotation> annotationFactory, final StorageDelegate storageDelegate) {
+    public CCDControlPanel(final CyApplicationManager cyApplicationManager,
+                           final CyNetworkViewManager networkViewManager,
+                           final AnnotationManager annotationManager,
+                           final AnnotationFactory<TextAnnotation> annotationFactory,
+                           final StorageDelegate storageDelegate,
+                           final CreateAnnotationTaskFactory createAnnotationTaskFactory) {
         this.cyApplicationManager = cyApplicationManager;
         this.networkViewManager = networkViewManager;
         this.annotationManager = annotationManager;
         this.annotationFactory = annotationFactory;
         this.storageDelegate = storageDelegate;
+        this.createAnnotationTaskFactory = createAnnotationTaskFactory;
+
         // title
         JLabel label = new JLabel("New CCD Annotation\n", SwingConstants.CENTER);
 
@@ -248,6 +258,18 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
 
     public Icon getIcon() {
         return null;
+    }
+
+    private class CreateCCDAnnotationActionListener implements ActionListener {
+
+        private final CCDControlPanel ccdControlPanel;
+
+        public CreateCCDAnnotationActionListener(final CCDControlPanel ccdControlPanel) {
+            this.ccdControlPanel = ccdControlPanel;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+        }
     }
 
     public class SearchActionListener implements ActionListener {
