@@ -1,7 +1,5 @@
 package edu.pitt.cs.admt.cytoscape.annotations.view;
 
-import org.cytoscape.view.presentation.annotations.TextAnnotation;
-
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
  */
