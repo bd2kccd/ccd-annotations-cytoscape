@@ -1,7 +1,5 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
 
-import com.sun.istack.internal.NotNull;
-
 /**
  * @author Nikos R. Katsipoulakis
  */
@@ -26,7 +24,7 @@ public enum AnnotationValueType {
     return this.name;
   }
 
-  public static boolean validate(@NotNull final String s) {
+  public static boolean validate(final String s) {
     if (s == null || s.length() == 0 || s.equals(""))
       return false;
     switch(s) {
@@ -41,7 +39,7 @@ public enum AnnotationValueType {
     }
   }
 
-  public static AnnotationValueType parse(@NotNull final String s) {
+  public static AnnotationValueType parse(final String s) {
     switch (s) {
       case "BOOLEAN":
         return AnnotationValueType.BOOLEAN;

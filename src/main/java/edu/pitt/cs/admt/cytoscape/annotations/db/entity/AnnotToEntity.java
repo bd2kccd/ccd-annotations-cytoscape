@@ -1,8 +1,5 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
-
 import java.util.UUID;
 
 /**
@@ -18,7 +15,7 @@ public class AnnotToEntity {
   
   private Object value;
   
-  public AnnotToEntity(@NotNull UUID annotationId, @Nullable UUID cytoscapeAnnotationId,
+  public AnnotToEntity(UUID annotationId, UUID cytoscapeAnnotationId,
                        int entityId, Object value) {
     if (entityId < 0) throw new IllegalArgumentException("negative id given.");
     if (value != null) {
@@ -37,7 +34,7 @@ public class AnnotToEntity {
     return annotationId;
   }
   
-  public void setAnnotationId(@NotNull UUID annotationId) {
+  public void setAnnotationId(UUID annotationId) {
     this.annotationId = annotationId;
   }
   

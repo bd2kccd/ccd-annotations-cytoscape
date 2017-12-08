@@ -1,17 +1,32 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db;
 
 import com.google.common.base.Preconditions;
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.*;
-import org.hsqldb.jdbc.JDBCConnection;
-import org.hsqldb.jdbc.JDBCDriver;
-
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Edge;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Node;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.hsqldb.jdbc.JDBCConnection;
+import org.hsqldb.jdbc.JDBCDriver;
 
 /**
  * @author Nikos R. Katsipoulakis
@@ -98,8 +113,13 @@ public class StorageDelegate {
     statement.execute();
     connection.commit();
   }
-  
-  void insertNodes(@NotNull Collection<Node> nodes) throws SQLException {
+
+  /**
+   *
+   * @param nodes Not nullable
+   * @throws SQLException
+   */
+  void insertNodes(Collection<Node> nodes) throws SQLException {
     Preconditions.checkArgument(nodes != null);
     int s = nodes.stream().filter(n -> n.getSuid() < 0).collect(Collectors.toList()).size();
     if (s > 0) throw new IllegalArgumentException("collection with nodes that have negative id " +
@@ -160,8 +180,17 @@ public class StorageDelegate {
     return edges;
   }
 
-  void insertAnnotation(@NotNull UUID annotationId, @NotNull String name,
-                        @NotNull AnnotationValueType type, String description)
+  /**
+   *
+   * @param annotationId Not nullable
+   * @param name Not nullable
+   * @param type Not nullable
+   * @param description
+   * @throws IllegalArgumentException
+   * @throws SQLException
+   */
+  void insertAnnotation(UUID annotationId, String name,
+                        AnnotationValueType type, String description)
       throws IllegalArgumentException, SQLException {
     if (annotationId == null) throw new IllegalArgumentException("null annotationId provided");
     if (name.equals("") || name.length() == 0)
@@ -181,8 +210,13 @@ public class StorageDelegate {
     statement.execute();
     connection.commit();
   }
-  
-  void insertAnnotations(@NotNull Collection<Annotation> annotations) throws SQLException {
+
+  /**
+   *
+   * @param annotations Not nullable
+   * @throws SQLException
+   */
+  void insertAnnotations(Collection<Annotation> annotations) throws SQLException {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_ANNOT);
     for (Annotation a : annotations) {
@@ -199,8 +233,17 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void attachAnnotationToNode(@NotNull UUID annotationId, @Nullable UUID cytoscapeAnnotationId,
-                              @NotNull int nodeId, Object value)
+  /**
+   *
+   * @param annotationId Not nullable
+   * @param cytoscapeAnnotationId Nullable
+   * @param nodeId Not nullable
+   * @param value
+   * @throws SQLException
+   * @throws IOException
+   */
+  void attachAnnotationToNode(UUID annotationId, UUID cytoscapeAnnotationId,
+                              int nodeId, Object value)
       throws SQLException, IOException {
     if (nodeId < 0) throw new IllegalArgumentException("negative node id");
     if (annotationId == null) throw new IllegalArgumentException("null annotation id");
@@ -224,8 +267,17 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void attachAnnotationToEdge(@NotNull UUID annotationId, @Nullable UUID cytoscapeAnnotationId,
-                              @NotNull int edgeId, Object value)
+  /**
+   *
+   * @param annotationId Not nullable
+   * @param cytoscapeAnnotationId Nullable
+   * @param edgeId Not nullable
+   * @param value
+   * @throws SQLException
+   * @throws IOException
+   */
+  void attachAnnotationToEdge(UUID annotationId, UUID cytoscapeAnnotationId,
+                              int edgeId, Object value)
       throws SQLException, IOException {
     if (edgeId < 0) throw new IllegalArgumentException("negative edge id");
     if (annotationId == null) throw new IllegalArgumentException("null annotation id");
@@ -274,7 +326,7 @@ public class StorageDelegate {
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  Collection<AnnotToEntity> getAnnotationValues(@Nullable final UUID annotationId) throws
+  Collection<AnnotToEntity> getAnnotationValues(final UUID annotationId) throws
       SQLException, IOException, ClassNotFoundException {
     Collection<AnnotToEntity> collection = new ArrayList<>();
     PreparedStatement statement;
@@ -320,13 +372,13 @@ public class StorageDelegate {
 
   /**
    *
-   * @param name if empty, all annotations to nodes are returned
+   * @param name if empty, all annotations to nodes are returned. Not nullable
    * @return
    * @throws SQLException
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  Collection<AnnotToEntity> selectNodesWithAnnotation(@NotNull String name)
+  Collection<AnnotToEntity> selectNodesWithAnnotation(String name)
       throws SQLException, IOException, ClassNotFoundException {
     PreparedStatement statement = connection.prepareStatement(
         AnnotationSchema.SELECT_ANNOT_TO_NODES_ON_NAME);
@@ -350,13 +402,13 @@ public class StorageDelegate {
 
   /**
    *
-   * @param name if empty, all annotations to edges are returned
+   * @param name if empty, all annotations to edges are returned. Not nullable
    * @return
    * @throws SQLException
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  Collection<AnnotToEntity> selectEdgesWithAnnotation(@NotNull String name)
+  Collection<AnnotToEntity> selectEdgesWithAnnotation(String name)
       throws SQLException, IOException, ClassNotFoundException {
     PreparedStatement statement = connection.prepareStatement(
         AnnotationSchema.SELECT_ANNOT_TO_EDGES_ON_NAME);
@@ -378,8 +430,20 @@ public class StorageDelegate {
     return collection;
   }
 
+  /**
+   *
+   * @param name Not nullable
+   * @param predicate
+   * @param type
+   * @param desc
+   * @param limit
+   * @return
+   * @throws SQLException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
   Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
-      @NotNull String name, Function<Object, Boolean> predicate,
+      String name, Function<Object, Boolean> predicate,
       AnnotationValueType type, boolean desc, int limit)
       throws SQLException, IOException, ClassNotFoundException {
     List<AnnotToEntity> unlimited = (List<AnnotToEntity>)
@@ -396,8 +460,19 @@ public class StorageDelegate {
   }
 
 
+  /**
+   *
+   * @param name Not nullable
+   * @param predicate
+   * @param type
+   * @param desc
+   * @return
+   * @throws SQLException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
   Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
-      @NotNull String name, Function<Object, Boolean> predicate,
+      String name, Function<Object, Boolean> predicate,
       AnnotationValueType type, boolean desc) throws SQLException, IOException, ClassNotFoundException {
     List<AnnotToEntity> collection = (List<AnnotToEntity>)
         selectEntitiesWithAnnotationNameAndPredicate(name, predicate);
@@ -530,8 +605,17 @@ public class StorageDelegate {
     Collections.sort(collection, comparator);
   }
 
+  /**
+   *
+   * @param name Not nullable
+   * @param predicate
+   * @return
+   * @throws SQLException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
   Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicate(
-      @NotNull String name, Function<Object, Boolean> predicate)
+      String name, Function<Object, Boolean> predicate)
       throws SQLException, IOException, ClassNotFoundException {
     Collection<AnnotToEntity> nodes = selectNodesWithAnnotation(name);
     Collection<AnnotToEntity> edges = selectEdgesWithAnnotation(name);

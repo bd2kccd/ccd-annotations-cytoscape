@@ -1,6 +1,5 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db;
 
-import com.sun.istack.internal.Nullable;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.*;
 
 import java.io.IOException;
@@ -30,49 +29,49 @@ public class NetworkStorageUtility {
           e.getEntityId(), e.getValue());
   }
 
-  public static @Nullable Collection<Node> exportNodes(StorageDelegate delegate)
+  public static Collection<Node> exportNodes(StorageDelegate delegate)
       throws SQLException {
     if (delegate != null)
       return delegate.getNodes();
     return null;
   }
 
-  public static @Nullable Collection<Edge> exportEdges(StorageDelegate delegate)
+  public static Collection<Edge> exportEdges(StorageDelegate delegate)
       throws SQLException {
     if (delegate != null)
       return delegate.getEdges();
     return null;
   }
 
-  public static @Nullable Collection<Annotation> exportAnnotations(StorageDelegate delegate)
+  public static Collection<Annotation> exportAnnotations(StorageDelegate delegate)
       throws SQLException {
     if (delegate != null)
       return delegate.getAllAnnotations();
     return null;
   }
 
-  public static @Nullable Collection<AnnotToEntity> exportAnnotationToNodes(
+  public static Collection<AnnotToEntity> exportAnnotationToNodes(
       StorageDelegate delegate) throws SQLException, IOException, ClassNotFoundException {
     if (delegate != null)
       return delegate.selectNodesWithAnnotation(null);
     return null;
   }
 
-  public static @Nullable Collection<AnnotToEntity> exportAnnotationToEdges(
+  public static Collection<AnnotToEntity> exportAnnotationToEdges(
       StorageDelegate delegate) throws SQLException, IOException, ClassNotFoundException {
     if (delegate != null)
       return delegate.selectEdgesWithAnnotation(null);
     return null;
   }
 
-  public static @Nullable Collection<AnnotToEntity> selectNodesWithAnnotationName(
+  public static Collection<AnnotToEntity> selectNodesWithAnnotationName(
       StorageDelegate delegate, String name) throws SQLException, IOException, ClassNotFoundException {
     if (delegate != null)
       return delegate.selectNodesWithAnnotation(name);
     return null;
   }
 
-  public static @Nullable Collection<AnnotToEntity> selectEdgesWithAnnotationName(
+  public static Collection<AnnotToEntity> selectEdgesWithAnnotationName(
       StorageDelegate delegate, String name) throws SQLException, IOException, ClassNotFoundException {
     if (delegate != null)
       return delegate.selectEdgesWithAnnotation(name);
