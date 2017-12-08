@@ -6,44 +6,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import javax.swing.*;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
-
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.application.swing.CytoPanelName;
-import org.cytoscape.model.CyColumn;
-import org.cytoscape.model.CyEdge;
-import org.cytoscape.model.CyNetwork;
-import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyRow;
-import org.cytoscape.model.CyTable;
-import org.cytoscape.model.CyTableUtil;
-import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.CyNetworkViewManager;
-import org.cytoscape.view.model.View;
-import org.cytoscape.view.presentation.annotations.Annotation;
 import org.cytoscape.view.presentation.annotations.AnnotationFactory;
 import org.cytoscape.view.presentation.annotations.AnnotationManager;
 import org.cytoscape.view.presentation.annotations.TextAnnotation;
-import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.work.TaskManager;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
@@ -52,36 +28,17 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
 
     private static final long serialVersionUID = 7128778486978079375L;
 
-    private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
-    private static final String ANNOTATION_SET_ATTRIBUTE = "__Annotation_Set";
-
-    private final CyApplicationManager cyApplicationManager;
-    private final CyNetworkViewManager networkViewManager;
-    private final AnnotationManager annotationManager;
-    private final AnnotationFactory<TextAnnotation> annotationFactory;
-    private final StorageDelegate storageDelegate;
-    private final CreateAnnotationTaskFactory createAnnotationTaskFactory;
     private JLabel annotationsList;
-    private String annotationName;
 
-    public CCDControlPanel(final CyApplicationManager cyApplicationManager,
-                           final CyNetworkViewManager networkViewManager,
-                           final AnnotationManager annotationManager,
-                           final AnnotationFactory<TextAnnotation> annotationFactory,
+    public CCDControlPanel(final TaskManager taskManager,
                            final StorageDelegate storageDelegate,
                            final CreateAnnotationTaskFactory createAnnotationTaskFactory) {
-        this.cyApplicationManager = cyApplicationManager;
-        this.networkViewManager = networkViewManager;
-        this.annotationManager = annotationManager;
-        this.annotationFactory = annotationFactory;
-        this.storageDelegate = storageDelegate;
-        this.createAnnotationTaskFactory = createAnnotationTaskFactory;
 
         // title
         JLabel label = new JLabel("New CCD Annotation\n", SwingConstants.CENTER);
 
         // extended attribute selection
-        final String[] attributeOptions = { "Comment", "Posterior Probability" };
+        final String[] attributeOptions = {"Comment", "Posterior Probability"};
         final SpinnerListModel listModel = new SpinnerListModel(attributeOptions);
         final JSpinner attributeSpinner = new JSpinner(listModel);
         ((JSpinner.DefaultEditor) attributeSpinner.getEditor()).getTextField().setEditable(false);
@@ -92,14 +49,14 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         annotationText.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(final FocusEvent e) {
-                if(annotationText.getText().equals("CCD annotation text")) {
+                if (annotationText.getText().equals("CCD annotation text")) {
                     annotationText.setText("");
                 }
             }
 
             @Override
             public void focusLost(final FocusEvent e) {
-                if(annotationText.getText().isEmpty()) {
+                if (annotationText.getText().isEmpty()) {
                     annotationText.setText("CCD annotation text");
                 }
             }
@@ -109,49 +66,10 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         annotationsList = new JLabel("");
         JButton button = new JButton("Create");
 
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                CyNetworkView networkView = networkViewManager.getNetworkViewSet().iterator().next();
-                List<CyNode> nodes = CyTableUtil.getNodesInState(cyApplicationManager.getCurrentNetwork(), "selected", true);
-                List<CyEdge> edges = CyTableUtil.getEdgesInState(cyApplicationManager.getCurrentNetwork(), "selected", true);
-                if (nodes.isEmpty() && edges.isEmpty()) {
-                    annotationsList.setText("Must select node or edge");
-                } else {
-                    CyNetworkView cyNetworkView = cyApplicationManager.getCurrentNetworkView();
-                    Double x = 0.0;
-                    int xCount = 0;
-                    Double y = 0.0;
-                    int yCount = 0;
-                    for (CyNode node: nodes) {
-                        View<CyNode> cyNodeView = cyNetworkView.getNodeView(node);
-                        x += cyNodeView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-                        xCount++;
-                        y += cyNodeView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
-                        yCount++;
-                    }
-                    for (CyEdge edge: edges) {
-                        x += cyNetworkView.getNodeView(edge.getSource()).getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-                        x += cyNetworkView.getNodeView(edge.getTarget()).getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-                        xCount += 2;
-                        y += cyNetworkView.getNodeView(edge.getSource()).getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
-                        y += cyNetworkView.getNodeView(edge.getTarget()).getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
-                        yCount += 2;
-                    }
-                    Map<String, String> args = new HashMap<>();
-                    args.put("x", String.valueOf(x/xCount));
-                    args.put("y", String.valueOf(y/yCount));
-                    args.put("zoom", String.valueOf(1.0));
-                    args.put("fontFamily", "Arial");
-                    args.put("color", String.valueOf(-16777216));
-                    args.put("canvas", "foreground");
-                    args.put("text", annotationText.getText());
-                    TextAnnotation annotation = annotationFactory.createAnnotation(TextAnnotation.class, networkView, args);
-                    annotationManager.addAnnotation(annotation);
-                    addToTableColumn(cyApplicationManager.getCurrentNetwork(), annotation, nodes, edges);
-                    annotationText.setText("CCD annotation text");
-//                    annotationsList.setText("Added: " + annotationText.getText());
-                }
-            }
+        button.addActionListener((ActionEvent e) -> {
+            taskManager.execute(createAnnotationTaskFactory.createTaskIteratorAnnotationOnSelected(annotationText.getText()));
+            annotationsList.setText("Added: " + annotationText.getText());
+            annotationText.setText("CCD annotation text");
         });
 
         // search box
@@ -164,14 +82,14 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         searchText.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(final FocusEvent e) {
-                if(searchText.getText().equals("Search")) {
+                if (searchText.getText().equals("Search")) {
                     searchText.setText("");
                 }
             }
 
             @Override
             public void focusLost(final FocusEvent e) {
-                if(searchText.getText().isEmpty()) {
+                if (searchText.getText().isEmpty()) {
                     searchText.setText("Search");
                 }
             }
@@ -180,7 +98,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         JButton searchButton = new JButton("Search");
         JButton clearButton = new JButton("Clear");
 
-        searchButton.addActionListener(new SearchActionListener(this.storageDelegate, searchText.getText()));
+        searchButton.addActionListener(new SearchActionListener(storageDelegate, searchText.getText()));
 
         clearButton.addActionListener(new ActionListener() {
             @Override
@@ -190,13 +108,6 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         });
 
         // Java FX Experiment
-        final JFXPanel fxPanel = new JFXPanel();
-        final Label fxSearchLabel = new Label("\nSearch\n");
-        StackPane holder = new StackPane();
-        Scene scene = new Scene(new Group());
-        holder.getChildren().add(fxSearchLabel);
-        holder.setStyle("-fx-background-color: #EEEEEE");
-        ((Group)scene.getRoot()).getChildren().add(holder);
         JScrollPane scrollPane = new JScrollPane(annotationText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVisible(true);
         this.add(label);
@@ -209,39 +120,11 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         this.add(new JLabel("\n"));    // line break
         this.add(annotationsList);
         this.add(new JLabel("\n\n"));    // line break
-        this.add(fxPanel);
-        fxPanel.setScene(scene);
         this.add(searchLabel);
         this.add(searchText);
         this.add(searchButton);
         this.add(clearButton);
         this.setVisible(true);
-    }
-
-    public void addToTableColumn(final CyNetwork cyNetwork,
-                                 final TextAnnotation annotation,
-                                 final List<CyNode> nodes,
-                                 final List<CyEdge> edges) {
-        // add annotation to network
-        List<String> row = cyNetwork.getRow(cyNetwork, CyNetwork.LOCAL_ATTRS).getList(CCD_ANNOTATION_ATTRIBUTE, String.class);
-        row.add(annotation.getUUID().toString() + "|" + annotation.getText());
-        cyNetwork.getRow(cyNetwork, CyNetwork.LOCAL_ATTRS).set(CCD_ANNOTATION_ATTRIBUTE, row);
-
-        // add annotation to nodes
-        for (CyNode node: nodes) {
-            List<String> nodeRow = cyNetwork.getRow(node).getList(ANNOTATION_SET_ATTRIBUTE, String.class);
-            nodeRow.add(annotation.getUUID().toString());
-            Set<String> nodeSet = new HashSet<>(nodeRow);
-            cyNetwork.getRow(node).set(ANNOTATION_SET_ATTRIBUTE, new ArrayList<>(nodeSet));
-        }
-
-        // add annotation to edges
-        for (CyEdge edge: edges) {
-            List<String> edgeRow = cyNetwork.getRow(edge).getList(ANNOTATION_SET_ATTRIBUTE, String.class);
-            edgeRow.add(annotation.getUUID().toString());
-            Set<String> edgeSet = new HashSet<>(edgeRow);
-            cyNetwork.getRow(edge).set(ANNOTATION_SET_ATTRIBUTE, new ArrayList<>(edgeSet));
-        }
     }
 
     public Component getComponent() {
@@ -260,18 +143,6 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
         return null;
     }
 
-    private class CreateCCDAnnotationActionListener implements ActionListener {
-
-        private final CCDControlPanel ccdControlPanel;
-
-        public CreateCCDAnnotationActionListener(final CCDControlPanel ccdControlPanel) {
-            this.ccdControlPanel = ccdControlPanel;
-        }
-
-        public void actionPerformed(ActionEvent e) {
-        }
-    }
-
     public class SearchActionListener implements ActionListener {
         private StorageDelegate storageDelegate;
         private String searchString;
@@ -288,7 +159,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
             System.out.println("Running action performed");
             try {
                 Collection<AnnotToEntity> result = this.storageDelegate.searchAnnotations(this.searchString);
-                for (AnnotToEntity entity: result) {
+                for (AnnotToEntity entity : result) {
                     System.out.println(entity.getValue());
                 }
                 this.storageDelegate.close();
