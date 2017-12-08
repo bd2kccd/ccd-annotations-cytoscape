@@ -103,7 +103,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     JButton searchButton = new JButton("Search");
     JButton clearButton = new JButton("Clear");
 
-    searchButton.addActionListener(new SearchActionListener(storageDelegate, searchText.getText()));
+//    searchButton.addActionListener(new SearchActionListener(storageDelegate, searchText.getText()));
 
     clearButton.addActionListener(new ActionListener() {
       @Override
@@ -149,31 +149,31 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     return null;
   }
 
-  public class SearchActionListener implements ActionListener {
-
-    private StorageDelegate storageDelegate;
-    private String searchString;
-
-    public SearchActionListener(final StorageDelegate storageDelegate, final String searchString) {
-      super();
-      System.out.println("Creating action listener");
-      System.out.println("search string: " + searchString);
-      this.storageDelegate = new StorageDelegate();
-      this.searchString = searchString;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-      System.out.println("Running action performed");
-      try {
-        Collection<AnnotToEntity> result = this.storageDelegate
-            .searchAnnotations(this.searchString);
-        for (AnnotToEntity entity : result) {
-          System.out.println(entity.getValue());
-        }
-        this.storageDelegate.close();
-      } catch (Exception exc) {
-        exc.printStackTrace();
-      }
-    }
-  }
+//  public class SearchActionListener implements ActionListener {
+//
+//    private StorageDelegate storageDelegate;
+//    private String searchString;
+//
+//    public SearchActionListener(final StorageDelegate storageDelegate, final String searchString) {
+//      super();
+//      System.out.println("Creating action listener");
+//      System.out.println("search string: " + searchString);
+//      this.storageDelegate = new StorageDelegate();
+//      this.searchString = searchString;
+//    }
+//
+//    public void actionPerformed(ActionEvent e) {
+//      System.out.println("Running action performed");
+//      try {
+//        Collection<AnnotToEntity> result = this.storageDelegate
+//            .searchAnnotations(this.searchString);
+//        for (AnnotToEntity entity : result) {
+//          System.out.println(entity.getValue());
+//        }
+//        this.storageDelegate.close();
+//      } catch (Exception exc) {
+//        exc.printStackTrace();
+//      }
+//    }
+//  }
 }

@@ -26,6 +26,19 @@ public class StorageDelegateTest {
   }
 
   @Test
+  public void initTestWithNetwork() {
+    StorageDelegate delegate = StorageDelegateFactory.newDelegate(new Long(50));
+    try {
+      delegate.init();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      assertTrue("unexpected SQLException thrown (1)", false);
+    }
+    delegate.close();
+    StorageDelegateFactory.destroyDelegateByNetwork(delegate);
+  }
+
+  @Test
   public void insertNodeTest() {
     StorageDelegate delegate = StorageDelegateFactory.newDelegate();
     try {

@@ -36,9 +36,16 @@ public class StorageDelegate {
   private JDBCConnection connection = null;
 
   private final String id;
+  private Long network;
 
   public StorageDelegate() {
     id = UUID.randomUUID().toString();
+    this.network = null;
+  }
+
+  public StorageDelegate(final Long network) {
+    id = UUID.randomUUID().toString();
+    this.network = network;
   }
 
   public void init() throws SQLException {
@@ -635,4 +642,11 @@ public class StorageDelegate {
     return id;
   }
 
+  public Long getNetwork() {
+    return this.network;
+  }
+
+  public void setNetwork(final Long suid) {
+    this.network = suid;
+  }
 }
