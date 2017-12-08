@@ -27,7 +27,7 @@ import org.hsqldb.lib.Storage;
 public class NetworkListener implements NetworkAddedListener {
 
     private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
-    private static final String ANNOTATION_SET_ATTRIBUTE = "__Annotation_Set";
+    private static final String ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
     private static final String ANNOTATION_ATTRIBUTE="__Annotations";
     private final StorageDelegate storageDelegate;
 
@@ -40,9 +40,6 @@ public class NetworkListener implements NetworkAddedListener {
         final CyTable networkTable = network.getDefaultNetworkTable();
         final CyTable nodeTable = network.getDefaultNodeTable();
         final CyTable edgeTable = network.getDefaultEdgeTable();
-
-        System.out.println("This should be all nodes:\n");
-        System.out.println(CyTableUtil.getNodesInState(network, "selected", false).toString());
 
         // generate columns
         if (networkTable.getColumn(CCD_ANNOTATION_ATTRIBUTE) == null) {
