@@ -1,24 +1,57 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db;
 
 import com.google.common.base.Preconditions;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.*;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Edge;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.ExtendedAttribute;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.ExtendedAttributeType;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Node;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
-
-import java.io.*;
-import java.sql.*;
-import java.util.Collection;
-import java.util.Properties;
 
 /**
  * @author Nikos R. Katsipoulakis
  */
 public class StorageDelegate {
-  
+
   private JDBCConnection connection = null;
 
   public StorageDelegate() {
 
+  }
+
+  private static Object convertToObject(byte[] binaryObject)
+      throws IOException, ClassNotFoundException {
+    try (ByteArrayInputStream byteStream = new ByteArrayInputStream(binaryObject)) {
+      try (ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
+        return objectStream.readObject();
+      }
+    }
+  }
+
+  private static byte[] convertToBinary(Object value) throws IOException {
+    try (ByteArrayOutputStream binaryStream = new ByteArrayOutputStream()) {
+      try (ObjectOutputStream outStream = new ObjectOutputStream(binaryStream)) {
+        outStream.writeObject(value);
+        return binaryStream.toByteArray();
+      }
+    }
   }
 
   public void init(String dbName) throws SQLException {
@@ -51,7 +84,7 @@ public class StorageDelegate {
       e.printStackTrace();
     }
   }
-  
+
   private void createDatabase() throws SQLException {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.CREATE_NODE_TABLE);
@@ -72,7 +105,7 @@ public class StorageDelegate {
     statement.execute();
     connection.commit();
   }
-  
+
   private void dropDatabase() throws SQLException {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.DROP_NODE_TABLE);
@@ -98,7 +131,7 @@ public class StorageDelegate {
     statement.execute();
     connection.commit();
   }
-  
+
   void insertNodes(Collection<Node> nodes) throws SQLException {
     Preconditions.checkArgument(nodes != null);
     connection.setAutoCommit(false);
@@ -120,7 +153,7 @@ public class StorageDelegate {
     statement.execute();
     connection.commit();
   }
-  
+
   void insertEdges(Collection<Edge> edges) throws SQLException {
     Preconditions.checkArgument(edges != null);
     connection.setAutoCommit(false);
@@ -135,23 +168,26 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void insertAnnotation(int annotationId, String description) throws IllegalArgumentException,
+  void insertAnnotation(UUID annotationId, String description) throws IllegalArgumentException,
       SQLException {
+    if (annotationId == null) {
+      throw new IllegalArgumentException("null annotationId provided");
+    }
     connection.setAutoCommit(false);
     Preconditions.checkArgument(description.length() < 64);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_ANNOT);
-    statement.setInt(1, annotationId);
+    statement.setObject(1, annotationId);
     statement.setString(2, description);
     statement.execute();
     connection.commit();
   }
-  
+
   void insertAnnotations(Collection<Annotation> annotations) throws SQLException {
     Preconditions.checkArgument(annotations != null);
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_ANNOT);
     for (Annotation a : annotations) {
-      statement.setInt(1, a.getId());
+      statement.setObject(1, a.getId());
       statement.setString(2, a.getDescription());
       statement.addBatch();
     }
@@ -159,58 +195,66 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void attachAnnotationToNode(int annotationId, int nodeId, Integer extendedAttributeId,
-                              Object value) throws SQLException, IOException {
-    Preconditions.checkArgument(annotationId >= 0 && nodeId >= 0);
-    if (extendedAttributeId != null)
+  void attachAnnotationToNode(UUID annotationId, int nodeId, Integer extendedAttributeId,
+      Object value) throws SQLException, IOException {
+    Preconditions.checkArgument(nodeId >= 0);
+    if (extendedAttributeId != null) {
       Preconditions.checkArgument(extendedAttributeId >= 0);
-    if (value != null)
+    }
+    if (value != null) {
       Preconditions.checkArgument(value instanceof Character || value instanceof Integer ||
           value instanceof Float || value instanceof Boolean || value instanceof String);
+    }
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema
         .INSERT_ANNOT_TO_NODE);
-    statement.setInt(1, annotationId);
+    statement.setObject(1, annotationId);
     statement.setInt(2, nodeId);
-    if (extendedAttributeId != null)
+    if (extendedAttributeId != null) {
       statement.setInt(3, extendedAttributeId);
-    else
+    } else {
       statement.setNull(3, Types.INTEGER);
-    if (value != null)
+    }
+    if (value != null) {
       statement.setBytes(4, convertToBinary(value));
-    else
+    } else {
       statement.setNull(4, Types.LONGVARBINARY);
+    }
     statement.execute();
     connection.commit();
   }
 
-  void attachAnnotationToEdge(int annotationId, int edgeId, Integer extendedAttributeId,
-                              Object value) throws SQLException, IOException {
-    Preconditions.checkArgument(annotationId >= 0 && edgeId >= 0);
-    if (extendedAttributeId != null)
+  void attachAnnotationToEdge(UUID annotationId, int edgeId, Integer extendedAttributeId,
+      Object value) throws SQLException, IOException {
+    Preconditions.checkArgument(edgeId >= 0);
+    if (extendedAttributeId != null) {
       Preconditions.checkArgument(extendedAttributeId >= 0);
-    if (value != null)
+    }
+    if (value != null) {
       Preconditions.checkArgument(value instanceof Character || value instanceof Integer ||
           value instanceof Float || value instanceof Boolean || value instanceof String);
+    }
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema
         .INSERT_ANNOT_TO_EDGE);
-    statement.setInt(1, annotationId);
+    statement.setObject(1, annotationId);
     statement.setInt(2, edgeId);
-    if (extendedAttributeId != null)
+    if (extendedAttributeId != null) {
       statement.setInt(3, extendedAttributeId);
-    else
+    } else {
       statement.setNull(3, Types.INTEGER);
-    if (value != null)
+    }
+    if (value != null) {
       statement.setBytes(4, convertToBinary(value));
-    else
+    } else {
       statement.setNull(4, Types.LONGVARBINARY);
+    }
     statement.execute();
     connection.commit();
   }
 
-  void insertAnnotationExtendedAttribute(int extendedAttributeId, String name,
-                                         ExtendedAttributeType type)
+  public void insertAnnotationExtendedAttribute(int extendedAttributeId, String name,
+      ExtendedAttributeType type)
       throws IllegalArgumentException, SQLException {
     Preconditions.checkArgument(extendedAttributeId >= 0);
     Preconditions.checkArgument(name != null && name.length() < 32);
@@ -224,7 +268,7 @@ public class StorageDelegate {
     statement.execute();
     connection.commit();
   }
-  
+
   void insertAnnotationExtendedAttributes(Collection<ExtendedAttribute> attributes)
       throws SQLException {
     Preconditions.checkArgument(attributes != null);
@@ -240,22 +284,85 @@ public class StorageDelegate {
     statement.executeBatch();
     connection.commit();
   }
-  
-  private static Object convertToObject(byte[] binaryObject)
-      throws IOException, ClassNotFoundException {
-    try (ByteArrayInputStream byteStream = new ByteArrayInputStream(binaryObject)) {
-      try (ObjectInputStream objectStream = new ObjectInputStream(byteStream)) {
-        return objectStream.readObject();
+
+  Collection<ExtendedAttribute> getAllAnnotationToExtendedAttributes() throws SQLException {
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema
+        .SELECT_ALL_EXT_ATTRS);
+    List<ExtendedAttribute> attributes = new ArrayList<>();
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      ExtendedAttributeType type = null;
+      String serialType = rs.getString(3);
+      if (serialType.equals("BOOLEAN")) {
+        type = ExtendedAttributeType.BOOLEAN;
+      } else if (serialType.equals("INT")) {
+        type = ExtendedAttributeType.INT;
+      } else if (serialType.equals("FLOAT")) {
+        type = ExtendedAttributeType.FLOAT;
+      } else if (serialType.equals("CHAR")) {
+        type = ExtendedAttributeType.CHAR;
+      } else if (serialType.equals("STRING")) {
+        type = ExtendedAttributeType.STRING;
       }
+      ExtendedAttribute attribute = new ExtendedAttribute(rs.getInt(1), rs.getString(2), type);
     }
+    return attributes;
   }
-  
-  private static byte[] convertToBinary(Object value) throws IOException {
-    try (ByteArrayOutputStream binaryStream = new ByteArrayOutputStream()) {
-      try (ObjectOutputStream outStream = new ObjectOutputStream(binaryStream)) {
-        outStream.writeObject(value);
-        return binaryStream.toByteArray();
-      }
+
+  Collection<AnnotToEntity> getAllExtendedAttributeValues() throws SQLException, IOException,
+      ClassNotFoundException {
+    List<AnnotToEntity> collection = new ArrayList<>();
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema
+        .SELECT_ALL_EXT_ATTRS_VALUES);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      UUID uuid = (UUID) rs.getObject(1);
+      Object value = convertToObject(rs.getBytes(4));
+      AnnotToEntity entity = new AnnotToEntity(uuid, rs.getInt(2), rs.getInt(3), value);
+      collection.add(entity);
     }
+    statement.close();
+    return collection;
+  }
+
+  Collection<AnnotToEntity> getExtendedAttributeValues(final UUID annotationId) throws SQLException,
+      IOException, ClassNotFoundException {
+    if (annotationId == null) {
+      throw new IllegalArgumentException("null UUID provided.");
+    }
+    List<AnnotToEntity> collection = new ArrayList<>();
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema
+        .SELECT_EXT_ATTR_VALUES_WITH_ANNOT_ID);
+    statement.setObject(1, annotationId);
+    statement.setObject(2, annotationId);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      UUID uuid = (UUID) rs.getObject(1);
+      Object value = convertToObject(rs.getBytes(4));
+      AnnotToEntity entity = new AnnotToEntity(uuid, rs.getInt(2), rs.getInt(3), value);
+      collection.add(entity);
+    }
+    statement.close();
+    return collection;
+  }
+
+  public Collection<AnnotToEntity> searchAnnotations(final String searchString)
+      throws SQLException, IOException, ClassNotFoundException {
+    if (searchString == null) {
+      throw new IllegalArgumentException("Search string cannot be null");
+    }
+    List<AnnotToEntity> collection = new ArrayList<>();
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema.SEARCH_ANNOTATIONS);
+    statement.setObject(1, searchString);
+    statement.setObject(2, searchString);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      UUID uuid = (UUID) rs.getObject(1);
+      Object value = convertToObject(rs.getBytes(4));
+      AnnotToEntity entity = new AnnotToEntity(uuid, rs.getInt(2), rs.getInt(3), value);
+      collection.add(entity);
+    }
+    statement.close();
+    return collection;
   }
 }

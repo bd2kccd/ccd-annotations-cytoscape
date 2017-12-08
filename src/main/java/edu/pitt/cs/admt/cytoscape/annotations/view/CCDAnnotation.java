@@ -1,6 +1,4 @@
-package edu.pitt.cs.admt.cytoscape.annotations;
-
-import org.cytoscape.view.presentation.annotations.TextAnnotation;
+package edu.pitt.cs.admt.cytoscape.annotations.view;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)

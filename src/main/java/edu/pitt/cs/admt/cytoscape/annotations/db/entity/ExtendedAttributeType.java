@@ -9,17 +9,17 @@ public enum ExtendedAttributeType {
   INT("INT"),
   FLOAT("FLOAT"),
   STRING("STRING");
-  
+
   private final String name;
-  
+
   private ExtendedAttributeType(String s) {
     name = s;
   }
-  
+
   public boolean equalsName(String otherName) {
     return name.equals(otherName);
   }
-  
+
   public String toString() {
     return this.name;
   }
