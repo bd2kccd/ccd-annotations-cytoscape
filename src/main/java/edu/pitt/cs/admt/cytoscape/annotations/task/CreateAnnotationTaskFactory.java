@@ -36,14 +36,14 @@ public class CreateAnnotationTaskFactory extends AbstractTaskFactory {
     /**
      * Do not use this method. It must be overwritten to extend AbstractTaskFactory.
      * @see org.cytoscape.work.AbstractTaskFactory;
-     * @deprecated Try using one of the following instead:
+     * Try using one of the following instead:
      *             {@link #createTaskIteratorAnnotationOnSelected(String)}
      *             {@link #createTaskIteratorAnnotationOnNodes(String, Collection)}
      *             {@link #createTaskIteratorAnnotationOnEdges(String, Collection)}
      *             {@link #createTaskIteratorAnnotationOnNodesAndEdge(String, Collection, Collection)}
      */
     public TaskIterator createTaskIterator() {
-        return null;
+        return new TaskIterator();
     }
 
     public TaskIterator createTaskIteratorAnnotationOnSelected(final String annotationName) {

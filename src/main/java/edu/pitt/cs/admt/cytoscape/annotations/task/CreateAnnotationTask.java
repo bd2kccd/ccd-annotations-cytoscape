@@ -215,7 +215,7 @@ public class CreateAnnotationTask extends AbstractTask {
         }
 
         // calculate average
-        // double edge count for both source and target nodes
+        // double edge size to account for both source and target nodes
         x = x/(this.nodes.size() + this.edges.size()*2);
         y = y/(this.nodes.size() + this.edges.size()*2);
 
