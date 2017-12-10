@@ -1,7 +1,6 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
-import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
+import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -10,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.Serializable;
-import java.util.Collection;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -34,7 +32,6 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
   private JLabel annotationsList;
 
   public CCDControlPanel(final TaskManager taskManager,
-      final StorageDelegate storageDelegate,
       final CreateAnnotationTaskFactory createAnnotationTaskFactory) {
 
     // title
@@ -71,8 +68,9 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     JButton button = new JButton("Create");
 
     button.addActionListener((ActionEvent e) -> {
-      taskManager.execute(createAnnotationTaskFactory
-          .createTaskIteratorAnnotationOnSelected(annotationText.getText()));
+      taskManager.execute(
+          createAnnotationTaskFactory.createTaskIterator(
+              createAnnotationTaskFactory.createOnSelected(annotationText.getText())));
       annotationsList.setText("Added: " + annotationText.getText());
       annotationText.setText("CCD annotation text");
     });
