@@ -1,183 +1,269 @@
 package edu.pitt.cs.admt.cytoscape.annotations.network;
 
+import edu.pitt.cs.admt.cytoscape.annotations.db.NetworkStorageUtility;
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
-import java.util.ArrayList;
-import org.cytoscape.model.CyColumn;
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Edge;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Node;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTable;
-import org.cytoscape.model.events.NetworkAddedEvent;
-import org.cytoscape.model.events.NetworkAddedListener;
+import org.cytoscape.view.model.CyNetworkView;
+import org.cytoscape.view.model.View;
+import org.cytoscape.view.model.events.NetworkViewAddedEvent;
+import org.cytoscape.view.model.events.NetworkViewAddedListener;
+import org.cytoscape.view.presentation.annotations.AnnotationFactory;
+import org.cytoscape.view.presentation.annotations.AnnotationManager;
+import org.cytoscape.view.presentation.annotations.TextAnnotation;
+import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
  */
-public class NetworkListener implements NetworkAddedListener {
+public class NetworkListener implements NetworkViewAddedListener {
 
   private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
-  private static final String ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
+  private static final String CCD_ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
   private static final String ANNOTATION_ATTRIBUTE = "__Annotations";
-  private final StorageDelegate storageDelegate;
+  private final AnnotationManager annotationManager;
+  private final AnnotationFactory<TextAnnotation> annotationFactory;
 
-  public NetworkListener(StorageDelegate storageDelegate) {
-    this.storageDelegate = storageDelegate;
+  public NetworkListener(
+      final AnnotationManager annotationManager,
+      final AnnotationFactory<TextAnnotation> annotationFactory) {
+    this.annotationManager = annotationManager;
+    this.annotationFactory = annotationFactory;
   }
 
-  public void handleEvent(final NetworkAddedEvent networkAddedEvent) {
-    final CyNetwork network = networkAddedEvent.getNetwork();
+  public void handleEvent(final NetworkViewAddedEvent event) {
+    final CyNetworkView view = event.getNetworkView();
+    final CyNetwork network = view.getModel();
     final CyTable networkTable = network.getDefaultNetworkTable();
     final CyTable nodeTable = network.getDefaultNodeTable();
     final CyTable edgeTable = network.getDefaultEdgeTable();
+    final StorageDelegate storageDelegate = StorageDelegateFactory.newDelegate(network.getSUID());
 
-    System.out.println("SUID: " + network.getSUID().toString());
-
-    // generate columns
+    // Generate columns in table panel
     if (networkTable.getColumn(CCD_ANNOTATION_ATTRIBUTE) == null) {
-      System.out.println("Creating network column: " + CCD_ANNOTATION_ATTRIBUTE);
-      networkTable
-          .createListColumn(CCD_ANNOTATION_ATTRIBUTE, String.class, false, new ArrayList<>(0));
+      networkTable.createListColumn(CCD_ANNOTATION_ATTRIBUTE, String.class, false);
+    }
+    if (nodeTable.getColumn(CCD_ANNOTATION_SET_ATTRIBUTE) == null) {
+      nodeTable.createListColumn(CCD_ANNOTATION_SET_ATTRIBUTE, String.class, false);
+    }
+    if (edgeTable.getColumn(CCD_ANNOTATION_SET_ATTRIBUTE) == null) {
+      edgeTable.createListColumn(CCD_ANNOTATION_SET_ATTRIBUTE, String.class, false);
     }
 
-    if (nodeTable.getColumn(ANNOTATION_SET_ATTRIBUTE) == null) {
-      System.out.println("Creating node column: " + ANNOTATION_SET_ATTRIBUTE);
-      nodeTable.createListColumn(ANNOTATION_SET_ATTRIBUTE, String.class, false, new ArrayList<>(0));
-      System.out.println("Testing");
-      CyColumn column = nodeTable.getColumn("name");
-      System.out.println("Values: " + column.getValues(String.class).toString());
+    // Connect to database
+    try {
+      storageDelegate.init();
+      System.out.println("Initialized storage delegate");
+    } catch (SQLException e) {
+      System.out.println("Failed to initialize storage delegate");
+      e.printStackTrace();
+      return;
     }
 
-    if (edgeTable.getColumn(ANNOTATION_SET_ATTRIBUTE) == null) {
-      System.out.println("Creating edge column: " + ANNOTATION_SET_ATTRIBUTE);
-      edgeTable.createListColumn(ANNOTATION_SET_ATTRIBUTE, String.class, false, new ArrayList<>(0));
+    List<Node> nodes = this.getNodes(network);
+    List<Edge> edges = this.getEdges(network);
+    Map<UUID, Annotation> annotationMap = this.getAnnotations(network);
+    Collection<Annotation> annotations = annotationMap.values();
+    List<AnnotToEntity> annotationsToNode = nodeTable.getAllRows()
+        .stream()
+        .flatMap(row -> this.getAnnotationsForNode(view, network, row, annotationMap).stream())
+        .collect(Collectors.toList());
+    List<AnnotToEntity> annotationsToEdge = edgeTable.getAllRows()
+        .stream()
+        .flatMap(row -> this.getAnnotationsForEdge(view, network, row, annotationMap).stream())
+        .collect(Collectors.toList());
+    try {
+      NetworkStorageUtility.importToDatabase(storageDelegate, nodes, edges, annotations, annotationsToNode, annotationsToEdge);
+    } catch (Exception e) {
+      System.out.println("Failed to import to database");
+      e.printStackTrace();
     }
-
-//    this.importToDatabase(network);
+    System.out.println("Successfully imported annotations");
   }
 
-//  private void importToDatabase(final CyNetwork cyNetwork) {
-//    // No nodes and edges at this point should be selected
-//    // get list of all nodes and edges
-//    List<CyNode> cyNodes = CyTableUtil.getNodesInState(cyNetwork, "selected", false);
-//    List<CyEdge> cyEdges = CyTableUtil.getEdgesInState(cyNetwork, "selected", false);
-//
-//    // map to entities
-//    // get list of nodes
-//    List<Node> nodes = cyNodes
-//        .stream()
-//        .map(CyNode::getSUID)
-//        .map(Math::toIntExact)
-//        .map(Node::new)
-//        .collect(Collectors.toList());
-//
-//    // get list of edges
-//    List<Edge> edges = cyEdges
-//        .stream()
-//        .map(edge -> {
-//          int suid = Math.toIntExact(edge.getSUID());
-//          int source = Math.toIntExact(edge.getSource().getSUID());
-//          int dest = Math.toIntExact(edge.getTarget().getSUID());
-//          return new Edge(suid, source, dest);
-//        })
-//        .collect(Collectors.toList());
-//
-//    // get list of CCD annotations
-//    List<String> cyAnnotations = cyNetwork.getRow(cyNetwork, CyNetwork.LOCAL_ATTRS)
-//        .getList(ANNOTATION_ATTRIBUTE, String.class);
-//    System.out.println("Annotations: " + cyAnnotations.toString());
-//    List<String> texts = new ArrayList<>(0);
-//    if (cyAnnotations != null) {
-//      texts = cyAnnotations
-//          .stream()
-//          .map(str -> {
-//            String text = str.substring(str.indexOf("text="));
-//            return text.substring(5, text.indexOf("|"));
-//          })
-//          .collect(Collectors.toList());
-//
-////            for (String s: cyAnnotations) {
-////                int index = s.indexOf("text=");
-////                String s2 = s.substring(index);
-////                int barIndex = s2.indexOf("|");
-////                String text = s2.substring(5, barIndex);
-////                System.out.println(text);
-////                texts.add(text);
-////            }
-//    }
-//
-//    List<Annotation> annotations = new ArrayList<>(0);
-//    for (int i = 0; i < texts.size(); i++) {
-//      annotations.add(new Annotation(UUID.fromString(String.valueOf(i)), texts.get(i)));
-//    }
-//
-//    // get extended attributes
-//    List<ExtendedAttribute> extendedAttributes = new ArrayList<>(0);
-//    extendedAttributes.add(
-//        new ExtendedAttribute(2, "Posterior Probabilities", ExtendedAttributeType.FLOAT));
-//    extendedAttributes.add(
-//        new ExtendedAttribute(1, "Comment", ExtendedAttributeType.STRING));
-//
-//    // get annotation to entity mappings
-//    System.out.println("Getting annotation to entity mappings");
-//
-//    // annotation to node mapping
-//    System.out.println("Node annotations");
-//    CyTable nodeTable = cyNetwork.getDefaultNodeTable();
-//    List<CyRow> rows = nodeTable.getAllRows();
-//    for (CyRow row : rows) {
-//      System.out.println("Row");
-//      if (row.isSet("suid")) {
-//        System.out.println("SUID: " + row.getRaw("suid"));
-//      } else {
-//        System.out.println("suid column not found");
-//      }
-//      if (row.isSet("name")) {
-//        System.out.println("Name: " + row.get("name", String.class));
-//      } else {
-//        System.out.println("name column not found");
-//      }
-//      if (row.isSet(ANNOTATION_SET_ATTRIBUTE)) {
-//        System.out
-//            .println("Annotation set: " + row.get(ANNOTATION_SET_ATTRIBUTE, List.class).toString());
-//      }
-//      System.out.println();
-//    }
-//
-//    // annotation to edge mapping
-//    System.out.println("Edge annotations");
-//    CyTable edgeTable = cyNetwork.getDefaultEdgeTable();
-//    rows = edgeTable.getAllRows();
-//    for (CyRow row : rows) {
-//      System.out.println("Row");
-//      if (row.isSet("suid")) {
-//        System.out.println("SUID: " + row.getRaw("suid"));
-//      } else {
-//        System.out.println("suid column not found");
-//      }
-//      if (row.isSet("name")) {
-//        System.out.println("Name: " + row.get("name", String.class));
-//      } else {
-//        System.out.println("name column not found");
-//      }
-//      if (row.isSet(ANNOTATION_SET_ATTRIBUTE)) {
-//        System.out
-//            .println("Annotation set: " + row.get(ANNOTATION_SET_ATTRIBUTE, List.class).toString());
-//      }
-//      System.out.println();
-//    }
-//
-//    try {
-//      this.storageDelegate.init("Cytoscape");
-//      NetworkStorageUtility.importToDatabase(this.storageDelegate,
-//          nodes, edges, annotations, extendedAttributes,
-//          Collections.emptyList(), Collections.emptyList());
-//      System.out.println("Database loaded");
-//      this.storageDelegate
-//          .insertAnnotationExtendedAttribute(0, "Comment", ExtendedAttributeType.STRING);
-//      this.storageDelegate.insertAnnotationExtendedAttribute(1, "Posterior Probability",
-//          ExtendedAttributeType.FLOAT);
-//      System.out.println("Extended attributes loaded");
-//    } catch (Exception e) {
-//      System.out.println("Database load failed");
-//      e.printStackTrace();
-//    }
-//  }
+  private List<Node> getNodes(final CyNetwork network) {
+    // Get the list of all nodes
+    // and convert to our entity
+    return network.getNodeList()
+        .stream()
+        .map(CyNode::getSUID)
+        .map(Math::toIntExact)
+        .map(Node::new)
+        .collect(Collectors.toList());
+  }
+
+  private List<Edge> getEdges(final CyNetwork network) {
+    // Get the list of all edges
+    // and convert to our entity
+    return network.getEdgeList()
+        .stream()
+        .map(edge -> {
+          int suid = Math.toIntExact(edge.getSUID());
+          int source = Math.toIntExact(edge.getSource().getSUID());
+          int target = Math.toIntExact(edge.getTarget().getSUID());
+          return new Edge(suid, source, target);
+        })
+        .collect(Collectors.toList());
+  }
+
+  private Map<UUID, Annotation> getAnnotations(final CyNetwork network) {
+    final List<String> ccdAnnotations = network.getRow(network, CyNetwork.LOCAL_ATTRS)
+        .getList(CCD_ANNOTATION_ATTRIBUTE, String.class);
+    return ccdAnnotations
+        .stream()
+        .map(a -> {
+          String[] s = a.split("\\|");
+          UUID uuid = UUID.fromString(s[0].split("=")[1]);
+          String name = s[1].split("=")[1];
+          AnnotationValueType type = AnnotationValueType.parse(s[2].split("=")[1].toUpperCase());
+          String desc = s[3].split("=")[1];
+          return new Annotation(uuid, name, type, desc);
+        })
+        .collect(Collectors.toMap(Annotation::getId, Function.identity()));
+  }
+
+  private List<AnnotToEntity> getAnnotationsForNode(final CyNetworkView view,
+                                                    final CyNetwork network,
+                                                    final CyRow row,
+                                                    final Map<UUID, Annotation> annotationMap) {
+    final Long suid = row.get("suid", Long.class);
+    final List<String> annoList = row.getList(CCD_ANNOTATION_SET_ATTRIBUTE, String.class);
+    final List<AnnotToEntity> annotToEntities = new LinkedList<>();
+    for (int i = 0; i < annoList.size(); i++) {
+      AnnotToEntity annotToEntity = parseAnnotToEntityString(annoList.get(i), suid, annotationMap);
+      Annotation annotation = annotationMap.get(annotToEntity.getAnnotationId());
+      if (annotToEntity.getCytoscapeAnnotationId() == null) {
+        CyNode node = network.getNode(suid);
+        UUID cyId = this.createTextAnnotationOnNode(view, node, annotation.getName() + ": " + annotToEntity.getValue().toString());
+        annotToEntity.setCytoscapeAnnotationId(cyId);
+        annoList.set(i, annotToEntity.toString());
+      }
+      annotToEntities.add(annotToEntity);
+    }
+    row.set(CCD_ANNOTATION_SET_ATTRIBUTE, annoList);
+    return annotToEntities;
+  }
+
+  private List<AnnotToEntity> getAnnotationsForEdge(final CyNetworkView view,
+                                                    final CyNetwork network,
+                                                    final CyRow row,
+                                                    final Map<UUID, Annotation> annotationMap) {
+    final Long suid = row.get("suid", Long.class);
+    final List<String> annoList = row.getList(CCD_ANNOTATION_SET_ATTRIBUTE, String.class);
+    final List<AnnotToEntity> annotToEntities = new LinkedList<>();
+    for (int i = 0; i < annoList.size(); i++) {
+      AnnotToEntity annotToEntity = parseAnnotToEntityString(annoList.get(i), suid, annotationMap);
+      Annotation annotation = annotationMap.get(annotToEntity.getAnnotationId());
+      if (annotToEntity.getCytoscapeAnnotationId() == null) {
+        CyEdge edge = network.getEdge(suid);
+        UUID cyId = this.createTextAnnotationOnEdge(view, edge,annotation.getName() + ": " + annotToEntity.getValue().toString());
+        annotToEntity.setCytoscapeAnnotationId(cyId);
+        annoList.set(i, annotToEntity.toString());
+      }
+      annotToEntities.add(annotToEntity);
+    }
+    row.set(CCD_ANNOTATION_SET_ATTRIBUTE, annoList);
+    return annotToEntities;
+  }
+
+  private AnnotToEntity parseAnnotToEntityString(final String str, final Long suid, final Map<UUID, Annotation> annotationMap) {
+    String[] s = str.split("\\|");
+    UUID annoId = UUID.fromString(s[0].split("=")[1]);
+    Annotation annotation = annotationMap.get(annoId);
+    AnnotationValueType type = annotation.getType();
+    String[] value = s[2].split("=");
+    AnnotToEntity annotToEntity = new AnnotToEntity(annoId, null, Math.toIntExact(suid), null);
+    if (value.length > 1) {
+      switch (type) {
+        case INT:
+          annotToEntity.setValue(Integer.parseInt(value[1]));
+          break;
+        case CHAR:
+          annotToEntity.setValue(value[1].charAt(0));
+          break;
+        case FLOAT:
+          annotToEntity.setValue(Float.parseFloat(value[1]));
+          break;
+        case BOOLEAN:
+          annotToEntity.setValue(Boolean.parseBoolean(value[1]));
+          break;
+        case STRING:
+          annotToEntity.setValue(value[1]);
+          break;
+        default:
+          break;
+      }
+    }
+    UUID cyId = null;
+    String[] cyIdString = s[1].split("=");
+    if (cyIdString.length > 1) {
+      cyId = UUID.fromString(cyIdString[1]);
+    }
+    annotToEntity.setCytoscapeAnnotationId(cyId);
+    return annotToEntity;
+  }
+
+  private UUID createTextAnnotationOnNode(final CyNetworkView view, final CyNode node, final String text) {
+    View<CyNode> nodeView = view.getNodeView(node);
+    Double x = nodeView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
+    Double y = nodeView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
+
+    // map properties
+    Map<String, String> args = new HashMap<>(0);
+    args.put("x", String.valueOf(x));
+    args.put("y", String.valueOf(y));
+    args.put("zoom", String.valueOf(1.0));
+    args.put("fontFamily", "Arial");
+    args.put("color", String.valueOf(-16777216));
+    args.put("canvas", "foreground");
+    args.put("text", text);
+    TextAnnotation annotation = this.annotationFactory.createAnnotation(TextAnnotation.class, view, args);
+    this.annotationManager.addAnnotation(annotation);
+    return annotation.getUUID();
+  }
+
+  private UUID createTextAnnotationOnEdge(final CyNetworkView view, final CyEdge edge, final String text) {
+    View<CyNode> source = view.getNodeView(edge.getSource());
+    View<CyNode> target = view.getNodeView(edge.getTarget());
+
+    // get location
+    Double x = 0.0, y = 0.0;
+    x += source.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
+    x += target.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
+    x /= 2.0;
+    y += source.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
+    y += target.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
+    y /= 2.0;
+
+    // map properties
+    Map<String, String> args = new HashMap<>(0);
+    args.put("x", String.valueOf(x));
+    args.put("y", String.valueOf(y));
+    args.put("zoom", String.valueOf(1.0));
+    args.put("fontFamily", "Arial");
+    args.put("color", String.valueOf(-16777216));
+    args.put("canvas", "foreground");
+    args.put("text", text);
+    TextAnnotation annotation = this.annotationFactory.createAnnotation(TextAnnotation.class, view, args);
+    this.annotationManager.addAnnotation(annotation);
+    return annotation.getUUID();
+  }
 }
