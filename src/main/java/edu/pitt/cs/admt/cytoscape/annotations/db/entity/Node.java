@@ -8,8 +8,9 @@ public class Node {
   private int suid;
 
   public Node(int suid) {
-    if (suid < 0)
+    if (suid < 0) {
       throw new IllegalArgumentException("negative id given.");
+    }
     this.suid = suid;
   }
 
@@ -18,8 +19,9 @@ public class Node {
   }
 
   public void setSuid(int suid) {
-    if (suid < 0)
+    if (suid < 0) {
       throw new IllegalArgumentException("negative id given.");
+    }
     this.suid = suid;
   }
 

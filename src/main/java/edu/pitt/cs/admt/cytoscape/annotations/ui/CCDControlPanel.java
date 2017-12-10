@@ -1,7 +1,6 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
-import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
+import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -10,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.Serializable;
-import java.util.Collection;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -34,7 +32,6 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
   private JLabel annotationsList;
 
   public CCDControlPanel(final TaskManager taskManager,
-      final StorageDelegate storageDelegate,
       final CreateAnnotationTaskFactory createAnnotationTaskFactory) {
 
     // title
@@ -71,8 +68,9 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     JButton button = new JButton("Create");
 
     button.addActionListener((ActionEvent e) -> {
-      taskManager.execute(createAnnotationTaskFactory
-          .createTaskIteratorAnnotationOnSelected(annotationText.getText()));
+      taskManager.execute(
+          createAnnotationTaskFactory.createTaskIterator(
+              createAnnotationTaskFactory.createOnSelected(annotationText.getText())));
       annotationsList.setText("Added: " + annotationText.getText());
       annotationText.setText("CCD annotation text");
     });
@@ -103,7 +101,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     JButton searchButton = new JButton("Search");
     JButton clearButton = new JButton("Clear");
 
-    searchButton.addActionListener(new SearchActionListener(storageDelegate, searchText.getText()));
+//    searchButton.addActionListener(new SearchActionListener(storageDelegate, searchText.getText()));
 
     clearButton.addActionListener(new ActionListener() {
       @Override
@@ -149,31 +147,31 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     return null;
   }
 
-  public class SearchActionListener implements ActionListener {
-
-    private StorageDelegate storageDelegate;
-    private String searchString;
-
-    public SearchActionListener(final StorageDelegate storageDelegate, final String searchString) {
-      super();
-      System.out.println("Creating action listener");
-      System.out.println("search string: " + searchString);
-      this.storageDelegate = new StorageDelegate();
-      this.searchString = searchString;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-      System.out.println("Running action performed");
-      try {
-        Collection<AnnotToEntity> result = this.storageDelegate
-            .searchAnnotations(this.searchString);
-        for (AnnotToEntity entity : result) {
-          System.out.println(entity.getValue());
-        }
-        this.storageDelegate.close();
-      } catch (Exception exc) {
-        exc.printStackTrace();
-      }
-    }
-  }
+//  public class SearchActionListener implements ActionListener {
+//
+//    private StorageDelegate storageDelegate;
+//    private String searchString;
+//
+//    public SearchActionListener(final StorageDelegate storageDelegate, final String searchString) {
+//      super();
+//      System.out.println("Creating action listener");
+//      System.out.println("search string: " + searchString);
+//      this.storageDelegate = new StorageDelegate();
+//      this.searchString = searchString;
+//    }
+//
+//    public void actionPerformed(ActionEvent e) {
+//      System.out.println("Running action performed");
+//      try {
+//        Collection<AnnotToEntity> result = this.storageDelegate
+//            .searchAnnotations(this.searchString);
+//        for (AnnotToEntity entity : result) {
+//          System.out.println(entity.getValue());
+//        }
+//        this.storageDelegate.close();
+//      } catch (Exception exc) {
+//        exc.printStackTrace();
+//      }
+//    }
+//  }
 }

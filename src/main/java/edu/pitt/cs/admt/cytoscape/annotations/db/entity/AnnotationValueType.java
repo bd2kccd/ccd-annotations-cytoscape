@@ -1,7 +1,5 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
 
-import com.sun.istack.internal.NotNull;
-
 /**
  * @author Nikos R. Katsipoulakis
  */
@@ -11,25 +9,18 @@ public enum AnnotationValueType {
   INT("INT"),
   FLOAT("FLOAT"),
   STRING("STRING");
-  
+
   private final String name;
-  
+
   private AnnotationValueType(String s) {
     name = s;
   }
-  
-  public boolean equalsName(String otherName) {
-    return name.equals(otherName);
-  }
-  
-  public String toString() {
-    return this.name;
-  }
 
-  public static boolean validate(@NotNull final String s) {
-    if (s == null || s.length() == 0 || s.equals(""))
+  public static boolean validate(final String s) {
+    if (s == null || s.length() == 0 || s.equals("")) {
       return false;
-    switch(s) {
+    }
+    switch (s) {
       case "BOOLEAN":
       case "INT":
       case "FLOAT":
@@ -41,7 +32,7 @@ public enum AnnotationValueType {
     }
   }
 
-  public static AnnotationValueType parse(@NotNull final String s) {
+  public static AnnotationValueType parse(final String s) {
     switch (s) {
       case "BOOLEAN":
         return AnnotationValueType.BOOLEAN;
@@ -56,5 +47,13 @@ public enum AnnotationValueType {
       default:
         throw new IllegalArgumentException("invalid literal given: " + s);
     }
+  }
+
+  public boolean equalsName(String otherName) {
+    return name.equals(otherName);
+  }
+
+  public String toString() {
+    return this.name;
   }
 }
