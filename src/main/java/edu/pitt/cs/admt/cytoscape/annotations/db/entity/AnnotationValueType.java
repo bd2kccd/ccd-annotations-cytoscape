@@ -9,25 +9,18 @@ public enum AnnotationValueType {
   INT("INT"),
   FLOAT("FLOAT"),
   STRING("STRING");
-  
+
   private final String name;
-  
+
   private AnnotationValueType(String s) {
     name = s;
   }
-  
-  public boolean equalsName(String otherName) {
-    return name.equals(otherName);
-  }
-  
-  public String toString() {
-    return this.name;
-  }
 
   public static boolean validate(final String s) {
-    if (s == null || s.length() == 0 || s.equals(""))
+    if (s == null || s.length() == 0 || s.equals("")) {
       return false;
-    switch(s) {
+    }
+    switch (s) {
       case "BOOLEAN":
       case "INT":
       case "FLOAT":
@@ -54,5 +47,13 @@ public enum AnnotationValueType {
       default:
         throw new IllegalArgumentException("invalid literal given: " + s);
     }
+  }
+
+  public boolean equalsName(String otherName) {
+    return name.equals(otherName);
+  }
+
+  public String toString() {
+    return this.name;
   }
 }

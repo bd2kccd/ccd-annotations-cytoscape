@@ -12,8 +12,9 @@ public class Edge {
   private int destination;
 
   public Edge(int suid, int source, int destination) {
-    if (suid < 0 || source < 0 || destination < 0)
+    if (suid < 0 || source < 0 || destination < 0) {
       throw new IllegalArgumentException("invalid arguments given");
+    }
     this.suid = suid;
     this.source = source;
     this.destination = destination;
@@ -24,8 +25,9 @@ public class Edge {
   }
 
   public void setSuid(int suid) {
-    if (suid < 0)
+    if (suid < 0) {
       throw new IllegalArgumentException("negative id given");
+    }
     this.suid = suid;
   }
 
@@ -34,8 +36,9 @@ public class Edge {
   }
 
   public void setSource(int source) {
-    if (source < 0)
+    if (source < 0) {
       throw new IllegalArgumentException("negative source given");
+    }
     this.source = source;
   }
 
@@ -44,8 +47,9 @@ public class Edge {
   }
 
   public void setDestination(int destination) {
-    if (destination < 0)
+    if (destination < 0) {
       throw new IllegalArgumentException("negative destination given");
+    }
     this.destination = destination;
   }
 
