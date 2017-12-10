@@ -48,8 +48,10 @@ public class CreateAnnotationTask extends AbstractTask {
   private final CyNetworkView networkView;
   private final Collection<CyNode> nodes = new ArrayList<>(0);
   private final Collection<CyEdge> edges = new ArrayList<>(0);
-  private String annotationName;
+  private final String annotationName;
+  private UUID uuid = null;
   private String annotationDescription = "";
+  private Object annotationValue = null;
 
   protected CreateAnnotationTask(final CyApplicationManager applicationManager,
       final AnnotationManager annotationManager,
@@ -126,16 +128,31 @@ public class CreateAnnotationTask extends AbstractTask {
     return annotationName;
   }
 
-  public void setAnnotationName(final String annotationName) {
-    this.annotationName = annotationName;
-  }
-
   public String getAnnotationDescription() {
     return annotationDescription;
   }
 
-  public void setAnnotationDescription(final String annotationDescription) {
+  public CreateAnnotationTask setAnnotationDescription(final String annotationDescription) {
     this.annotationDescription = annotationDescription;
+    return this;
+  }
+
+  public UUID getUuid() {
+    return uuid;
+  }
+
+  public CreateAnnotationTask setUuid(UUID uuid) {
+    this.uuid = uuid;
+    return this;
+  }
+
+  public Object getAnnotationValue() {
+    return annotationValue;
+  }
+
+  public CreateAnnotationTask setAnnotationValue(Object annotationValue) {
+    this.annotationValue = annotationValue;
+    return this;
   }
 
   public void run(TaskMonitor monitor) throws MissingComponentsException {
@@ -162,29 +179,34 @@ public class CreateAnnotationTask extends AbstractTask {
     updateNetworkTable(annotation);
   }
 
+
+
   private void updateNetworkTable(final TextAnnotation annotation) {
-    final String anUUID = UUID.randomUUID().toString();
+    if (this.uuid == null) {
+      this.uuid = UUID.randomUUID();
+    }
     final String cyUUID = annotation.getUUID().toString();
 
     // add to network
     List<String> row = this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS)
         .getList(CCD_ANNOTATION_ATTRIBUTE, String.class);
     String annotationString = new StringBuilder()
-        .append("uuid=").append(anUUID).append("|")
+        .append("uuid=").append(this.uuid.toString()).append("|")
         .append("name=").append(this.annotationName).append("|")
         .append("type=").append("float").append("|")
         .append("description=").append(this.annotationDescription).toString();
     row.add(annotationString);
-    this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS).set(CCD_ANNOTATION_ATTRIBUTE, row);
+    Set<String> rowSet = new HashSet<>(row);
+    this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS).set(CCD_ANNOTATION_ATTRIBUTE, new ArrayList<>(rowSet));
 
     // add to node table
     for (CyNode node : this.nodes) {
-      addToRow(node, anUUID, cyUUID);
+      addToRow(node, this.uuid.toString(), cyUUID);
     }
 
     // add to edge table
     for (CyEdge edge : this.edges) {
-      addToRow(edge, anUUID, cyUUID);
+      addToRow(edge, this.uuid.toString(), cyUUID);
     }
   }
 
