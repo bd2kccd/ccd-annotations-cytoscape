@@ -226,13 +226,14 @@ public class CreateAnnotationTask extends AbstractTask {
     Double x = 0.0;
     Double y = 0.0;
 
-    // get x and y coordinates
+    // Get x and y coordinates for nodes
     for (CyNode node : this.nodes) {
       final View<CyNode> cyNodeView = this.networkView.getNodeView(node);
       x += cyNodeView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
       y += cyNodeView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
     }
 
+    // Get x and y coordinates for edges
     for (CyEdge edge : this.edges) {
       final View<CyNode> sourceView = this.networkView.getNodeView(edge.getSource());
       final View<CyNode> targetView = this.networkView.getNodeView(edge.getTarget());
@@ -242,8 +243,11 @@ public class CreateAnnotationTask extends AbstractTask {
       y += targetView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
     }
 
-    // calculate average
-    // double edge size to account for both source and target nodes
+    /*
+     * Calculate average per coordinate
+     * Edge size is doubled to account for
+     * both source and target nodes
+     */
     x = x / (this.nodes.size() + this.edges.size() * 2);
     y = y / (this.nodes.size() + this.edges.size() * 2);
 
