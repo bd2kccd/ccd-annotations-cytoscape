@@ -11,7 +11,6 @@ import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Node;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,7 +21,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -111,10 +109,11 @@ public class NetworkListener implements NetworkViewAddedListener {
 
     System.out.println("Test");
     try {
+      System.out.println("CCD annotation count: " + NetworkStorageUtility.exportAnnotations(storageDelegate).size());
       Collection<AnnotToEntity> test = NetworkStorageUtility.exportAnnotationToEdges(storageDelegate);
       Collection<Edge> test2 = NetworkStorageUtility.exportEdges(storageDelegate);
       Collection<AnnotToEntity> test3 = NetworkStorageUtility.exportAnnotationToNodes(storageDelegate);
-      System.out.println("# edges: " +test2.size());
+      System.out.println("# edges: " + test2.size());
       System.out.println("# annotations to edges: " + test.size());
       for (AnnotToEntity a: test) {
         System.out.println(a.toString() + " SUID: " + a.getEntityId());
