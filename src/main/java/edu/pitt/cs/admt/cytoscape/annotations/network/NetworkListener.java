@@ -34,7 +34,11 @@ import org.cytoscape.view.presentation.annotations.AnnotationFactory;
 import org.cytoscape.view.presentation.annotations.AnnotationManager;
 import org.cytoscape.view.presentation.annotations.TextAnnotation;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
+import org.cytoscape.work.FinishStatus;
+import org.cytoscape.work.ObservableTask;
+import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
+import org.cytoscape.work.TaskObserver;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
@@ -242,6 +246,8 @@ public class NetworkListener implements NetworkViewAddedListener {
       row.set(CCD_ANNOTATION_SET_ATTRIBUTE, rowAnnos);
     }
 
+    TaskIterator createAnnotationTaskIterator = new TaskIterator();
+
     // Iterate through CCD annotations UUIDs
     // and generate 1 Cytoscape annotation per entry
     for (Map.Entry<UUID, List<AnnotToEntity>> entry: entityAnnotationByCcdID.entrySet()) {
@@ -260,13 +266,12 @@ public class NetworkListener implements NetworkViewAddedListener {
           .map(e -> network.getEdge(e))
           .collect(Collectors.toList());
 
-      this.taskManager.execute(
+      createAnnotationTaskIterator.append(
           CreateAnnotationTask.onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory, annotation.getName(), nodesToAnnotate, edgesToAnnotate)
               .setAnnotationDescription(annotation.getDescription())
               .setCCDAnnotationID(ccdUUID)
               .setCytoscapeID(entityAnnotationGeneratedUUID.get(ccdUUID))
-              .setAnnotationValue(entry.getValue().get(0).getValue())
-              .createTaskIterator());
+              .setAnnotationValue(entry.getValue().get(0).getValue()));
     }
 
     // Iterate through Cytoscape annotation UUIDs
@@ -287,17 +292,19 @@ public class NetworkListener implements NetworkViewAddedListener {
             .map(AnnotToEntity::getEntityId)
             .map(e -> network.getEdge(e))
             .collect(Collectors.toList());
-        this.taskManager.execute(
+        createAnnotationTaskIterator.append(
             CreateAnnotationTask
                 .onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory,
                     annotation.getName(), nodesToAnnotate, edgesToAnnotate)
                 .setAnnotationDescription(annotation.getDescription())
                 .setCCDAnnotationID(annotation.getId())
                 .setCytoscapeID(cyUUID)
-                .setAnnotationValue(entry.getValue().get(0).getValue())
-                .createTaskIterator());
+                .setAnnotationValue(entry.getValue().get(0).getValue()));
       }
     }
+
+    this.taskManager.execute(createAnnotationTaskIterator);
+
     System.out.println("Type test: " + entityAnnotationByCcdID.values().stream().findAny().get().get(0).getClass().toString());
 
     Map<ComponentType, List<AnnotToEntity>> entityByType = new HashMap<>();
