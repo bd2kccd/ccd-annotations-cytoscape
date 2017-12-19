@@ -96,41 +96,33 @@ public class NetworkListener implements NetworkViewAddedListener {
     Set<UUID> cytoscapeAnnotationUUIDs = this.getCytoscapeAnnotations(network);
     Map<UUID, Annotation> ccdAnnotationByUUID = this.getAnnotations(network);
     Collection<Annotation> annotations = ccdAnnotationByUUID.values();
-    List<AnnotToEntity> annotationsByComponent = this.getAnnotationsForComponents(
+    Map<ComponentType, List<AnnotToEntity>> annotationsByComponent = this.getAnnotationsForComponents(
         view, network, nodeTable, edgeTable, ccdAnnotationByUUID, cytoscapeAnnotationUUIDs);
-    for (AnnotToEntity e: annotationsByComponent) {
-      if (e instanceof  AnnotToNode) {
-        System.out.println("Is node type!");
-      }
-    }
-    List<AnnotToEntity> nodeAnnotations = annotationsByComponent
-        .stream()
-        .filter(e -> e instanceof AnnotToNode)
-        .collect(Collectors.toList());
-    List<AnnotToEntity> edgeAnnotations = annotationsByComponent
-        .stream()
-        .filter(e -> e instanceof AnnotToEdge)
-        .collect(Collectors.toList());
-    System.out.println("# nodes: " + nodeAnnotations.size());
-    System.out.println("# edges: " + edgeAnnotations.size());
-
-//    List<AnnotToEntity> annotationsToNode = nodeTable.getAllRows()
-//        .stream()
-//        .flatMap(row -> this.getAnnotationsForNode(view, network, row, ccdAnnotationByUUID).stream())
-//        .collect(Collectors.toList());
-//    List<AnnotToEntity> annotationsToEdge = edgeTable.getAllRows()
-//        .stream()
-//        .flatMap(row -> this.getAnnotationsForEdge(view, network, row, ccdAnnotationByUUID).stream())
-//        .collect(Collectors.toList());
+    System.out.println("# node annos: " + annotationsByComponent.get(ComponentType.NODE).size());
 
     try {
       NetworkStorageUtility.importToDatabase(storageDelegate, nodes, edges,
-          annotations, nodeAnnotations, edgeAnnotations);
+          annotations, annotationsByComponent.get(ComponentType.NODE), annotationsByComponent.get(ComponentType.EDGE));
     } catch (Exception e) {
       System.out.println("Failed to import to database");
       e.printStackTrace();
     }
     System.out.println("Successfully imported annotations");
+
+    System.out.println("Test");
+    try {
+      Collection<AnnotToEntity> test = NetworkStorageUtility.exportAnnotationToEdges(storageDelegate);
+      Collection<Edge> test2 = NetworkStorageUtility.exportEdges(storageDelegate);
+      Collection<AnnotToEntity> test3 = NetworkStorageUtility.exportAnnotationToNodes(storageDelegate);
+      System.out.println("# edges: " +test2.size());
+      System.out.println("# annotations to edges: " + test.size());
+      for (AnnotToEntity a: test) {
+        System.out.println(a.toString() + " SUID: " + a.getEntityId());
+      }
+      System.out.println("# annotations to nodes: " + test3.size());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   private List<Node> getNodes(final CyNetwork network) {
@@ -176,7 +168,7 @@ public class NetworkListener implements NetworkViewAddedListener {
         .collect(Collectors.toSet());
   }
 
-  private List<AnnotToEntity> getAnnotationsForComponents(
+  private Map<ComponentType, List<AnnotToEntity>> getAnnotationsForComponents(
       final CyNetworkView view,
       final CyNetwork network,
       final CyTable nodes,
@@ -204,6 +196,7 @@ public class NetworkListener implements NetworkViewAddedListener {
           } else {
             cyUUID = entityAnnotationGeneratedUUID.get(nodeAnno.getAnnotationId());
           }
+          nodeAnno.setCytoscapeAnnotationId(cyUUID);
           entityAnnotationByCcdID.get(nodeAnno.getAnnotationId()).add(nodeAnno);
         } else {
           if (!entityAnnotationByCyID.containsKey(nodeAnno.getCytoscapeAnnotationId())) {
@@ -212,7 +205,6 @@ public class NetworkListener implements NetworkViewAddedListener {
           cyUUID = nodeAnno.getCytoscapeAnnotationId();
           entityAnnotationByCyID.get(nodeAnno.getCytoscapeAnnotationId()).add(nodeAnno);
         }
-        nodeAnno.setCytoscapeAnnotationId(cyUUID);
         rowAnnos.set(i, nodeAnno.toString());
       }
       row.set(CCD_ANNOTATION_SET_ATTRIBUTE, rowAnnos);
@@ -237,6 +229,7 @@ public class NetworkListener implements NetworkViewAddedListener {
           } else {
             cyUUID = entityAnnotationGeneratedUUID.get(edgeAnno.getAnnotationId());
           }
+          edgeAnno.setCytoscapeAnnotationId(cyUUID);
           entityAnnotationByCcdID.get(edgeAnno.getAnnotationId()).add(edgeAnno);
         } else {
           if (!entityAnnotationByCyID.containsKey(edgeAnno.getCytoscapeAnnotationId())) {
@@ -245,7 +238,6 @@ public class NetworkListener implements NetworkViewAddedListener {
           cyUUID = edgeAnno.getCytoscapeAnnotationId();
           entityAnnotationByCyID.get(edgeAnno.getCytoscapeAnnotationId()).add(edgeAnno);
         }
-        edgeAnno.setCytoscapeAnnotationId(cyUUID);
         rowAnnos.set(i, edgeAnno.toString());
       }
       row.set(CCD_ANNOTATION_SET_ATTRIBUTE, rowAnnos);
@@ -268,6 +260,7 @@ public class NetworkListener implements NetworkViewAddedListener {
           .map(AnnotToEntity::getEntityId)
           .map(e -> network.getEdge(e))
           .collect(Collectors.toList());
+
       this.taskManager.execute(
           CreateAnnotationTask.onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory, annotation.getName(), nodesToAnnotate, edgesToAnnotate)
               .setAnnotationDescription(annotation.getDescription())
@@ -281,39 +274,57 @@ public class NetworkListener implements NetworkViewAddedListener {
     // and generate 1 Cytoscape annotatino per entry
     for (Map.Entry<UUID, List<AnnotToEntity>> entry: entityAnnotationByCyID.entrySet()) {
       UUID cyUUID = entry.getKey();
-      if (cytoscapeAnnotations.contains(cyUUID))
-        continue;
-      Annotation annotation = ccdAnnotations.get(entry.getValue().get(0).getAnnotationId());
-      List<CyNode> nodesToAnnotate = entry.getValue()
-          .stream()
-          .filter(e -> e instanceof AnnotToNode)
-          .map(AnnotToEntity::getEntityId)
-          .map(e -> network.getNode(e))
-          .collect(Collectors.toList());
-      List<CyEdge> edgesToAnnotate = entry.getValue()
-          .stream()
-          .filter(e -> e instanceof AnnotToEdge)
-          .map(AnnotToEntity::getEntityId)
-          .map(e -> network.getEdge(e))
-          .collect(Collectors.toList());
-      this.taskManager.execute(
-          CreateAnnotationTask.onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory, annotation.getName(), nodesToAnnotate, edgesToAnnotate)
-            .setAnnotationDescription(annotation.getDescription())
-            .setCCDAnnotationID(annotation.getId())
-            .setCytoscapeID(cyUUID)
-            .setAnnotationValue(entry.getValue().get(0).getValue())
-            .createTaskIterator());
+      if (!cytoscapeAnnotations.contains(cyUUID)) {
+        Annotation annotation = ccdAnnotations.get(entry.getValue().get(0).getAnnotationId());
+        List<CyNode> nodesToAnnotate = entry.getValue()
+            .stream()
+            .filter(e -> e instanceof AnnotToNode)
+            .map(AnnotToEntity::getEntityId)
+            .map(e -> network.getNode(e))
+            .collect(Collectors.toList());
+        List<CyEdge> edgesToAnnotate = entry.getValue()
+            .stream()
+            .filter(e -> e instanceof AnnotToEdge)
+            .map(AnnotToEntity::getEntityId)
+            .map(e -> network.getEdge(e))
+            .collect(Collectors.toList());
+        this.taskManager.execute(
+            CreateAnnotationTask
+                .onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory,
+                    annotation.getName(), nodesToAnnotate, edgesToAnnotate)
+                .setAnnotationDescription(annotation.getDescription())
+                .setCCDAnnotationID(annotation.getId())
+                .setCytoscapeID(cyUUID)
+                .setAnnotationValue(entry.getValue().get(0).getValue())
+                .createTaskIterator());
+      }
+    }
+    System.out.println("Type test: " + entityAnnotationByCcdID.values().stream().findAny().get().get(0).getClass().toString());
+
+    Map<ComponentType, List<AnnotToEntity>> entityByType = new HashMap<>();
+    entityByType.put(ComponentType.NODE, new ArrayList<>());
+    entityByType.put(ComponentType.EDGE, new ArrayList<>());
+    for (List<AnnotToEntity> l: entityAnnotationByCcdID.values()) {
+      for (AnnotToEntity e: l) {
+        if (e instanceof AnnotToNode) {
+          entityByType.get(ComponentType.NODE).add(e);
+        } else if (e instanceof AnnotToEdge) {
+          entityByType.get(ComponentType.EDGE).add(e);
+        }
+      }
     }
 
-    // Return flattened map
-    return Stream.concat(
-        entityAnnotationByCcdID.values()
-          .stream()
-          .flatMap(List::stream),
-        entityAnnotationByCyID.values()
-          .stream()
-          .flatMap(List::stream))
-        .collect(Collectors.toList());
+    for (List<AnnotToEntity> l: entityAnnotationByCyID.values()) {
+      for (AnnotToEntity e: l) {
+        if (e instanceof  AnnotToNode) {
+          entityByType.get(ComponentType.NODE).add(e);
+        } else if (e instanceof AnnotToEdge) {
+          entityByType.get(ComponentType.EDGE).add(e);
+        }
+      }
+    }
+
+    return entityByType;
   }
 
   private List<AnnotToEntity> getAnnotationsForNode(
@@ -365,7 +376,6 @@ public class NetworkListener implements NetworkViewAddedListener {
   }
 
   private Optional<UUID> getUUIDFromCytoscapeAnnotationString(final String str) {
-    System.out.println("Parsing: " + str);
     for (String s: str.split("\\|")) {
       String[] field = s.split("=");
       if (field[0].equals("uuid")) {
@@ -433,7 +443,6 @@ public class NetworkListener implements NetworkViewAddedListener {
     Double y = nodeView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
     TextAnnotation annotation = this.createTextAnnotation(view, x, y, text);
     this.annotationManager.addAnnotation(annotation);
-    System.out.println("Generated UUID: " + annotation.getUUID().toString());
     return annotation.getUUID();
   }
 
@@ -455,7 +464,6 @@ public class NetworkListener implements NetworkViewAddedListener {
 
     TextAnnotation annotation = this.createTextAnnotation(view, x, y, text);
     this.annotationManager.addAnnotation(annotation);
-    System.out.println("Generated UUID: " + annotation.getUUID().toString());
     return annotation.getUUID();
   }
 
