@@ -1,0 +1,6 @@
+# Results
+
+1. Node X2 receives its own, unique Cytoscape annotation
+2. Nodes X1 and X3 receive a shared Cytoscape annotation
+3. Edge X1-X3 receives a unique Cytoscape annotation
+4. Edge X2-X3 receives a unique Cytoscape annotation
