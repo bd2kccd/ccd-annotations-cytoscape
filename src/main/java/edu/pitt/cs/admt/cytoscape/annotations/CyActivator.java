@@ -43,7 +43,7 @@ public class CyActivator extends AbstractCyActivator {
     registerService(context, createAnnotationTaskFactory, TaskFactory.class, new Properties());
 
     // listeners
-    NetworkListener networkListener = new NetworkListener(annotationManager, textAnnotationFactory);
+    NetworkListener networkListener = new NetworkListener(annotationManager, textAnnotationFactory, taskManager);
     registerService(context, networkListener, NetworkViewAddedListener.class, new Properties());
 
     // ui components

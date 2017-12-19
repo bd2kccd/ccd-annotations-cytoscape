@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import javax.xml.soap.Text;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
@@ -21,6 +22,7 @@ import org.cytoscape.view.presentation.annotations.AnnotationManager;
 import org.cytoscape.view.presentation.annotations.TextAnnotation;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.AbstractTask;
+import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskMonitor;
 
 /**
@@ -41,7 +43,6 @@ public class CreateAnnotationTask extends AbstractTask {
   private static final String CANVAS = "foreground";
   private static final String FONT_FAMILY = "Arial";
 
-  private final CyApplicationManager applicationManager;
   private final AnnotationManager annotationManager;
   private final AnnotationFactory<TextAnnotation> annotationFactory;
   private final CyNetwork network;
@@ -49,20 +50,34 @@ public class CreateAnnotationTask extends AbstractTask {
   private final Collection<CyNode> nodes = new ArrayList<>(0);
   private final Collection<CyEdge> edges = new ArrayList<>(0);
   private final String annotationName;
-  private UUID uuid = null;
+  private UUID ccdAnnotationID = null;
+  private UUID cytoscapeID = null;
   private String annotationDescription = "";
   private Object annotationValue = null;
 
-  protected CreateAnnotationTask(final CyApplicationManager applicationManager,
+  protected CreateAnnotationTask(
+      final CyApplicationManager applicationManager,
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
       final String annotationName) {
-    this.applicationManager = applicationManager;
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
     this.annotationName = annotationName;
-    this.network = this.applicationManager.getCurrentNetwork();
-    this.networkView = this.applicationManager.getCurrentNetworkView();
+    this.network = applicationManager.getCurrentNetwork();
+    this.networkView = applicationManager.getCurrentNetworkView();
+  }
+
+  protected CreateAnnotationTask(
+      final CyNetworkView networkView,
+      final CyNetwork network,
+      final AnnotationManager annotationManager,
+      final AnnotationFactory<TextAnnotation> annotationFactory,
+      final String annotationName) {
+    this.networkView = networkView;
+    this.network = network;
+    this.annotationManager = annotationManager;
+    this.annotationFactory = annotationFactory;
+    this.annotationName = annotationName;
   }
 
   public static CreateAnnotationTask createAnnotationTaskOnSelected(
@@ -124,6 +139,21 @@ public class CreateAnnotationTask extends AbstractTask {
     return task;
   }
 
+  public static CreateAnnotationTask onNodesAndEdges(
+      final CyNetworkView networkView,
+      final CyNetwork network,
+      final AnnotationManager annotationManager,
+      final AnnotationFactory<TextAnnotation> annotationFactory,
+      final String annotationName,
+      final Collection<CyNode> nodes,
+      final Collection<CyEdge> edges) {
+    CreateAnnotationTask task = new CreateAnnotationTask(
+        networkView, network, annotationManager, annotationFactory, annotationName);
+    task.nodes.addAll(nodes);
+    task.edges.addAll(edges);
+    return task;
+  }
+
   public String getAnnotationName() {
     return annotationName;
   }
@@ -137,12 +167,21 @@ public class CreateAnnotationTask extends AbstractTask {
     return this;
   }
 
-  public UUID getUuid() {
-    return uuid;
+  public UUID getCCDAnnotationID() {
+    return ccdAnnotationID;
   }
 
-  public CreateAnnotationTask setUuid(UUID uuid) {
-    this.uuid = uuid;
+  public CreateAnnotationTask setCCDAnnotationID(UUID uuid) {
+    this.ccdAnnotationID = uuid;
+    return this;
+  }
+
+  public UUID getCytoscapeID() {
+    return cytoscapeID;
+  }
+
+  public CreateAnnotationTask setCytoscapeID(UUID uuid) {
+    this.cytoscapeID = uuid;
     return this;
   }
 
@@ -155,13 +194,17 @@ public class CreateAnnotationTask extends AbstractTask {
     return this;
   }
 
+  public TaskIterator createTaskIterator() {
+    return new TaskIterator(this);
+  }
+
   public void run(TaskMonitor monitor) throws MissingComponentsException {
-    // verify that there's something to annotate
+    // Verify that there's something to annotate
     if (this.nodes.isEmpty() && this.edges.isEmpty()) {
       throw new MissingComponentsException();
     }
 
-    // set annotation parameters
+    // Set annotation parameters
     final Coordinates location = calculateAverageLocation();
     Map<String, String> args = new HashMap<>();
     args.put("x", String.valueOf(location.x));
@@ -171,8 +214,11 @@ public class CreateAnnotationTask extends AbstractTask {
     args.put("color", String.valueOf(COLOR));
     args.put("canvas", CANVAS);
     args.put("text", this.annotationName);
+    if (this.cytoscapeID != null) {
+      args.put("uuid", this.cytoscapeID.toString());
+    }
 
-    // create and add annotation to network
+    // Create and add annotation to network
     TextAnnotation annotation = this.annotationFactory
         .createAnnotation(TextAnnotation.class, this.networkView, args);
     this.annotationManager.addAnnotation(annotation);
@@ -180,33 +226,35 @@ public class CreateAnnotationTask extends AbstractTask {
   }
 
 
-
   private void updateNetworkTable(final TextAnnotation annotation) {
-    if (this.uuid == null) {
-      this.uuid = UUID.randomUUID();
+    if (this.ccdAnnotationID == null) {
+      this.ccdAnnotationID = UUID.randomUUID();
     }
-    final String cyUUID = annotation.getUUID().toString();
+    if (this.cytoscapeID == null) {
+      this.cytoscapeID = annotation.getUUID();
+    }
 
     // add to network
     List<String> row = this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS)
         .getList(CCD_ANNOTATION_ATTRIBUTE, String.class);
     String annotationString = new StringBuilder()
-        .append("uuid=").append(this.uuid.toString()).append("|")
+        .append("uuid=").append(this.ccdAnnotationID.toString()).append("|")
         .append("name=").append(this.annotationName).append("|")
         .append("type=").append("float").append("|")
         .append("description=").append(this.annotationDescription).toString();
     row.add(annotationString);
     Set<String> rowSet = new HashSet<>(row);
-    this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS).set(CCD_ANNOTATION_ATTRIBUTE, new ArrayList<>(rowSet));
+    this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS)
+        .set(CCD_ANNOTATION_ATTRIBUTE, new ArrayList<>(rowSet));
 
     // add to node table
     for (CyNode node : this.nodes) {
-      addToRow(node, this.uuid.toString(), cyUUID);
+      addToRow(node, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
     }
 
     // add to edge table
     for (CyEdge edge : this.edges) {
-      addToRow(edge, this.uuid.toString(), cyUUID);
+      addToRow(edge, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
     }
   }
 
@@ -254,6 +302,9 @@ public class CreateAnnotationTask extends AbstractTask {
     return new Coordinates(x, y);
   }
 
+  /**
+   * Thrown when there are no graph components to annotate
+   */
   public class MissingComponentsException extends Exception {
 
     public MissingComponentsException() {
@@ -261,7 +312,11 @@ public class CreateAnnotationTask extends AbstractTask {
     }
   }
 
-  public class Coordinates {
+  /**
+   * Coordinates pair
+   * (x, y) tuple
+   */
+  private class Coordinates {
 
     public final Double x;
     public final Double y;
