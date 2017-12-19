@@ -437,11 +437,12 @@ public class StorageDelegate {
    */
   Collection<AnnotToEntity> selectEdgesWithAnnotation(String name)
       throws SQLException, IOException, ClassNotFoundException {
-    PreparedStatement statement = connection.prepareStatement(
-        AnnotationSchema.SELECT_ANNOT_TO_EDGES_ON_NAME);
+    PreparedStatement statement = null;
     if (name == null) {
-      statement.setNull(1, Types.VARCHAR);
+      statement = connection.prepareStatement(AnnotationSchema.SELECT_ANNOT_TO_EDGES);
     } else {
+      statement = connection.prepareStatement(
+          AnnotationSchema.SELECT_ANNOT_TO_EDGES_ON_NAME);
       statement.setString(1, name);
     }
     ResultSet resultSet = statement.executeQuery();

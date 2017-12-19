@@ -90,7 +90,11 @@ class AnnotationSchema {
   static final String INSERT_ANNOT_TO_NODE = "INSERT INTO " + ANNOT_TO_NODE_TABLE +
       "(a_id, cy_a_id, suid, value) VALUES (?,?,?,?)";
 
-  static final String SELECT_ANNOT_TO_NODE = "SELECT a_id, cy_a_id, suid, value FROM " + ANNOT_TO_NODE_TABLE;
+  static final String SELECT_ANNOT_TO_NODE = "SELECT a_id, cy_a_id, suid, value FROM " +
+      ANNOT_TO_NODE_TABLE;
+
+  static final String SELECT_ANNOT_TO_EDGE = "SELECT a_id, cy_a_id, suid, value FROM " +
+      ANNOT_TO_EDGE_TABLE;
 
   static final String INSERT_ANNOT_TO_EDGE = "INSERT INTO " + ANNOT_TO_EDGE_TABLE +
       "(a_id, cy_a_id, suid, value) VALUES (?,?,?,?)";
@@ -123,4 +127,9 @@ class AnnotationSchema {
       ANNOT_TO_EDGE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_EDGE_TABLE + ".a_id = "
       +
       ANNOTATION_TABLE + ".id WHERE " + ANNOTATION_TABLE + ".name = ?";
+
+  static final String SELECT_ANNOT_TO_EDGES = "SELECT a_id, cy_a_id, suid, value FROM " +
+      ANNOT_TO_EDGE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_EDGE_TABLE + ".a_id = "
+      +
+      ANNOTATION_TABLE + ".id";
 }
