@@ -17,7 +17,7 @@
         "shared_name" : "X2",
         "name" : "X2",
         "SUID" : 66,
-        "__CCD_Annotation_Set" : [ ],
+        "__CCD_Annotation_Set" : [ "a_id=71a8bff2-5393-45fd-a54b-9bd31400e198|cy_id=b25f0fc4-34a2-44fc-aa06-cac32f4e3149|value=0.1" ],
         "selected" : false
       },
       "position" : {
@@ -31,7 +31,7 @@
         "shared_name" : "X1",
         "name" : "X1",
         "SUID" : 64,
-        "__CCD_Annotation_Set" : [ ],
+        "__CCD_Annotation_Set" : [ "a_id=71a8bff2-5393-45fd-a54b-9bd31400e198|cy_id=|value=0.0" ],
         "selected" : false
       },
       "position" : {
@@ -80,7 +80,7 @@
         "name" : "X1 (interacts with) X3",
         "interaction" : "interacts with",
         "SUID" : 74,
-        "__CCD_Annotation_Set" : [ "a_id=a2998bb6-234a-48cf-b587-be7d86339ffd|cy_id=|value=0.8" ],
+        "__CCD_Annotation_Set" : [ "a_id=a2998bb6-234a-48cf-b587-be7d86339ffd|cy_id=2a3f2f0a-033b-4bc3-b649-b8ac79ab0171|value=0.8" ],
         "selected" : false
       },
       "selected" : false
@@ -95,7 +95,7 @@
         "name" : "X2 (interacts with) X3",
         "interaction" : "interacts with",
         "SUID" : 76,
-        "__CCD_Annotation_Set" : [ ],
+        "__CCD_Annotation_Set" : [ "a_id=c6d31c2a-4d1f-4d71-a3e4-31f16a602b6a|cy_id=5016a1cd-9584-4705-a223-acb37a265dc4|value=0.5" ],
         "selected" : false
       },
       "selected" : false
