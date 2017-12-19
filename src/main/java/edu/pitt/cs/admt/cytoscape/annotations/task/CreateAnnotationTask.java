@@ -213,7 +213,11 @@ public class CreateAnnotationTask extends AbstractTask {
     args.put("fontFamily", FONT_FAMILY);
     args.put("color", String.valueOf(COLOR));
     args.put("canvas", CANVAS);
-    args.put("text", this.annotationName);
+    if (this.annotationValue != null) {
+      args.put("text", this.annotationName + ": " + this.annotationValue.toString());
+    } else {
+      args.put("text", this.annotationName);
+    }
     if (this.cytoscapeID != null) {
       args.put("uuid", this.cytoscapeID.toString());
     }
@@ -230,9 +234,6 @@ public class CreateAnnotationTask extends AbstractTask {
     if (this.ccdAnnotationID == null) {
       this.ccdAnnotationID = UUID.randomUUID();
     }
-    if (this.cytoscapeID == null) {
-      this.cytoscapeID = annotation.getUUID();
-    }
 
     // add to network
     List<String> row = this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS)
@@ -247,14 +248,17 @@ public class CreateAnnotationTask extends AbstractTask {
     this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS)
         .set(CCD_ANNOTATION_ATTRIBUTE, new ArrayList<>(rowSet));
 
-    // add to node table
-    for (CyNode node : this.nodes) {
-      addToRow(node, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
-    }
+    if (this.cytoscapeID == null) {
+      this.cytoscapeID = annotation.getUUID();
+      // add to node table
+      for (CyNode node : this.nodes) {
+        addToRow(node, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
+      }
 
-    // add to edge table
-    for (CyEdge edge : this.edges) {
-      addToRow(edge, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
+      // add to edge table
+      for (CyEdge edge : this.edges) {
+        addToRow(edge, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
+      }
     }
   }
 
@@ -264,7 +268,7 @@ public class CreateAnnotationTask extends AbstractTask {
     String rowString = new StringBuilder()
         .append("a_id=").append(anUUID).append("|")
         .append("cy_id=").append(cyUUID).append("|")
-        .append("value=").append(String.valueOf(0.8)).toString();
+        .append("value=").append(String.valueOf(0.333)).toString();
     row.add(rowString);
     Set<String> rowSet = new HashSet<>(row);
     this.network.getRow(cyIdentifiable).set(ANNOTATION_SET_ATTRIBUTE, new ArrayList<>(rowSet));
