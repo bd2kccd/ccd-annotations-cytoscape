@@ -1,5 +1,8 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import java.awt.Component;
@@ -9,8 +12,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Optional;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -18,6 +25,9 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerListModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.work.TaskManager;
@@ -28,22 +38,57 @@ import org.cytoscape.work.TaskManager;
 public class CCDControlPanel extends JPanel implements CytoPanelComponent, Serializable {
 
   private static final long serialVersionUID = 7128778486978079375L;
-
+  private final CyApplicationManager applicationManager;
   private JLabel annotationsList;
 
-  public CCDControlPanel(final TaskManager taskManager,
+  public CCDControlPanel(
+      final CyApplicationManager applicationManager,
+      final TaskManager taskManager,
       final CreateAnnotationTaskFactory createAnnotationTaskFactory) {
+    this.applicationManager = applicationManager;
+
+    JPanel creationPanel = new JPanel();
+//    creationPanel.setBorder(BorderFactory.createCompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
+    creationPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+    JLabel nameLabel = new JLabel("Annotation name");
+
+    JPanel descriptionPanel = new JPanel();
+    descriptionPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+    JLabel descriptionLabel = new JLabel("Annotation description");
+
+    JPanel valuePanel = new JPanel();
+    valuePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+    JLabel valueLabel = new JLabel("Annotation value");
 
     // title
     JLabel label = new JLabel("New CCD Annotation\n", SwingConstants.CENTER);
 
     // extended attribute selection
-    final String[] attributeOptions = {"Comment", "Posterior Probability"};
+    final String[] attributeOptions = {"<New>", "Comment", "Posterior Probability"};
     final SpinnerListModel listModel = new SpinnerListModel(attributeOptions);
     final JSpinner attributeSpinner = new JSpinner(listModel);
     ((JSpinner.DefaultEditor) attributeSpinner.getEditor()).getTextField().setEditable(false);
     ((JSpinner.DefaultEditor) attributeSpinner.getEditor()).getTextField()
         .setPreferredSize(new Dimension(150, 20));
+    final JComboBox attributeCombo = new JComboBox(attributeOptions);
+    attributeCombo.addActionListener((ActionEvent e) -> {
+      Long networkSUID = this.applicationManager.getCurrentNetwork().getSUID();
+      Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(networkSUID);
+      if (storageDelegateOptional.isPresent()) {
+        StorageDelegate storageDelegate = storageDelegateOptional.get();
+        Collection<Annotation> annotations;
+        try {
+          annotations = storageDelegate.getAllAnnotations();
+          for (Annotation a: annotations) {
+            System.out.println(a.getDescription());
+          }
+        } catch (Exception exc) {
+          exc.printStackTrace();
+        }
+      }
+      String selected = (String)((JComboBox)e.getSource()).getSelectedItem();
+      System.out.println("Selected: " + selected);
+    });
 
     // annotation data
     JTextArea annotationText = new JTextArea("CCD annotation text");
@@ -68,6 +113,10 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     JButton button = new JButton("Create");
 
     button.addActionListener((ActionEvent e) -> {
+//      taskManager.execute(
+//          createAnnotationTaskFactory
+//              .createOnSelected(annotationText.getName())
+//              .createTaskIterator());
       taskManager.execute(
           createAnnotationTaskFactory.createTaskIterator(
               createAnnotationTaskFactory.createOnSelected(annotationText.getText())));
@@ -118,6 +167,13 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
     this.add(new JTextArea("\n\n"));    // line break
     this.add(attributeSpinner);
 //        this.add(annotationText);
+    creationPanel.add(nameLabel);
+    creationPanel.add(attributeCombo);
+    descriptionPanel.add(descriptionLabel);
+    valuePanel.add(valueLabel);
+    this.add(creationPanel);
+    this.add(descriptionPanel);
+    this.add(valuePanel);
     this.add(scrollPane);
     this.add(new JTextArea("\n"));      // line break
     this.add(button);

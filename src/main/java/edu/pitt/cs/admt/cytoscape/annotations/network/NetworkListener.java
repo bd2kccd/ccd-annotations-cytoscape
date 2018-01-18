@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.cytoscape.application.events.SetCurrentNetworkEvent;
+import org.cytoscape.application.events.SetCurrentNetworkListener;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -43,7 +45,7 @@ import org.cytoscape.work.TaskObserver;
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
  */
-public class NetworkListener implements NetworkViewAddedListener {
+public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetworkListener {
 
   private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
   private static final String CCD_ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
@@ -62,6 +64,10 @@ public class NetworkListener implements NetworkViewAddedListener {
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
     this.taskManager = taskManager;
+  }
+
+  public void handleEvent(final SetCurrentNetworkEvent event) {
+    System.out.println("Current network set to: " + event.getNetwork().getSUID());
   }
 
   public void handleEvent(final NetworkViewAddedEvent event) {
