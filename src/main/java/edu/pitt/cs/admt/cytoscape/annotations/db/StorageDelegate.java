@@ -34,20 +34,6 @@ import org.hsqldb.jdbc.JDBCDriver;
  */
 public class StorageDelegate {
 
-  private final String id;
-  private JDBCConnection connection = null;
-  private Long network;
-
-  public StorageDelegate() {
-    id = UUID.randomUUID().toString();
-    this.network = null;
-  }
-
-  public StorageDelegate(final Long network) {
-    id = UUID.randomUUID().toString();
-    this.network = network;
-  }
-
   private static Object convertToObject(byte[] binaryObject)
       throws IOException, ClassNotFoundException {
     try (ByteArrayInputStream byteStream = new ByteArrayInputStream(binaryObject)) {
@@ -66,41 +52,17 @@ public class StorageDelegate {
     }
   }
 
-  public void init() throws SQLException {
-    Properties properties = new Properties();
-    JDBCDriver driver = null;
-    try {
-      driver = (JDBCDriver) Class.forName("org.hsqldb.jdbcDriver").newInstance();
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    } catch (InstantiationException e) {
-      e.printStackTrace();
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    connection = (JDBCConnection) driver.getConnection("jdbc:hsqldb:mem:" + id +
-        "_ccd_annot_db", properties);
-    connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-    connection.commit();
-    /**
-     * Initialize schema Transaction
-     */
-    dropDatabase();
-    createDatabase();
+  public static void close(final long networkSUID) {
+    DBConnectionFactory.closeConnection(networkSUID);
   }
-
-  public void close() {
-    if (connection != null) {
-      try {
-        connection.close();
-        connection = null;
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-    }
+  
+  public static void init(final long networkSUID) throws SQLException {
+    JDBCConnection connection = DBConnectionFactory.newConnection(networkSUID);
+    dropDatabase(connection);
+    createDatabase(connection);
   }
-
-  private void createDatabase() throws SQLException {
+  
+  private static void createDatabase(final JDBCConnection connection) throws SQLException {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.CREATE_NODE_TABLE);
     statement.execute();
@@ -115,7 +77,7 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  private void dropDatabase() throws SQLException {
+  private static void dropDatabase(final JDBCConnection connection) throws SQLException {
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.DROP_NODE_TABLE);
     statement.execute();
@@ -130,7 +92,11 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  void insertNode(int nodeId) throws SQLException {
+  static void insertNode(final long networkSUID, final int nodeId) throws SQLException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     if (nodeId < 0) {
       throw new IllegalArgumentException("negative value provided: " + nodeId);
     }
@@ -144,8 +110,14 @@ public class StorageDelegate {
   /**
    * @param nodes Not nullable
    */
-  public void insertNodes(Collection<Node> nodes) throws SQLException {
-    Preconditions.checkArgument(nodes != null);
+  static void insertNodes(final long networkSUID, final Collection<Node> nodes)
+      throws SQLException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
+    if (nodes == null)
+      throw new IllegalArgumentException("empty collection of nodes");
     int s = nodes.stream().filter(n -> n.getSuid() < 0).collect(Collectors.toList()).size();
     if (s > 0) {
       throw new IllegalArgumentException("collection with nodes that have negative id " +
@@ -161,7 +133,11 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  Collection<Node> getNodes() throws SQLException {
+  static Collection<Node> getNodes(final long networkSUID) throws SQLException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.SELECT_ALL_NODES);
     Collection<Node> nodes = new ArrayList<>();
     ResultSet resultSet = statement.executeQuery();
@@ -173,7 +149,12 @@ public class StorageDelegate {
     return nodes;
   }
 
-  void insertEdge(int edgeId, int source, int destination) throws SQLException {
+  static void insertEdge(final long networkSUID, final int edgeId, final int source,
+                         final int destination) throws SQLException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_EDGE);
     statement.setInt(1, edgeId);
@@ -183,8 +164,14 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  public void insertEdges(Collection<Edge> edges) throws SQLException {
-    Preconditions.checkArgument(edges != null);
+  static void insertEdges(final long networkSUID, final Collection<Edge> edges)
+      throws SQLException {
+    if (edges == null)
+      throw new IllegalArgumentException("empty collection of edges");
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_EDGE);
     for (Edge e : edges) {
@@ -197,7 +184,11 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  Collection<Edge> getEdges() throws SQLException {
+  static Collection<Edge> getEdges(final long networkSUID) throws SQLException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.SELECT_ALL_EDGES);
     Collection<Edge> edges = new ArrayList<>();
     ResultSet resultSet = statement.executeQuery();
@@ -214,7 +205,7 @@ public class StorageDelegate {
    * @param name Not nullable
    * @param type Not nullable
    */
-  void insertAnnotation(UUID annotationId, String name,
+  static void insertAnnotation(final long networkSUID, UUID annotationId, String name,
       AnnotationValueType type, String description)
       throws IllegalArgumentException, SQLException {
     if (annotationId == null) {
@@ -229,6 +220,10 @@ public class StorageDelegate {
     if (description != null && description.length() > 64) {
       throw new IllegalArgumentException("too long description provided");
     }
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_ANNOT);
     statement.setObject(1, annotationId);
@@ -246,7 +241,12 @@ public class StorageDelegate {
   /**
    * @param annotations Not nullable
    */
-  public void insertAnnotations(Collection<Annotation> annotations) throws SQLException {
+  static void insertAnnotations(final long networkSUID, Collection<Annotation> annotations) throws
+      SQLException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.INSERT_ANNOT);
     for (Annotation a : annotations) {
@@ -269,7 +269,8 @@ public class StorageDelegate {
    * @param cytoscapeAnnotationId Nullable
    * @param nodeId Not nullable
    */
-  void attachAnnotationToNode(UUID annotationId, UUID cytoscapeAnnotationId,
+  static void attachAnnotationToNode(final long networkSUID, UUID annotationId, UUID
+      cytoscapeAnnotationId,
       int nodeId, Object value)
       throws SQLException, IOException {
     if (nodeId < 0) {
@@ -282,6 +283,10 @@ public class StorageDelegate {
       Preconditions.checkArgument(value instanceof Character || value instanceof Integer ||
           value instanceof Float || value instanceof Boolean || value instanceof String);
     }
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     connection.setAutoCommit(false);
     PreparedStatement statement = connection.prepareStatement(
         AnnotationSchema.INSERT_ANNOT_TO_NODE);
@@ -306,7 +311,8 @@ public class StorageDelegate {
    * @param cytoscapeAnnotationId Nullable
    * @param edgeId Not nullable
    */
-  void attachAnnotationToEdge(UUID annotationId, UUID cytoscapeAnnotationId,
+  static void attachAnnotationToEdge(final long networkSUID, UUID annotationId, UUID
+      cytoscapeAnnotationId,
       int edgeId, Object value)
       throws SQLException, IOException {
     if (edgeId < 0) {
@@ -319,6 +325,10 @@ public class StorageDelegate {
       Preconditions.checkArgument(value instanceof Character || value instanceof Integer ||
           value instanceof Float || value instanceof Boolean || value instanceof String);
     }
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     connection.setAutoCommit(false);
     PreparedStatement statement = connection
         .prepareStatement(AnnotationSchema.INSERT_ANNOT_TO_EDGE);
@@ -338,8 +348,12 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  public Collection<Annotation> getAllAnnotations() throws SQLException {
+  static Collection<Annotation> getAllAnnotations(final long networkSUID) throws SQLException {
     Collection<Annotation> collection = new ArrayList<>();
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema
         .SELECT_ALL_ANNOTATIONS);
     ResultSet rs = statement.executeQuery();
@@ -355,10 +369,15 @@ public class StorageDelegate {
     return collection;
   }
 
-  public Optional<Annotation> getAnnotation(final UUID annotationId) throws SQLException {
+  static Optional<Annotation> getAnnotation(final long networkSUID, final UUID annotationId) throws
+      SQLException {
     if (annotationId == null) {
       throw new IllegalArgumentException("Annotation ID cannot be null");
     }
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     Optional<Annotation> annotation = Optional.empty();
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.SELECT_ANNOTATION);
     statement.setObject(1, annotationId);
@@ -379,9 +398,14 @@ public class StorageDelegate {
    * @param annotationId If null, all annotation values are collected. Otherwise, annotation
    * values for the corresponding id are collected.
    */
-  Collection<AnnotToEntity> getAnnotationValues(final UUID annotationId) throws
+  static Collection<AnnotToEntity> getAnnotationValues(final long networkSUID, final UUID
+      annotationId) throws
       SQLException, IOException, ClassNotFoundException {
     Collection<AnnotToEntity> collection = new ArrayList<>();
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     PreparedStatement statement;
     if (annotationId == null) {
       statement = connection.prepareStatement(
@@ -408,8 +432,12 @@ public class StorageDelegate {
   /**
    * @param name if empty, all annotations to nodes are returned. Not nullable
    */
-  Collection<AnnotToEntity> selectNodesWithAnnotation(String name)
+  static Collection<AnnotToEntity> selectNodesWithAnnotation(final long networkSUID, String name)
       throws SQLException, IOException, ClassNotFoundException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     PreparedStatement statement = null;
     if (name == null) {
       statement = connection.prepareStatement(AnnotationSchema.SELECT_ANNOT_TO_NODE);
@@ -435,8 +463,12 @@ public class StorageDelegate {
   /**
    * @param name if empty, all annotations to edges are returned. Not nullable
    */
-  Collection<AnnotToEntity> selectEdgesWithAnnotation(String name)
+  static Collection<AnnotToEntity> selectEdgesWithAnnotation(final long networkSUID, String name)
       throws SQLException, IOException, ClassNotFoundException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
     PreparedStatement statement = null;
     if (name == null) {
       statement = connection.prepareStatement(AnnotationSchema.SELECT_ANNOT_TO_EDGES);
@@ -462,12 +494,14 @@ public class StorageDelegate {
   /**
    * @param name Not nullable
    */
-  Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
+  static Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
+      final long networkSUID,
       String name, Function<Object, Boolean> predicate,
       AnnotationValueType type, boolean desc, int limit)
       throws SQLException, IOException, ClassNotFoundException {
     List<AnnotToEntity> unlimited = (List<AnnotToEntity>)
-        selectEntitiesWithAnnotationNameAndPredicateOrdered(name, predicate, type, desc);
+        selectEntitiesWithAnnotationNameAndPredicateOrdered(networkSUID, name, predicate, type,
+            desc);
     if (unlimited.size() <= limit) {
       return unlimited;
     } else {
@@ -483,12 +517,13 @@ public class StorageDelegate {
   /**
    * @param name Not nullable
    */
-  Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
+  static Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
+      final long networkSUID,
       String name, Function<Object, Boolean> predicate,
       AnnotationValueType type, boolean desc)
       throws SQLException, IOException, ClassNotFoundException {
     List<AnnotToEntity> collection = (List<AnnotToEntity>)
-        selectEntitiesWithAnnotationNameAndPredicate(name, predicate);
+        selectEntitiesWithAnnotationNameAndPredicate(networkSUID, name, predicate);
     switch (type) {
       case INT:
         sortInteger(collection, desc);
@@ -502,7 +537,7 @@ public class StorageDelegate {
     return collection;
   }
 
-  private void sortChar(List<AnnotToEntity> collection, boolean desc) {
+  private static void sortChar(List<AnnotToEntity> collection, boolean desc) {
     Comparator<AnnotToEntity> comparator = null;
     if (!desc) {
       comparator = new Comparator<AnnotToEntity>() {
@@ -526,7 +561,7 @@ public class StorageDelegate {
     Collections.sort(collection, comparator);
   }
 
-  private void sortString(List<AnnotToEntity> collection, boolean desc) {
+  private static void sortString(List<AnnotToEntity> collection, boolean desc) {
     Comparator<AnnotToEntity> comparator = null;
     if (!desc) {
       comparator = new Comparator<AnnotToEntity>() {
@@ -550,7 +585,7 @@ public class StorageDelegate {
     Collections.sort(collection, comparator);
   }
 
-  private void sortInteger(List<AnnotToEntity> collection, boolean desc) {
+  private static void sortInteger(List<AnnotToEntity> collection, boolean desc) {
     Comparator<AnnotToEntity> comparator = null;
     if (!desc) {
       comparator = new Comparator<AnnotToEntity>() {
@@ -586,7 +621,7 @@ public class StorageDelegate {
     Collections.sort(collection, comparator);
   }
 
-  private void sortFloat(List<AnnotToEntity> collection, boolean desc) {
+  private static void sortFloat(List<AnnotToEntity> collection, boolean desc) {
     Comparator<AnnotToEntity> comparator = null;
     if (!desc) {
       comparator = new Comparator<AnnotToEntity>() {
@@ -625,11 +660,12 @@ public class StorageDelegate {
   /**
    * @param name Not nullable
    */
-  Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicate(
+  static Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicate(
+      final long networkSUID,
       String name, Function<Object, Boolean> predicate)
       throws SQLException, IOException, ClassNotFoundException {
-    Collection<AnnotToEntity> nodes = selectNodesWithAnnotation(name);
-    Collection<AnnotToEntity> edges = selectEdgesWithAnnotation(name);
+    Collection<AnnotToEntity> nodes = selectNodesWithAnnotation(networkSUID, name);
+    Collection<AnnotToEntity> edges = selectEdgesWithAnnotation(networkSUID, name);
     Collection<AnnotToEntity> collection = new ArrayList<>();
     for (AnnotToEntity a : nodes) {
       if (predicate.apply(a.getValue())) {
@@ -642,17 +678,5 @@ public class StorageDelegate {
       }
     }
     return collection;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public Long getNetwork() {
-    return this.network;
-  }
-
-  public void setNetwork(final Long suid) {
-    this.network = suid;
   }
 }

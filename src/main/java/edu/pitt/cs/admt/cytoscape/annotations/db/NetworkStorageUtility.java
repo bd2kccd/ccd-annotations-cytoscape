@@ -13,83 +13,59 @@ import java.util.Collection;
  */
 public class NetworkStorageUtility {
 
-  public static void importToDatabase(StorageDelegate storageDelegate,
+  public static void importToDatabase(final long networkSUID,
       Collection<Node> nodes, Collection<Edge> edges,
       Collection<Annotation> annotations,
       Collection<AnnotToEntity> annotationToNode,
       Collection<AnnotToEntity> annotationToEdge)
       throws SQLException, IOException {
-    if (storageDelegate == null) {
-      return;
-    }
-    storageDelegate.insertNodes(nodes);
-    storageDelegate.insertEdges(edges);
-    storageDelegate.insertAnnotations(annotations);
+    StorageDelegate.insertNodes(networkSUID, nodes);
+    StorageDelegate.insertEdges(networkSUID, edges);
+    StorageDelegate.insertAnnotations(networkSUID, annotations);
     for (AnnotToEntity e : annotationToNode) {
-      storageDelegate.attachAnnotationToNode(e.getAnnotationId(), e.getCytoscapeAnnotationId(),
-          e.getEntityId(), e.getValue());
+      StorageDelegate.attachAnnotationToNode(networkSUID, e.getAnnotationId(),
+          e.getCytoscapeAnnotationId(), e.getEntityId(), e.getValue());
     }
     for (AnnotToEntity e : annotationToEdge) {
-      storageDelegate.attachAnnotationToEdge(e.getAnnotationId(), e.getCytoscapeAnnotationId(),
-          e.getEntityId(), e.getValue());
+      StorageDelegate.attachAnnotationToEdge(networkSUID, e.getAnnotationId(),
+          e.getCytoscapeAnnotationId(), e.getEntityId(), e.getValue());
     }
   }
 
-  public static Collection<Node> exportNodes(StorageDelegate delegate)
+  public static Collection<Node> exportNodes(final long networkSUID)
       throws SQLException {
-    if (delegate != null) {
-      return delegate.getNodes();
-    }
-    return null;
+    return StorageDelegate.getNodes(networkSUID);
   }
 
-  public static Collection<Edge> exportEdges(StorageDelegate delegate)
+  public static Collection<Edge> exportEdges(final long networkSUID)
       throws SQLException {
-    if (delegate != null) {
-      return delegate.getEdges();
-    }
-    return null;
+    return StorageDelegate.getEdges(networkSUID);
   }
 
-  public static Collection<Annotation> exportAnnotations(StorageDelegate delegate)
+  public static Collection<Annotation> exportAnnotations(final long networkSUID)
       throws SQLException {
-    if (delegate != null) {
-      return delegate.getAllAnnotations();
-    }
-    return null;
+    return StorageDelegate.getAllAnnotations(networkSUID);
   }
 
-  public static Collection<AnnotToEntity> exportAnnotationToNodes(
-      StorageDelegate delegate) throws SQLException, IOException, ClassNotFoundException {
-    if (delegate != null) {
-      return delegate.selectNodesWithAnnotation(null);
-    }
-    return null;
+  public static Collection<AnnotToEntity> exportAnnotationToNodes(final long networkSUID) throws
+      SQLException, IOException, ClassNotFoundException {
+    return StorageDelegate.selectNodesWithAnnotation(networkSUID, null);
   }
 
-  public static Collection<AnnotToEntity> exportAnnotationToEdges(
-      StorageDelegate delegate) throws SQLException, IOException, ClassNotFoundException {
-    if (delegate != null) {
-      return delegate.selectEdgesWithAnnotation(null);
-    }
-    return null;
+  public static Collection<AnnotToEntity> exportAnnotationToEdges(final long networkSUID) throws
+      SQLException, IOException, ClassNotFoundException {
+    return StorageDelegate.selectEdgesWithAnnotation(networkSUID, null);
   }
 
   public static Collection<AnnotToEntity> selectNodesWithAnnotationName(
-      StorageDelegate delegate, String name)
-      throws SQLException, IOException, ClassNotFoundException {
-    if (delegate != null) {
-      return delegate.selectNodesWithAnnotation(name);
-    }
-    return null;
+      final long networkSUID, String name) throws SQLException, IOException,
+      ClassNotFoundException {
+    return StorageDelegate.selectNodesWithAnnotation(networkSUID, name);
   }
 
-  public static Collection<AnnotToEntity> selectEdgesWithAnnotationName(
-      StorageDelegate delegate, String name)
+  public static Collection<AnnotToEntity> selectEdgesWithAnnotationName(final long networkSUID,
+                                                                        String name)
       throws SQLException, IOException, ClassNotFoundException {
-    if (delegate != null) {
-      return delegate.selectEdgesWithAnnotation(name);
-    }
-    return null;
+    return StorageDelegate.selectEdgesWithAnnotation(networkSUID, name);
   }
 }

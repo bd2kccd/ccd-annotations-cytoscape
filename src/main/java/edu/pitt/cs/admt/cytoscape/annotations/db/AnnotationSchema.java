@@ -5,15 +5,15 @@ package edu.pitt.cs.admt.cytoscape.annotations.db;
  */
 class AnnotationSchema {
 
-  static final String NODE_TABLE = "NODE";
+  private static final String NODE_TABLE = "NODE";
 
-  static final String EDGE_TABLE = "EDGE";
+  private static final String EDGE_TABLE = "EDGE";
 
-  static final String ANNOTATION_TABLE = "ANNOTATION";
+  private static final String ANNOTATION_TABLE = "ANNOTATION";
 
-  static final String ANNOT_TO_NODE_TABLE = "ANNOT_TO_NODE";
+  private static final String ANNOT_TO_NODE_TABLE = "ANNOT_TO_NODE";
 
-  static final String ANNOT_TO_EDGE_TABLE = "ANNOT_TO_EDGE";
+  private static final String ANNOT_TO_EDGE_TABLE = "ANNOT_TO_EDGE";
 
   static final String DROP_NODE_TABLE = "DROP TABLE " + NODE_TABLE + " IF EXISTS CASCADE";
 
