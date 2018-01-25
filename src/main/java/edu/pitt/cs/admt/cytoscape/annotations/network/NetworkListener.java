@@ -9,6 +9,7 @@ import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Edge;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Node;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask;
+import edu.pitt.cs.admt.cytoscape.annotations.ui.CCDControlPanel;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,21 +54,48 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
   private final AnnotationManager annotationManager;
   private final AnnotationFactory<TextAnnotation> annotationFactory;
   private final TaskManager taskManager;
+  private final CCDControlPanel ccdControlPanel;
 
   // Type of graph component
   private enum ComponentType { NODE, EDGE };
 
+  private boolean initDelegate(StorageDelegate delegate) {
+    try {
+      delegate.init();
+      System.out.println("Initialized storage delegate");
+    } catch (SQLException e) {
+      System.out.println("Failed to initialize storage delegate");
+      e.printStackTrace();
+      return false;
+    }
+    return true;
+  }
+
   public NetworkListener(
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
-      final TaskManager taskManager) {
+      final TaskManager taskManager,
+      final CCDControlPanel ccdControlPanel) {
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
     this.taskManager = taskManager;
+    this.ccdControlPanel = ccdControlPanel;
   }
 
   public void handleEvent(final SetCurrentNetworkEvent event) {
-    System.out.println("Current network set to: " + event.getNetwork().getSUID());
+    System.out.println("Current network set to suid: " + event.getNetwork().getSUID().toString());
+    try {
+      Long suid = event.getNetwork().getSUID();
+      if (!StorageDelegateFactory.getDelegate(suid).isPresent()) {
+        StorageDelegate delegate = StorageDelegateFactory.newDelegate(suid);
+        if (!initDelegate(delegate)) {
+          return;
+        }
+      }
+      ccdControlPanel.refresh(suid);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   public void handleEvent(final NetworkViewAddedEvent event) {
@@ -90,12 +118,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     }
 
     // Connect to database
-    try {
-      storageDelegate.init();
-      System.out.println("Initialized storage delegate");
-    } catch (SQLException e) {
-      System.out.println("Failed to initialize storage delegate");
-      e.printStackTrace();
+    if (!initDelegate(storageDelegate)) {
       return;
     }
 

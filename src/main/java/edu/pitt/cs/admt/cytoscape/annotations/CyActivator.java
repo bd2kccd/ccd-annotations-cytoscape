@@ -3,15 +3,12 @@ package edu.pitt.cs.admt.cytoscape.annotations;
 import edu.pitt.cs.admt.cytoscape.annotations.network.NetworkListener;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.ui.CCDControlPanel;
-import edu.pitt.cs.admt.cytoscape.annotations.view.ViewListener;
 import java.util.Properties;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.events.SetCurrentNetworkListener;
 import org.cytoscape.application.swing.CytoPanelComponent;
-import org.cytoscape.model.events.NetworkAddedListener;
 import org.cytoscape.service.util.AbstractCyActivator;
 import org.cytoscape.view.model.events.NetworkViewAddedListener;
-import org.cytoscape.view.model.events.ViewChangedListener;
 import org.cytoscape.view.presentation.annotations.AnnotationFactory;
 import org.cytoscape.view.presentation.annotations.AnnotationManager;
 import org.cytoscape.view.presentation.annotations.TextAnnotation;
@@ -37,25 +34,24 @@ public class CyActivator extends AbstractCyActivator {
     CyApplicationManager applicationManager = getService(context, CyApplicationManager.class);
     TaskManager taskManager = getService(context, TaskManager.class);
     AnnotationManager annotationManager = getService(context, AnnotationManager.class);
-    AnnotationFactory<TextAnnotation> textAnnotationFactory = getService(context,
-        AnnotationFactory.class, "(type=TextAnnotation.class)");
+    AnnotationFactory<TextAnnotation> textAnnotationFactory = getService(context, AnnotationFactory.class, "(type=TextAnnotation.class)");
 
     // CCD Annotation creation service
     CreateAnnotationTaskFactory createAnnotationTaskFactory = new CreateAnnotationTaskFactory(
         applicationManager, annotationManager, textAnnotationFactory);
     registerService(context, createAnnotationTaskFactory, TaskFactory.class, new Properties());
 
-    // listeners
-    NetworkListener networkListener = new NetworkListener(annotationManager, textAnnotationFactory, taskManager);
-    registerService(context, networkListener, NetworkViewAddedListener.class, new Properties());
-    registerService(context, networkListener, SetCurrentNetworkListener.class, new Properties());
-//    ViewListener viewListener = new ViewListener();
-//    registerService(context, viewListener, ViewChangedListener.class, new Properties());
-
     // ui components
     CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, taskManager, createAnnotationTaskFactory);
     registerService(context, ccdControlPanel, CytoPanelComponent.class, new Properties());
 //        ControlPanelAction controlPanelAction = new ControlPanelAction(application, ccdControlPanel);
 //        registerService(context, controlPanelAction, CyAction.class, new Properties());
+
+    // listeners
+    NetworkListener networkListener = new NetworkListener(annotationManager, textAnnotationFactory, taskManager, ccdControlPanel);
+    registerService(context, networkListener, NetworkViewAddedListener.class, new Properties());
+    registerService(context, networkListener, SetCurrentNetworkListener.class, new Properties());
+//    ViewListener viewListener = new ViewListener();
+//    registerService(context, viewListener, ViewChangedListener.class, new Properties());
   }
 }
