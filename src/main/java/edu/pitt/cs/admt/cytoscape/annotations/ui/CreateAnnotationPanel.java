@@ -4,7 +4,6 @@ import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
-import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -14,11 +13,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.Vector;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -82,12 +81,18 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
       }
       taskManager.execute(
           createAnnotationTaskFactory
-              .createOnSelected(name)
-              .setAnnotationDescription(descriptionText.getText())
-              .setAnnotationValue(valueField.getText())
-              .createTaskIterator()
+          .createOnSelected(name)
+          .setAnnotationDescription(descriptionText.getText())
+          .setAnnotationValue(valueField.getText())
+          .createTaskIterator()
       );
+      annotations.put(name, new Annotation(
+          UUID.randomUUID(),
+          name,
+          AnnotationValueType.parse(((String)valueTypeSelector.getSelectedItem()).toUpperCase()),
+          descriptionText.getText()));
       System.out.println("Created annotation with text: " + descriptionText.getText());
+      updateView();
     });
 
     nameSelector.addActionListener((ActionEvent e) -> {
@@ -133,6 +138,7 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
     add(valueTypeLabel);
     add(valueTypeSelector);
     // value
+    valueField.setPreferredSize(new Dimension(100, 20));
     add(valueLabel);
     add(valueField);
     add(createButton);
@@ -149,18 +155,24 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
     revalidate();
   }
 
-  public void refresh(Long suid) {
-    this.networkSUID = suid;
-    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(networkSUID);
+  public void refresh() {
+    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.networkSUID);
     if (storageDelegateOptional.isPresent()) {
       StorageDelegate delegate = storageDelegateOptional.get();
       try {
-        setAnnotations(delegate.getAllAnnotations());
+        this.setAnnotations(delegate.getAllAnnotations());
       } catch(SQLException e) {
         e.printStackTrace();
       }
+    } else {
+      System.out.println("Create panel couldn't find storage delegate");
     }
     updateView();
+  }
+
+  public void refresh(Long suid) {
+    this.networkSUID = suid;
+    refresh();
   }
 
   public void setAnnotations(Map<String, Annotation> annotations) {
@@ -168,6 +180,7 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
   }
 
   public void setAnnotations(Collection<Annotation> annotations) {
+    System.out.println("Setting " + annotations.size() + " annotations");
     this.annotations = annotations
         .stream()
         .collect(Collectors.toMap(Annotation::getName, Function.identity()));

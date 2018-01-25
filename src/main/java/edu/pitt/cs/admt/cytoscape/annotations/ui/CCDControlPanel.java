@@ -60,7 +60,8 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
   private final JLabel baseLabel = new JLabel("<html>You must select a network before managing CCD Annotations.</html>");
   private JTabbedPane basePanel = new JTabbedPane(JTabbedPane.BOTTOM);
   private CreateAnnotationPanel createPanel;
-  private JPanel searchPanel = new JPanel();
+  private SearchAnnotationPanel searchPanel = new SearchAnnotationPanel();
+  private JTabbedPane tabs = new JTabbedPane();
 
   public CCDControlPanel(
       final CyApplicationManager applicationManager,
@@ -68,6 +69,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
       final CreateAnnotationTaskFactory createAnnotationTaskFactory) {
     this.applicationManager = applicationManager;
     createPanel = new CreateAnnotationPanel(taskManager, createAnnotationTaskFactory);
+    searchPanel = new SearchAnnotationPanel();
 //    final Dimension minSize = new Dimension(250, 800);
 //    final Dimension prefSize = new Dimension(300, 300);
 //    this.basePanel.setMinimumSize(minSize);
@@ -78,12 +80,17 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
 //    this.searchPanel.setPreferredSize(prefSize);
 //    this.add(baseLabel);
     this.add(baseLabel);
+    tabs.addTab("Create", null, createPanel, "Create new CCD Annotations");
+    tabs.addTab("Search", null, searchPanel, "Search for CCD Annotations");
     this.setVisible(true);
   }
 
   private void updateView() {
     this.remove(baseLabel);
-    this.add(createPanel);
+    this.remove(tabs);
+    this.add(tabs);
+//    this.add(createPanel);
+//    this.add(searchPanel);
 //    this.remove(baseLabel);
 //    this.remove(basePanel);
 //    this.basePanel.removeAll();
@@ -261,6 +268,7 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
   public void refresh(Long suid) throws Exception {
     this.networkSUID = suid;
     this.createPanel.refresh(suid);
+    this.searchPanel.refresh(suid);
     this.updateView();
     Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.networkSUID);
     if (storageDelegateOptional.isPresent()) {
