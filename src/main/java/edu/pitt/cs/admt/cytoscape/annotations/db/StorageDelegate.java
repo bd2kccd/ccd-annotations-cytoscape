@@ -408,7 +408,7 @@ public class StorageDelegate {
   /**
    * @param name if empty, all annotations to nodes are returned. Not nullable
    */
-  Collection<AnnotToEntity> selectNodesWithAnnotation(String name)
+  public Collection<AnnotToEntity> selectNodesWithAnnotation(String name)
       throws SQLException, IOException, ClassNotFoundException {
     PreparedStatement statement = null;
     if (name == null) {
@@ -435,7 +435,7 @@ public class StorageDelegate {
   /**
    * @param name if empty, all annotations to edges are returned. Not nullable
    */
-  Collection<AnnotToEntity> selectEdgesWithAnnotation(String name)
+  public Collection<AnnotToEntity> selectEdgesWithAnnotation(String name)
       throws SQLException, IOException, ClassNotFoundException {
     PreparedStatement statement = null;
     if (name == null) {
