@@ -1,5 +1,7 @@
 package edu.pitt.cs.admt.cytoscape.annotations.task;
 
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -227,6 +229,7 @@ public class CreateAnnotationTask extends AbstractTask {
         .createAnnotation(TextAnnotation.class, this.networkView, args);
     this.annotationManager.addAnnotation(annotation);
     updateNetworkTable(annotation);
+    StorageDelegate delegate = StorageDelegateFactory.getDelegate(network.getSUID()).get();
   }
 
 
@@ -268,7 +271,10 @@ public class CreateAnnotationTask extends AbstractTask {
     String rowString = new StringBuilder()
         .append("a_id=").append(anUUID).append("|")
         .append("cy_id=").append(cyUUID).append("|")
-        .append("value=").append(String.valueOf(0.333)).toString();
+        .append("value=").toString();
+    if (annotationValue != null) {
+      rowString = rowString + annotationValue.toString();
+    }
     row.add(rowString);
     Set<String> rowSet = new HashSet<>(row);
     this.network.getRow(cyIdentifiable).set(ANNOTATION_SET_ATTRIBUTE, new ArrayList<>(rowSet));
