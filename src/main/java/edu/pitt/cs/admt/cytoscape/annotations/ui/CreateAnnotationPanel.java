@@ -98,16 +98,18 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
         }
 
         @Override
-        public void cancel() {
-
+        public void cancel() { }
+      });
+      taskIterator.append(new Task() {
+        @Override
+        public void run(TaskMonitor taskMonitor) throws Exception {
+          nameSelector.setSelectedItem(name);
         }
+        @Override
+        public void cancel() { }
       });
       taskManager.execute(taskIterator);
-//      annotations.put(name, new Annotation(
-//          UUID.randomUUID(),
-//          name,
-//          AnnotationValueType.parse(((String)valueTypeSelector.getSelectedItem()).toUpperCase()),
-//          descriptionText.getText()));
+      newNameField.setText("");
     });
 
     nameSelector.addActionListener((ActionEvent e) -> {

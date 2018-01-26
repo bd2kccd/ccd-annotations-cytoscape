@@ -229,9 +229,6 @@ public class CreateAnnotationTask extends AbstractTask {
     if (this.nodes.isEmpty() && this.edges.isEmpty()) {
       throw new MissingComponentsException();
     }
-    if (this.ccdAnnotationID == null) {
-      this.ccdAnnotationID = UUID.randomUUID();
-    }
     if (this.cytoscapeID == null) {
       this.cytoscapeID = UUID.randomUUID();
     }
@@ -257,10 +254,10 @@ public class CreateAnnotationTask extends AbstractTask {
     TextAnnotation annotation = this.annotationFactory
         .createAnnotation(TextAnnotation.class, this.networkView, args);
     this.annotationManager.addAnnotation(annotation);
-    updateNetworkTable(annotation);
     if (this.updateDB) {
       updateDatabase();
     }
+    updateNetworkTable(annotation);
   }
 
   private void updateDatabase() {
@@ -271,7 +268,12 @@ public class CreateAnnotationTask extends AbstractTask {
         System.out.println("Before: " + delegate.selectNodesWithAnnotation(this.annotationName).size() + delegate.selectEdgesWithAnnotation(this.annotationName).size());
         // make sure annotation with this name doesn't already exist
         Optional<Annotation> optionalAnnotation = delegate.getAnnotationByName(this.annotationName);
-        if (!optionalAnnotation.isPresent()) {
+        if (optionalAnnotation.isPresent()) {
+          this.ccdAnnotationID = optionalAnnotation.get().getId();
+        } else {
+          if (this.ccdAnnotationID == null) {
+            this.ccdAnnotationID = UUID.randomUUID();
+          }
           delegate.insertAnnotation(this.ccdAnnotationID, this.annotationName, this.annotationValueType, this.annotationDescription);
         }
         System.out.println("Creating annotation " + this.ccdAnnotationID + " on " + nodes.stream().map(CyNode::getSUID).collect(
