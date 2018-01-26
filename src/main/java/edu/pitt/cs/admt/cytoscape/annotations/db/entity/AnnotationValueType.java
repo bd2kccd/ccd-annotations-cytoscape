@@ -33,7 +33,7 @@ public enum AnnotationValueType {
   }
 
   public static AnnotationValueType parse(final String s) {
-    switch (s) {
+    switch (s.toUpperCase()) {
       case "BOOLEAN":
         return AnnotationValueType.BOOLEAN;
       case "INT":
