@@ -45,7 +45,7 @@ public class CreateAnnotationTask extends AbstractTask {
   private static final String ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
 
   // network table column
-  private static final String COLUMN = "selected";
+  private static final String SELECTED = "selected";
 
   // text annotation properties
   private static final Double ZOOM = 1.0;
@@ -101,8 +101,8 @@ public class CreateAnnotationTask extends AbstractTask {
         annotationManager,
         annotationFactory,
         annotationName);
-    task.nodes.addAll(CyTableUtil.getNodesInState(task.network, COLUMN, true));
-    task.edges.addAll(CyTableUtil.getEdgesInState(task.network, COLUMN, true));
+    task.nodes.addAll(CyTableUtil.getNodesInState(task.network, SELECTED, true));
+    task.edges.addAll(CyTableUtil.getEdgesInState(task.network, SELECTED, true));
     return task;
   }
 
@@ -248,7 +248,7 @@ public class CreateAnnotationTask extends AbstractTask {
       args.put("text", this.annotationName);
     }
     args.put("uuid", this.cytoscapeID.toString());
-
+    System.out.println("Text: " + args.get("text"));
 
     // Create and add annotation to network
     TextAnnotation annotation = this.annotationFactory
@@ -295,10 +295,22 @@ public class CreateAnnotationTask extends AbstractTask {
     // add to network
     List<String> row = this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS)
         .getList(CCD_ANNOTATION_ATTRIBUTE, String.class);
+    System.out.println("Updating network table with:");
+    System.out.println("name: " + this.annotationName);
+    System.out.println("description: " + this.annotationDescription);
+    String type = "";
+    if (this.annotationValueType == null) {
+      System.out.print("Value type is null");
+      System.out.println(" for annotation: " + this.annotationName);
+    } else {
+      System.out.println("value type: " + this.annotationValueType.toString());
+      type = this.annotationValueType.toString();
+    }
+    System.out.println("value: " + this.annotationValue);
     String annotationString = new StringBuilder()
         .append("uuid=").append(this.ccdAnnotationID.toString()).append("|")
         .append("name=").append(this.annotationName).append("|")
-        .append("type=").append("float").append("|")
+        .append("type=").append(type).append("|")
         .append("description=").append(this.annotationDescription).toString();
     row.add(annotationString);
     Set<String> rowSet = new HashSet<>(row);

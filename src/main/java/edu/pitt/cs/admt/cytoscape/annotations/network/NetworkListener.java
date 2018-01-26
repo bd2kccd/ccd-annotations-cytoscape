@@ -425,7 +425,8 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     String[] s = str.split("\\|");
     UUID uuid = UUID.fromString(s[0].split("=")[1]);
     String name = s[1].split("=")[1];
-    AnnotationValueType type = AnnotationValueType.parse(s[2].split("=")[1]);
+    String typeStr = s[2].split("=")[1];
+    AnnotationValueType type = AnnotationValueType.parse(typeStr.toUpperCase());
     System.out.println("Type: " + type.name());
     String desc = s[3].split("=")[1];
     return new Annotation(uuid, name, type, desc);
