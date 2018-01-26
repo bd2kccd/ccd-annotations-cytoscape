@@ -1,25 +1,19 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
-import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.Icon;
-import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
-import javax.swing.JTextArea;
-import javax.swing.SpinnerListModel;
-import javax.swing.SwingConstants;
+import javax.swing.JTabbedPane;
+import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.application.swing.CytoPanelName;
 import org.cytoscape.work.TaskManager;
@@ -30,107 +24,53 @@ import org.cytoscape.work.TaskManager;
 public class CCDControlPanel extends JPanel implements CytoPanelComponent, Serializable {
 
   private static final long serialVersionUID = 7128778486978079375L;
+  private static final String NEW_ANNOTATION_NAME = "New...";
 
+  private final CyApplicationManager applicationManager;
+  private Long networkSUID = null;
+  private Collection<Annotation> annotations = Collections.EMPTY_LIST;
+  private Map<String, Annotation> annotationNameToObject = new HashMap<>();
+  private JComboBox<String> annotationNames = new JComboBox<>();
+  private Map<String, String> annotationDescriptions = new HashMap<>();
   private JLabel annotationsList;
 
-  public CCDControlPanel(final TaskManager taskManager,
-      final StorageDelegate storageDelegate,
+  private final JLabel baseLabel = new JLabel("<html>You must select a network before managing CCD Annotations.</html>");
+  private JTabbedPane basePanel = new JTabbedPane(JTabbedPane.BOTTOM);
+  private CreateAnnotationPanel createPanel;
+  private SearchAnnotationPanel searchPanel = new SearchAnnotationPanel();
+  private JTabbedPane tabs = new JTabbedPane();
+
+  public CCDControlPanel(
+      final CyApplicationManager applicationManager,
+      final TaskManager taskManager,
       final CreateAnnotationTaskFactory createAnnotationTaskFactory) {
-
-    // title
-    JLabel label = new JLabel("New CCD Annotation\n", SwingConstants.CENTER);
-
-    // extended attribute selection
-    final String[] attributeOptions = {"Comment", "Posterior Probability"};
-    final SpinnerListModel listModel = new SpinnerListModel(attributeOptions);
-    final JSpinner attributeSpinner = new JSpinner(listModel);
-    ((JSpinner.DefaultEditor) attributeSpinner.getEditor()).getTextField().setEditable(false);
-    ((JSpinner.DefaultEditor) attributeSpinner.getEditor()).getTextField()
-        .setPreferredSize(new Dimension(150, 20));
-
-    // annotation data
-    JTextArea annotationText = new JTextArea("CCD annotation text");
-    annotationText.addFocusListener(new FocusListener() {
-      @Override
-      public void focusGained(final FocusEvent e) {
-        if (annotationText.getText().equals("CCD annotation text")) {
-          annotationText.setText("");
-        }
-      }
-
-      @Override
-      public void focusLost(final FocusEvent e) {
-        if (annotationText.getText().isEmpty()) {
-          annotationText.setText("CCD annotation text");
-        }
-      }
-    });
-    annotationText.setPreferredSize(new Dimension(300, 100));
-    annotationText.setLineWrap(true);
-    annotationsList = new JLabel("");
-    JButton button = new JButton("Create");
-
-    button.addActionListener((ActionEvent e) -> {
-      taskManager.execute(createAnnotationTaskFactory
-          .createTaskIteratorAnnotationOnSelected(annotationText.getText()));
-      annotationsList.setText("Added: " + annotationText.getText());
-      annotationText.setText("CCD annotation text");
-    });
-
-    // search box
-    JPanel searchPanel = new JPanel();
-    JLabel searchLabel = new JLabel("\n\nSearch\n", SwingConstants.CENTER);
-    JTextArea searchText = new JTextArea("Search");
-    searchText.setPreferredSize(new Dimension(300, 100));
-    searchText.setLineWrap(true);
-    // TODO: Look into JTextArea property change methods (https://stackoverflow.com/questions/6478577/how-to-make-a-text-field-for-searchingwith-tips-like-a-google-search)
-    searchText.addFocusListener(new FocusListener() {
-      @Override
-      public void focusGained(final FocusEvent e) {
-        if (searchText.getText().equals("Search")) {
-          searchText.setText("");
-        }
-      }
-
-      @Override
-      public void focusLost(final FocusEvent e) {
-        if (searchText.getText().isEmpty()) {
-          searchText.setText("Search");
-        }
-      }
-    });
-
-    JButton searchButton = new JButton("Search");
-    JButton clearButton = new JButton("Clear");
-
-    searchButton.addActionListener(new SearchActionListener(storageDelegate, searchText.getText()));
-
-    clearButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        System.out.println("Clearing...");
-      }
-    });
-
-    // Java FX Experiment
-    JScrollPane scrollPane = new JScrollPane(annotationText, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-        JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    scrollPane.setVisible(true);
-    this.add(label);
-    this.add(new JTextArea("\n\n"));    // line break
-    this.add(attributeSpinner);
-//        this.add(annotationText);
-    this.add(scrollPane);
-    this.add(new JTextArea("\n"));      // line break
-    this.add(button);
-    this.add(new JLabel("\n"));    // line break
-    this.add(annotationsList);
-    this.add(new JLabel("\n\n"));    // line break
-    this.add(searchLabel);
-    this.add(searchText);
-    this.add(searchButton);
-    this.add(clearButton);
+    this.applicationManager = applicationManager;
+    createPanel = new CreateAnnotationPanel(taskManager, createAnnotationTaskFactory);
+    searchPanel = new SearchAnnotationPanel();
+//    final Dimension minSize = new Dimension(250, 800);
+//    final Dimension prefSize = new Dimension(300, 300);
+    this.add(baseLabel);
+    tabs.addTab("Create", null, createPanel, "Create new CCD Annotations");
+    tabs.addTab("Search", null, searchPanel, "Search for CCD Annotations");
     this.setVisible(true);
+  }
+
+  private void updateView() {
+    this.remove(baseLabel);
+    this.remove(tabs);
+    this.add(tabs);
+  }
+
+
+  /**
+   * Update panel state to reflect change in selected network
+   * @param suid Network SUID
+   */
+  public void refresh(Long suid) {
+    this.networkSUID = suid;
+    this.createPanel.refresh(suid);
+    this.searchPanel.refresh(suid);
+    this.updateView();
   }
 
   public Component getComponent() {
@@ -147,33 +87,5 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
 
   public Icon getIcon() {
     return null;
-  }
-
-  public class SearchActionListener implements ActionListener {
-
-    private StorageDelegate storageDelegate;
-    private String searchString;
-
-    public SearchActionListener(final StorageDelegate storageDelegate, final String searchString) {
-      super();
-      System.out.println("Creating action listener");
-      System.out.println("search string: " + searchString);
-      this.storageDelegate = new StorageDelegate();
-      this.searchString = searchString;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-      System.out.println("Running action performed");
-      try {
-        Collection<AnnotToEntity> result = this.storageDelegate
-            .searchAnnotations(this.searchString);
-        for (AnnotToEntity entity : result) {
-          System.out.println(entity.getValue());
-        }
-        this.storageDelegate.close();
-      } catch (Exception exc) {
-        exc.printStackTrace();
-      }
-    }
   }
 }

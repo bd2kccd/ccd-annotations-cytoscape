@@ -1,8 +1,7 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
 
-import com.google.common.base.Preconditions;
-
 /**
+ * Class representing an Edge
  * @author Nikos R. Katsipoulakis
  */
 public class Edge {
@@ -12,20 +11,40 @@ public class Edge {
   private int source;
 
   private int destination;
-
+  
+  /**
+   *
+   * @param suid the unique suid for the edge
+   * @param source the source {@link Node}'s <code>suid</code>
+   * @param destination the destination {@link Node}'s <code>suid</code>
+   * @throws IllegalArgumentException if <code>suid</code>, <code>source</code>, or
+   * <code>destination</code> values are negative
+   */
   public Edge(int suid, int source, int destination) {
-    Preconditions.checkArgument(suid >= 0 && source >= 0 && destination >= 0);
+    if (suid < 0 || source < 0 || destination < 0) {
+      throw new IllegalArgumentException("invalid arguments given");
+    }
     this.suid = suid;
     this.source = source;
     this.destination = destination;
   }
-
+  
+  /**
+   *
+   * @return an {@link Edge}'s id.
+   */
   public int getSuid() {
     return suid;
   }
-
+  
+  /**
+   *
+   * @param suid
+   */
   public void setSuid(int suid) {
-    Preconditions.checkArgument(suid >= 0);
+    if (suid < 0) {
+      throw new IllegalArgumentException("negative id given");
+    }
     this.suid = suid;
   }
 
@@ -34,7 +53,9 @@ public class Edge {
   }
 
   public void setSource(int source) {
-    Preconditions.checkArgument(source >= 0);
+    if (source < 0) {
+      throw new IllegalArgumentException("negative source given");
+    }
     this.source = source;
   }
 
@@ -43,7 +64,9 @@ public class Edge {
   }
 
   public void setDestination(int destination) {
-    Preconditions.checkArgument(destination >= 0);
+    if (destination < 0) {
+      throw new IllegalArgumentException("negative destination given");
+    }
     this.destination = destination;
   }
 

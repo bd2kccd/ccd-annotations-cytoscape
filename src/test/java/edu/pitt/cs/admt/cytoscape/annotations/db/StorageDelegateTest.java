@@ -1,135 +1,132 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db;
 
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.ExtendedAttributeType;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
-
-import static org.junit.Assert.*;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * @author Nikos R. Katsipoulakis
  */
+
 public class StorageDelegateTest {
 
   @Test
   public void initTest() {
-    StorageDelegate delegate = new StorageDelegate();
     try {
-      delegate.init("init_test");
+      StorageDelegate.init(50L);
     } catch (SQLException e) {
       e.printStackTrace();
       assertTrue("unexpected SQLException thrown (1)", false);
     }
-    delegate.close();
+    StorageDelegate.close(50L);
   }
 
   @Test
   public void insertNodeTest() {
-    StorageDelegate delegate = new StorageDelegate();
     try {
-      delegate.init("insert_node_test");
+      StorageDelegate.init(51L);
     } catch (SQLException e) {
       assertTrue("unexpected SQLException thrown (0)", false);
     }
     try {
-      delegate.insertNewNode(1);
+      StorageDelegate.insertNode(51L, 1);
     } catch (SQLException e) {
       e.printStackTrace();
       assertTrue("first insertion of node " + 1 + " failed.", false);
     }
     boolean thrown = false;
     try {
-      delegate.insertNewNode(1);
+      StorageDelegate.insertNode(51L, 1);
     } catch (SQLException e) {
       thrown = true;
     }
     assertTrue("second insertion of node " + 1 + " succeeded", thrown);
     thrown = false;
     try {
-      delegate.insertNewNode(-1);
-    } catch (SQLException e) {
-      thrown = true;
-    } catch (IllegalArgumentException e) {
+      StorageDelegate.insertNode(51L, -1);
+    } catch (Exception e) {
       thrown = true;
     }
     assertTrue("insertion of negative node-id allowed", thrown);
-    delegate.close();
+    StorageDelegate.close(51L);
   }
 
   @Test
   public void insertEdgeTest() {
-    StorageDelegate delegate = new StorageDelegate();
     try {
-      delegate.init("insert_edge_test");
+      StorageDelegate.init(52L);
     } catch (SQLException e) {
       assertTrue("unexpected SQLException thrown (1)", false);
     }
     try {
-      delegate.insertNewNode(1);
-      delegate.insertNewNode(2);
+      StorageDelegate.insertNode(52L, 1);
+      StorageDelegate.insertNode(52L, 2);
     } catch (SQLException e) {
       e.printStackTrace();
     }
     boolean thrown = false;
     try {
-      delegate.insertNewEdge(-1, 1, 2);
+      StorageDelegate.insertEdge(52L, -1, 1, 2);
     } catch (SQLException e) {
       thrown = true;
     }
     assertTrue("insertion of edge with negative id allowed", thrown);
     thrown = false;
     try {
-      delegate.insertNewEdge(1, 4, 5);
+      StorageDelegate.insertEdge(52L, 1, 4, 5);
     } catch (SQLException e) {
       thrown = true;
     }
     assertTrue("insertion of edge to non existing nodes is allowed", thrown);
     try {
-      delegate.insertNewEdge(1, 1, 2);
+      StorageDelegate.insertEdge(52L, 1, 1, 2);
     } catch (SQLException e) {
       e.printStackTrace();
       assertTrue("insertion of normal edge failed", false);
     }
-    delegate.close();
+    StorageDelegate.close(52L);
   }
 
   @Test
   public void insertAnnotationTest() {
     UUID firstUUID = UUID.randomUUID();
-    StorageDelegate delegate = new StorageDelegate();
     try {
-      delegate.init("insert_annotation_test");
+      StorageDelegate.init(53L);
     } catch (SQLException e) {
       assertTrue("unexpected SQLException thrown (1)", false);
     }
     try {
-      delegate.insertNewNode(1);
-      delegate.insertNewNode(2);
-      delegate.insertNewEdge(1, 1, 2);
+      StorageDelegate.insertNode(53L, 1);
+      StorageDelegate.insertNode(53L, 2);
+      StorageDelegate.insertEdge(53L, 1, 1, 2);
     } catch (SQLException e) {
       e.printStackTrace();
       assertTrue("insertion of nodes and edges failed", false);
     }
     boolean thrown = false;
     try {
-      delegate.insertAnnotation(null, "should-fail");
-    } catch (SQLException e) {
-      thrown = true;
-    } catch (IllegalArgumentException e) {
+      StorageDelegate.insertAnnotation(53L, null, null, AnnotationValueType.CHAR,
+          "should-fail");
+    } catch (Exception e) {
       thrown = true;
     }
     assertTrue("insertion with null id", thrown);
     thrown = false;
     StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < 65; ++i)
+    for (int i = 0; i < 65; ++i) {
       builder.append("a");
+    }
     try {
-      delegate.insertAnnotation(firstUUID, builder.toString());
+      StorageDelegate.insertAnnotation(53L, firstUUID, "some-ann", AnnotationValueType.CHAR,
+          builder.toString());
     } catch (IllegalArgumentException e) {
       thrown = true;
     } catch (SQLException e1) {
@@ -137,128 +134,43 @@ public class StorageDelegateTest {
     }
     assertTrue("insertion with long description", thrown);
     try {
-      delegate.insertAnnotation(firstUUID, "annotation test alpha");
+      StorageDelegate.insertAnnotation(53L, firstUUID, "some-ann", AnnotationValueType.CHAR,
+          "annotation test alpha");
     } catch (SQLException e) {
       assertTrue("insertion of normal annotation failed", false);
     }
-    thrown = false;
-    try {
-      delegate.attachAnnotationToNode(firstUUID, 5, null, null);
-    } catch (SQLException e) {
-      thrown = true;
-    } catch (IOException e) {
-      assertTrue("unexpected IOException thrown (1)", false);
-    }
-    assertTrue("attachment of annotation to invalid node", thrown);
-    try {
-      delegate.attachAnnotationToNode(firstUUID, 1, null, null);
-    } catch (SQLException e) {
-      e.printStackTrace();
-      assertTrue("attachment of annotation to node failed", false);
-    } catch (IOException e) {
-      assertTrue("unexpected IOException thrown (2)", false);
-    }
-    thrown = false;
-    try {
-      delegate.attachAnnotationToEdge(firstUUID, 54, null, null);
-    } catch (SQLException e) {
-      thrown = true;
-    } catch (IOException e) {
-      assertTrue("unexpected IOException thrown (3)", false);
-    }
-    assertTrue("attachment of annotation to invalid edge", thrown);
-    try {
-      delegate.attachAnnotationToEdge(firstUUID, 1, null, null);
-    } catch (SQLException e) {
-      assertTrue("attachment of annotation to edge failed", false);
-    } catch (IOException e) {
-      assertTrue("unexpected IOException thrown (4)", false);
-    }
-    delegate.close();
+    StorageDelegate.close(53L);
   }
 
   @Test
-  public void insertAnnotationExtendedAttributeTest() {
-    StorageDelegate delegate = new StorageDelegate();
-    UUID firstUUID = UUID.randomUUID();
+  public void getAnnotationTest() {
+    UUID uuid = UUID.randomUUID();
     try {
-      delegate.init("insert_ann_ext_attr_test");
+      StorageDelegate.init(54L);
     } catch (SQLException e) {
       assertTrue("unexpected SQLException thrown (1)", false);
     }
-    boolean thrown = false;
     try {
-      delegate.insertAnnotationExtendedAttribute(-1, "na",
-          ExtendedAttributeType.BOOLEAN);
-    } catch (IllegalArgumentException e) {
-      thrown = true;
-    } catch (SQLException e1) {
-      assertTrue("irregular SQL exception thrown (1)", false);
-    }
-    assertTrue("insertion of extended attr with negative value", thrown);
-    thrown = false;
-    try {
-      delegate.insertAnnotationExtendedAttribute(1, null,
-          ExtendedAttributeType.BOOLEAN);
-    } catch (IllegalArgumentException e) {
-      thrown = true;
-    } catch (SQLException e1) {
-      assertTrue("irregular SQL exception thrown (2)", false);
-    }
-    assertTrue("insertion of empty name", thrown);
-    thrown = false;
-    try {
-      delegate.insertAnnotationExtendedAttribute(1, "ext_attr_1", null);
-    } catch (IllegalArgumentException e) {
-      thrown = true;
-    } catch (SQLException e1) {
-      assertTrue("irregular SQL exception thrown (3)", false);
-    }
-    assertTrue("insertion of empty type", thrown);
-    try {
-      delegate.insertAnnotationExtendedAttribute(1, "ext_attr_1",
-          ExtendedAttributeType.BOOLEAN);
-    } catch (SQLException e) {
-      assertTrue("irregular SQL exception thrown (4)", false);
-    }
-    try {
-      delegate.insertAnnotation(firstUUID, "first annot");
-    } catch (SQLException e) {
-      assertTrue("failed to add annotation", false);
-    }
-    try {
-      delegate.insertNewNode(1);
-    } catch (SQLException e) {
-      assertTrue("failed to add node", false);
-    }
-    try {
-      delegate.attachAnnotationToNode(firstUUID, 1, 1, new Float(0.1234F));
+      StorageDelegate.insertNode(54L, 1);
     } catch (SQLException e) {
       e.printStackTrace();
-      assertTrue("SQL exception when attaching annotation to node", false);
-    } catch (IOException e) {
-      e.printStackTrace();
-      assertTrue("IO exception when attaching annotation to node", false);
+      assertTrue("insertion of node failed", false);
     }
-    Collection<AnnotToEntity> attributes = null;
     try {
-      attributes = delegate.getExtendedAttributeValues(firstUUID);
+      StorageDelegate.insertAnnotation(54L, uuid, "annotation", AnnotationValueType.CHAR, "a");
     } catch (SQLException e) {
       e.printStackTrace();
-      assertTrue("SQL exception when retrieving values to nodes", false);
-    } catch (IOException e) {
-      e.printStackTrace();
-      assertTrue("IO exception when retrieving values to nodes", false);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-      assertTrue("Class Not Found exception when retrieving values to nodes", false);
+      assertTrue("insertion of annotation failed", false);
     }
-    for (AnnotToEntity a : attributes) {
-      Float f = (Float) a.getValue();
-      assertTrue("unexpected value extracted", f == 0.1234F);
-      break;
+    Optional<Annotation> annotation = Optional.empty();
+    try {
+      annotation = StorageDelegate.getAnnotation(54L, uuid);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      assertTrue("failed to fetch annotation", false);
     }
-    delegate.close();
+    assertNotEquals(annotation, Optional.empty());
+    assertEquals(annotation.get().getName(), "annotation");
+    StorageDelegate.close(54L);
   }
-  
 }

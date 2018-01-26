@@ -1,6 +1,5 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
 
-import com.google.common.base.Preconditions;
 import java.util.UUID;
 
 /**
@@ -10,24 +9,27 @@ public class AnnotToEntity {
 
   private UUID annotationId;
 
-  private int entityId;
+  private UUID cytoscapeAnnotationId;
 
-  private Integer extendedAttributeId;
+  private int entityId;
 
   private Object value;
 
-  public AnnotToEntity(UUID annotationId, int entityId, Integer extendedAttributeId, Object value) {
-    Preconditions.checkArgument(entityId >= 0);
-    if (extendedAttributeId != null) {
-      Preconditions.checkArgument(extendedAttributeId >= 0);
+  public AnnotToEntity(UUID annotationId, UUID cytoscapeAnnotationId,
+      int entityId, Object value) {
+    if (entityId < 0) {
+      throw new IllegalArgumentException("negative id given.");
     }
     if (value != null) {
-      Preconditions.checkArgument(value instanceof Character || value instanceof Boolean ||
-          value instanceof Integer || value instanceof Float || value instanceof String);
+      if (!(value instanceof Character) && !(value instanceof Boolean) &&
+          !(value instanceof Integer) && !(value instanceof Float) && !(value instanceof String)) {
+        throw new IllegalArgumentException("invalid value type: " +
+            value.getClass().getSimpleName());
+      }
     }
     this.annotationId = annotationId;
+    this.cytoscapeAnnotationId = cytoscapeAnnotationId;
     this.entityId = entityId;
-    this.extendedAttributeId = extendedAttributeId;
     this.value = value;
   }
 
@@ -39,24 +41,23 @@ public class AnnotToEntity {
     this.annotationId = annotationId;
   }
 
+  public UUID getCytoscapeAnnotationId() {
+    return cytoscapeAnnotationId;
+  }
+
+  public void setCytoscapeAnnotationId(UUID cytoscapeAnnotationId) {
+    this.cytoscapeAnnotationId = cytoscapeAnnotationId;
+  }
+
   public int getEntityId() {
     return entityId;
   }
 
   public void setEntityId(int entityId) {
-    Preconditions.checkArgument(entityId >= 0);
-    this.entityId = entityId;
-  }
-
-  public Integer getExtendedAttributeId() {
-    return extendedAttributeId;
-  }
-
-  public void setExtendedAttributeId(Integer extendedAttributeId) {
-    if (extendedAttributeId != null) {
-      Preconditions.checkArgument(extendedAttributeId >= 0);
+    if (entityId < 0) {
+      throw new IllegalArgumentException("negative id given.");
     }
-    this.extendedAttributeId = extendedAttributeId;
+    this.entityId = entityId;
   }
 
   public Object getValue() {
@@ -65,9 +66,21 @@ public class AnnotToEntity {
 
   public void setValue(Object value) {
     if (value != null) {
-      Preconditions.checkArgument(value instanceof Character || value instanceof Boolean ||
-          value instanceof Integer || value instanceof Float || value instanceof String);
+      if (!(value instanceof Character) && !(value instanceof Boolean) &&
+          !(value instanceof Integer) && !(value instanceof Float) && !(value instanceof String)) {
+        throw new IllegalArgumentException("invalid value type: " +
+            value.getClass().getSimpleName());
+      }
     }
     this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return new StringBuilder()
+        .append("a_id=").append(this.annotationId).append("|")
+        .append("cy_id=").append(this.cytoscapeAnnotationId).append("|")
+        .append("value=").append(this.value)
+        .toString();
   }
 }

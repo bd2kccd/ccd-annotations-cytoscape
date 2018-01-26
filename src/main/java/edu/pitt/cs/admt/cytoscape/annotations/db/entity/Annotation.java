@@ -10,13 +10,19 @@ public class Annotation {
 
   private UUID id;
 
+  private String name;
+
+  private AnnotationValueType type;
+
   private String description;
 
-  public Annotation(UUID id, String description) {
+  public Annotation(UUID id, String name, AnnotationValueType type, String description) {
     if (description != null) {
       Preconditions.checkArgument(description.length() <= 64);
     }
     this.id = id;
+    this.name = name;
+    this.type = type;
     this.description = description;
   }
 
@@ -26,6 +32,22 @@ public class Annotation {
 
   public void setId(UUID id) {
     this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public AnnotationValueType getType() {
+    return type;
+  }
+
+  public void setType(AnnotationValueType type) {
+    this.type = type;
   }
 
   public String getDescription() {
@@ -59,5 +81,15 @@ public class Annotation {
     int result = id.hashCode();
     result = 31 * result + description.hashCode();
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return new StringBuilder()
+        .append("uuid=").append(this.id).append("|")
+        .append("name=").append(this.name).append("|")
+        .append("type=").append(this.type).append("|")
+        .append("description=").append(this.description)
+        .toString();
   }
 }

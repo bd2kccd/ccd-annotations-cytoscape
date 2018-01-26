@@ -6,6 +6,7 @@ import static edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask.c
 import static edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask.createAnnotationTaskOnSelected;
 
 import java.util.Collection;
+import java.util.UUID;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNode;
@@ -34,59 +35,54 @@ public class CreateAnnotationTaskFactory extends AbstractTaskFactory {
 
   @Override
   /**
-   * Do not use this method. It must be overwritten to extend AbstractTaskFactory.
+   * Do not use this method. Overriding it is required to extend AbstractTaskFactory.
    * @see org.cytoscape.work.AbstractTaskFactory;
-   * Try using one of the following instead:
-   *             {@link #createTaskIteratorAnnotationOnSelected(String)}
-   *             {@link #createTaskIteratorAnnotationOnNodes(String, Collection)}
-   *             {@link #createTaskIteratorAnnotationOnEdges(String, Collection)}
-   *             {@link #createTaskIteratorAnnotationOnNodesAndEdge(String, Collection, Collection)}
+   * Use the following instead:
+   *             {@link #createTaskIterator(CreateAnnotationTask)}
    */
   public TaskIterator createTaskIterator() {
     return new TaskIterator();
   }
 
-  public TaskIterator createTaskIteratorAnnotationOnSelected(final String annotationName) {
-    return new TaskIterator(
-        createAnnotationTaskOnSelected(this.applicationManager,
-            this.annotationManager,
-            this.annotationFactory,
-            annotationName)
-    );
+  public CreateAnnotationTask createOnSelected(final String name) {
+    return CreateAnnotationTask.createAnnotationTaskOnSelected(
+        this.applicationManager,
+        this.annotationManager,
+        this.annotationFactory,
+        name);
   }
 
-  public TaskIterator createTaskIteratorAnnotationOnNodes(final String annotationName,
-      final Collection<CyNode> nodes) {
-    return new TaskIterator(
-        createAnnotationTaskOnNodes(this.applicationManager,
-            this.annotationManager,
-            this.annotationFactory,
-            annotationName,
-            nodes)
-    );
+  public CreateAnnotationTask createOnNodes(final String name, final Collection<CyNode> nodes) {
+    return CreateAnnotationTask.createAnnotationTaskOnNodes(
+        this.applicationManager,
+        this.annotationManager,
+        this.annotationFactory,
+        name,
+        nodes);
   }
 
-  public TaskIterator createTaskIteratorAnnotationOnEdges(final String annotationName,
-      final Collection<CyEdge> edges) {
-    return new TaskIterator(
-        createAnnotationTaskOnEdges(this.applicationManager,
-            this.annotationManager,
-            this.annotationFactory,
-            annotationName,
-            edges)
-    );
+  public CreateAnnotationTask createOnEdges(final String name, final Collection<CyEdge> edges) {
+    return CreateAnnotationTask.createAnnotationTaskOnEdges(
+        this.applicationManager,
+        this.annotationManager,
+        this.annotationFactory,
+        name,
+        edges);
   }
 
-  public TaskIterator createTaskIteratorAnnotationOnNodesAndEdge(final String annotationName,
+  public CreateAnnotationTask createOnNodesAndEdges(final String name,
       final Collection<CyNode> nodes,
       final Collection<CyEdge> edges) {
-    return new TaskIterator(
-        createAnnotationTaskOnNodesAndEdges(this.applicationManager,
-            this.annotationManager,
-            this.annotationFactory,
-            annotationName,
-            nodes,
-            edges)
-    );
+    return CreateAnnotationTask.createAnnotationTaskOnNodesAndEdges(
+        this.applicationManager,
+        this.annotationManager,
+        this.annotationFactory,
+        name,
+        nodes,
+        edges);
+  }
+
+  public TaskIterator createTaskIterator(final CreateAnnotationTask createAnnotationTask) {
+    return new TaskIterator(createAnnotationTask);
   }
 }
