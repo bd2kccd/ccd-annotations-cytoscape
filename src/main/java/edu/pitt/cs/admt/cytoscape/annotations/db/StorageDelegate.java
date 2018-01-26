@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
@@ -205,7 +206,7 @@ public class StorageDelegate {
    * @param name Not nullable
    * @param type Not nullable
    */
-  static void insertAnnotation(final long networkSUID, UUID annotationId, String name,
+  public static void insertAnnotation(final long networkSUID, UUID annotationId, String name,
       AnnotationValueType type, String description)
       throws IllegalArgumentException, SQLException {
     if (annotationId == null) {
@@ -238,6 +239,75 @@ public class StorageDelegate {
     connection.commit();
   }
 
+//  /**
+//   * @param annotationID not nullable
+//   * @param cytoscapeID not nullable
+//   * @param entityID int
+//   * @param value not nullable
+//   * @param insertQuery not nullable, query to use
+//   * @throws IllegalArgumentException
+//   * @throws SQLException
+//   */
+//  private void insertAnnotToEntity(
+//      final UUID annotationID,
+//      final UUID cytoscapeID,
+//      final int entityID,
+//      final Object value,
+//      final String insertQuery) throws IllegalArgumentException, SQLException {
+//    if (annotationID == null) {
+//      throw new IllegalArgumentException("null annotation id provided");
+//    }
+//    if (cytoscapeID == null) {
+//      throw new IllegalArgumentException("null cytoscape id provided");
+//    }
+//    if (value == null) {
+//      throw new IllegalArgumentException("null value provided");
+//    }
+//    if (insertQuery == null) {
+//      throw new IllegalArgumentException("null insert query provided");
+//    }
+//    connection.setAutoCommit(false);
+//    PreparedStatement statement = connection.prepareStatement(insertQuery);
+//    statement.setObject(1, annotationID);
+//    statement.setObject(2, cytoscapeID);
+//    statement.setInt(3, entityID);
+//    statement.setObject(4, value);
+//    statement.execute();
+//    connection.commit();
+//  }
+//
+//  /**
+//   * @param annotationID not nullable
+//   * @param cytoscapeID not nullable
+//   * @param entityID not nullable
+//   * @param value not nullable
+//   * @throws IllegalArgumentException
+//   * @throws SQLException
+//   */
+//  public void insertAnnotToNode(
+//      final UUID annotationID,
+//      final UUID cytoscapeID,
+//      final int entityID,
+//      final Object value) throws IllegalArgumentException, SQLException {
+//    insertAnnotToEntity(annotationID, cytoscapeID, entityID, value, AnnotationSchema.INSERT_ANNOT_TO_NODE);
+//  }
+//
+//  /**
+//   * @param annotationID not nullable
+//   * @param cytoscapeID not nullable
+//   * @param entityID not nullable
+//   * @param value not nullable
+//   * @throws IllegalArgumentException
+//   * @throws SQLException
+//   */
+//  public void insertAnnotToEdge(
+//      final UUID annotationID,
+//      final UUID cytoscapeID,
+//      final int entityID,
+//      final Object value) throws IllegalArgumentException, SQLException {
+//    insertAnnotToEntity(annotationID, cytoscapeID, entityID, value, AnnotationSchema.INSERT_ANNOT_TO_EDGE);
+//  }
+
   /**
    * @param annotations Not nullable
    */
@@ -269,7 +339,7 @@ public class StorageDelegate {
    * @param cytoscapeAnnotationId Nullable
    * @param nodeId Not nullable
    */
-  static void attachAnnotationToNode(final long networkSUID, UUID annotationId, UUID
+  public static void attachAnnotationToNode(final long networkSUID, UUID annotationId, UUID
       cytoscapeAnnotationId,
       int nodeId, Object value)
       throws SQLException, IOException {
@@ -311,7 +381,7 @@ public class StorageDelegate {
    * @param cytoscapeAnnotationId Nullable
    * @param edgeId Not nullable
    */
-  static void attachAnnotationToEdge(final long networkSUID, UUID annotationId, UUID
+  public static void attachAnnotationToEdge(final long networkSUID, UUID annotationId, UUID
       cytoscapeAnnotationId,
       int edgeId, Object value)
       throws SQLException, IOException {
@@ -369,7 +439,7 @@ public class StorageDelegate {
     return collection;
   }
 
-  static Optional<Annotation> getAnnotation(final long networkSUID, final UUID annotationId) throws
+  public static Optional<Annotation> getAnnotation(final long networkSUID, final UUID annotationId) throws
       SQLException {
     if (annotationId == null) {
       throw new IllegalArgumentException("Annotation ID cannot be null");
@@ -381,6 +451,30 @@ public class StorageDelegate {
     Optional<Annotation> annotation = Optional.empty();
     PreparedStatement statement = connection.prepareStatement(AnnotationSchema.SELECT_ANNOTATION);
     statement.setObject(1, annotationId);
+    ResultSet rs = statement.executeQuery();
+    while (rs.next()) {
+      UUID uuid = (UUID) rs.getObject(1);
+      String name = rs.getString(2);
+      AnnotationValueType type = AnnotationValueType.parse(rs.getString(3));
+      String description = rs.getString(4);
+      annotation = Optional.of(new Annotation(uuid, name, type, description));
+    }
+    rs.close();
+    statement.close();
+    return annotation;
+  }
+
+  public static Optional<Annotation> getAnnotationByName(final long networkSUID, final String annoName) throws SQLException {
+    if (annoName == null) {
+      throw new IllegalArgumentException("Annotation name cannot be null");
+    }
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+        " does not exist.");
+    Optional<Annotation> annotation = Optional.empty();
+    PreparedStatement statement = connection.prepareStatement(AnnotationSchema.SELECT_ANNOTATION_BY_NAME);
+    statement.setObject(1, annoName);
     ResultSet rs = statement.executeQuery();
     while (rs.next()) {
       UUID uuid = (UUID) rs.getObject(1);
@@ -432,7 +526,7 @@ public class StorageDelegate {
   /**
    * @param name if empty, all annotations to nodes are returned. Not nullable
    */
-  static Collection<AnnotToEntity> selectNodesWithAnnotation(final long networkSUID, String name)
+  public static Collection<AnnotToEntity> selectNodesWithAnnotation(final long networkSUID, String name)
       throws SQLException, IOException, ClassNotFoundException {
     JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
     if (connection == null)
@@ -463,7 +557,7 @@ public class StorageDelegate {
   /**
    * @param name if empty, all annotations to edges are returned. Not nullable
    */
-  static Collection<AnnotToEntity> selectEdgesWithAnnotation(final long networkSUID, String name)
+  public static Collection<AnnotToEntity> selectEdgesWithAnnotation(final long networkSUID, String name)
       throws SQLException, IOException, ClassNotFoundException {
     JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
     if (connection == null)

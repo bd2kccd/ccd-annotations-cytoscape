@@ -9,6 +9,7 @@ import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Edge;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Node;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask;
+import edu.pitt.cs.admt.cytoscape.annotations.ui.CCDControlPanel;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +22,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.cytoscape.application.events.SetCurrentNetworkEvent;
+import org.cytoscape.application.events.SetCurrentNetworkListener;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -43,7 +46,7 @@ import org.cytoscape.work.TaskObserver;
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
  */
-public class NetworkListener implements NetworkViewAddedListener {
+public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetworkListener {
 
   private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
   private static final String CCD_ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
@@ -51,17 +54,48 @@ public class NetworkListener implements NetworkViewAddedListener {
   private final AnnotationManager annotationManager;
   private final AnnotationFactory<TextAnnotation> annotationFactory;
   private final TaskManager taskManager;
+  private final CCDControlPanel ccdControlPanel;
 
   // Type of graph component
   private enum ComponentType { NODE, EDGE };
 
+  private boolean initDelegate(StorageDelegate delegate) {
+    try {
+      delegate.init();
+      System.out.println("Initialized storage delegate");
+    } catch (SQLException e) {
+      System.out.println("Failed to initialize storage delegate");
+      e.printStackTrace();
+      return false;
+    }
+    return true;
+  }
+
   public NetworkListener(
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
-      final TaskManager taskManager) {
+      final TaskManager taskManager,
+      final CCDControlPanel ccdControlPanel) {
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
     this.taskManager = taskManager;
+    this.ccdControlPanel = ccdControlPanel;
+  }
+
+  public void handleEvent(final SetCurrentNetworkEvent event) {
+    System.out.println("Current network set to suid: " + event.getNetwork().getSUID().toString());
+    try {
+      Long suid = event.getNetwork().getSUID();
+      if (!StorageDelegateFactory.getDelegate(suid).isPresent()) {
+        StorageDelegate delegate = StorageDelegateFactory.newDelegate(suid);
+        if (!initDelegate(delegate)) {
+          return;
+        }
+      }
+      ccdControlPanel.refresh(suid);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   public void handleEvent(final NetworkViewAddedEvent event) {
@@ -84,12 +118,7 @@ public class NetworkListener implements NetworkViewAddedListener {
     }
 
     // Connect to database
-    try {
-      storageDelegate.init();
-      System.out.println("Initialized storage delegate");
-    } catch (SQLException e) {
-      System.out.println("Failed to initialize storage delegate");
-      e.printStackTrace();
+    if (!initDelegate(storageDelegate)) {
       return;
     }
 
@@ -271,6 +300,7 @@ public class NetworkListener implements NetworkViewAddedListener {
               .setAnnotationDescription(annotation.getDescription())
               .setCCDAnnotationID(ccdUUID)
               .setCytoscapeID(entityAnnotationGeneratedUUID.get(ccdUUID))
+              .setAnnotationValueType(annotation.getType())
               .setAnnotationValue(entry.getValue().get(0).getValue()));
     }
 
@@ -395,7 +425,9 @@ public class NetworkListener implements NetworkViewAddedListener {
     String[] s = str.split("\\|");
     UUID uuid = UUID.fromString(s[0].split("=")[1]);
     String name = s[1].split("=")[1];
-    AnnotationValueType type = AnnotationValueType.parse(s[2].split("=")[1].toUpperCase());
+    String typeStr = s[2].split("=")[1];
+    AnnotationValueType type = AnnotationValueType.parse(typeStr.toUpperCase());
+    System.out.println("Type: " + type.name());
     String desc = s[3].split("=")[1];
     return new Annotation(uuid, name, type, desc);
   }

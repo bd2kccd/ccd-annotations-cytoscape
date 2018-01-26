@@ -1,13 +1,23 @@
 package edu.pitt.cs.admt.cytoscape.annotations.task;
 
+import edu.pitt.cs.admt.cytoscape.annotations.db.NetworkStorageUtility;
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
+import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
+import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
+import edu.pitt.cs.admt.cytoscape.annotations.ui.CreateAnnotationPanel;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.xml.soap.Text;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyEdge;
@@ -35,7 +45,7 @@ public class CreateAnnotationTask extends AbstractTask {
   private static final String ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
 
   // network table column
-  private static final String COLUMN = "selected";
+  private static final String SELECTED = "selected";
 
   // text annotation properties
   private static final Double ZOOM = 1.0;
@@ -47,13 +57,15 @@ public class CreateAnnotationTask extends AbstractTask {
   private final AnnotationFactory<TextAnnotation> annotationFactory;
   private final CyNetwork network;
   private final CyNetworkView networkView;
-  private final Collection<CyNode> nodes = new ArrayList<>(0);
-  private final Collection<CyEdge> edges = new ArrayList<>(0);
+  private final List<CyNode> nodes = new ArrayList<>(0);
+  private final List<CyEdge> edges = new ArrayList<>(0);
   private final String annotationName;
   private UUID ccdAnnotationID = null;
   private UUID cytoscapeID = null;
   private String annotationDescription = "";
+  private AnnotationValueType annotationValueType = null;
   private Object annotationValue = null;
+  private boolean updateDB = false;
 
   protected CreateAnnotationTask(
       final CyApplicationManager applicationManager,
@@ -89,8 +101,8 @@ public class CreateAnnotationTask extends AbstractTask {
         annotationManager,
         annotationFactory,
         annotationName);
-    task.nodes.addAll(CyTableUtil.getNodesInState(task.network, COLUMN, true));
-    task.edges.addAll(CyTableUtil.getEdgesInState(task.network, COLUMN, true));
+    task.nodes.addAll(CyTableUtil.getNodesInState(task.network, SELECTED, true));
+    task.edges.addAll(CyTableUtil.getEdgesInState(task.network, SELECTED, true));
     return task;
   }
 
@@ -189,8 +201,22 @@ public class CreateAnnotationTask extends AbstractTask {
     return annotationValue;
   }
 
+  public CreateAnnotationTask enableDatabaseUpdate() {
+    this.updateDB = true;
+    return this;
+  }
+
   public CreateAnnotationTask setAnnotationValue(Object annotationValue) {
     this.annotationValue = annotationValue;
+    return this;
+  }
+
+  public AnnotationValueType getAnnotationValueType() {
+    return annotationValueType;
+  }
+
+  public CreateAnnotationTask setAnnotationValueType(final AnnotationValueType type) {
+    this.annotationValueType = type;
     return this;
   }
 
@@ -202,6 +228,9 @@ public class CreateAnnotationTask extends AbstractTask {
     // Verify that there's something to annotate
     if (this.nodes.isEmpty() && this.edges.isEmpty()) {
       throw new MissingComponentsException();
+    }
+    if (this.cytoscapeID == null) {
+      this.cytoscapeID = UUID.randomUUID();
     }
 
     // Set annotation parameters
@@ -218,30 +247,70 @@ public class CreateAnnotationTask extends AbstractTask {
     } else {
       args.put("text", this.annotationName);
     }
-    if (this.cytoscapeID != null) {
-      args.put("uuid", this.cytoscapeID.toString());
-    }
+    args.put("uuid", this.cytoscapeID.toString());
+    System.out.println("Text: " + args.get("text"));
 
     // Create and add annotation to network
     TextAnnotation annotation = this.annotationFactory
         .createAnnotation(TextAnnotation.class, this.networkView, args);
     this.annotationManager.addAnnotation(annotation);
+    if (this.updateDB) {
+      updateDatabase();
+    }
     updateNetworkTable(annotation);
   }
 
+  private void updateDatabase() {
+    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.network.getSUID());
+    if (storageDelegateOptional.isPresent()) {
+      StorageDelegate delegate = storageDelegateOptional.get();
+      try {
+        System.out.println("Before: " + delegate.selectNodesWithAnnotation(this.annotationName).size() + delegate.selectEdgesWithAnnotation(this.annotationName).size());
+        // make sure annotation with this name doesn't already exist
+        Optional<Annotation> optionalAnnotation = delegate.getAnnotationByName(this.annotationName);
+        if (optionalAnnotation.isPresent()) {
+          this.ccdAnnotationID = optionalAnnotation.get().getId();
+        } else {
+          if (this.ccdAnnotationID == null) {
+            this.ccdAnnotationID = UUID.randomUUID();
+          }
+          delegate.insertAnnotation(this.ccdAnnotationID, this.annotationName, this.annotationValueType, this.annotationDescription);
+        }
+        System.out.println("Creating annotation " + this.ccdAnnotationID + " on " + nodes.stream().map(CyNode::getSUID).collect(
+            Collectors.toList()).toString());
+        for (CyNode node: nodes) {
+          delegate.attachAnnotationToNode(this.ccdAnnotationID, this.cytoscapeID, Math.toIntExact(node.getSUID()), this.annotationValue);
+        }
+        for (CyEdge edge: edges) {
+          delegate.attachAnnotationToEdge(this.ccdAnnotationID, this.cytoscapeID, Math.toIntExact(edge.getSUID()), this.annotationValue);
+        }
+        System.out.println("After: " + delegate.selectNodesWithAnnotation(this.annotationName).size() + delegate.selectEdgesWithAnnotation(this.annotationName).size());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
 
   private void updateNetworkTable(final TextAnnotation annotation) {
-    if (this.ccdAnnotationID == null) {
-      this.ccdAnnotationID = UUID.randomUUID();
-    }
-
     // add to network
     List<String> row = this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS)
         .getList(CCD_ANNOTATION_ATTRIBUTE, String.class);
+    System.out.println("Updating network table with:");
+    System.out.println("name: " + this.annotationName);
+    System.out.println("description: " + this.annotationDescription);
+    String type = "";
+    if (this.annotationValueType == null) {
+      System.out.print("Value type is null");
+      System.out.println(" for annotation: " + this.annotationName);
+    } else {
+      System.out.println("value type: " + this.annotationValueType.toString());
+      type = this.annotationValueType.toString();
+    }
+    System.out.println("value: " + this.annotationValue);
     String annotationString = new StringBuilder()
         .append("uuid=").append(this.ccdAnnotationID.toString()).append("|")
         .append("name=").append(this.annotationName).append("|")
-        .append("type=").append("float").append("|")
+        .append("type=").append(type).append("|")
         .append("description=").append(this.annotationDescription).toString();
     row.add(annotationString);
     Set<String> rowSet = new HashSet<>(row);
@@ -268,7 +337,10 @@ public class CreateAnnotationTask extends AbstractTask {
     String rowString = new StringBuilder()
         .append("a_id=").append(anUUID).append("|")
         .append("cy_id=").append(cyUUID).append("|")
-        .append("value=").append(String.valueOf(0.333)).toString();
+        .append("value=").toString();
+    if (annotationValue != null) {
+      rowString = rowString + annotationValue.toString();
+    }
     row.add(rowString);
     Set<String> rowSet = new HashSet<>(row);
     this.network.getRow(cyIdentifiable).set(ANNOTATION_SET_ATTRIBUTE, new ArrayList<>(rowSet));
