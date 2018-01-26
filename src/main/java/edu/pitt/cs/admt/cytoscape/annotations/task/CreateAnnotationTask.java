@@ -1,13 +1,8 @@
 package edu.pitt.cs.admt.cytoscape.annotations.task;
 
-import edu.pitt.cs.admt.cytoscape.annotations.db.NetworkStorageUtility;
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
-import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
-import edu.pitt.cs.admt.cytoscape.annotations.ui.CreateAnnotationPanel;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.xml.soap.Text;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
@@ -57,6 +51,7 @@ public class CreateAnnotationTask extends AbstractTask {
   private final AnnotationFactory<TextAnnotation> annotationFactory;
   private final CyNetwork network;
   private final CyNetworkView networkView;
+  private final Long networkSUID;
   private final List<CyNode> nodes = new ArrayList<>(0);
   private final List<CyEdge> edges = new ArrayList<>(0);
   private final String annotationName;
@@ -77,6 +72,7 @@ public class CreateAnnotationTask extends AbstractTask {
     this.annotationName = annotationName;
     this.network = applicationManager.getCurrentNetwork();
     this.networkView = applicationManager.getCurrentNetworkView();
+    this.networkSUID = this.network.getSUID();
   }
 
   protected CreateAnnotationTask(
@@ -90,6 +86,7 @@ public class CreateAnnotationTask extends AbstractTask {
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
     this.annotationName = annotationName;
+    this.networkSUID = this.network.getSUID();
   }
 
   public static CreateAnnotationTask createAnnotationTaskOnSelected(
@@ -261,33 +258,33 @@ public class CreateAnnotationTask extends AbstractTask {
   }
 
   private void updateDatabase() {
-    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.network.getSUID());
-    if (storageDelegateOptional.isPresent()) {
-      StorageDelegate delegate = storageDelegateOptional.get();
-      try {
-        System.out.println("Before: " + delegate.selectNodesWithAnnotation(this.annotationName).size() + delegate.selectEdgesWithAnnotation(this.annotationName).size());
-        // make sure annotation with this name doesn't already exist
-        Optional<Annotation> optionalAnnotation = delegate.getAnnotationByName(this.annotationName);
-        if (optionalAnnotation.isPresent()) {
-          this.ccdAnnotationID = optionalAnnotation.get().getId();
-        } else {
-          if (this.ccdAnnotationID == null) {
-            this.ccdAnnotationID = UUID.randomUUID();
-          }
-          delegate.insertAnnotation(this.ccdAnnotationID, this.annotationName, this.annotationValueType, this.annotationDescription);
+    try {
+      System.out.println("Before: " +
+          StorageDelegate.selectNodesWithAnnotation(networkSUID, this.annotationName).size() +
+          StorageDelegate.selectEdgesWithAnnotation(networkSUID, this.annotationName).size());
+      // make sure annotation with this name doesn't already exist
+      Optional<Annotation> optionalAnnotation = StorageDelegate.getAnnotationByName(networkSUID, this.annotationName);
+      if (optionalAnnotation.isPresent()) {
+        this.ccdAnnotationID = optionalAnnotation.get().getId();
+      } else {
+        if (this.ccdAnnotationID == null) {
+          this.ccdAnnotationID = UUID.randomUUID();
         }
-        System.out.println("Creating annotation " + this.ccdAnnotationID + " on " + nodes.stream().map(CyNode::getSUID).collect(
-            Collectors.toList()).toString());
-        for (CyNode node: nodes) {
-          delegate.attachAnnotationToNode(this.ccdAnnotationID, this.cytoscapeID, Math.toIntExact(node.getSUID()), this.annotationValue);
-        }
-        for (CyEdge edge: edges) {
-          delegate.attachAnnotationToEdge(this.ccdAnnotationID, this.cytoscapeID, Math.toIntExact(edge.getSUID()), this.annotationValue);
-        }
-        System.out.println("After: " + delegate.selectNodesWithAnnotation(this.annotationName).size() + delegate.selectEdgesWithAnnotation(this.annotationName).size());
-      } catch (Exception e) {
-        e.printStackTrace();
+        StorageDelegate.insertAnnotation(networkSUID, this.ccdAnnotationID, this.annotationName, this.annotationValueType, this.annotationDescription);
       }
+      System.out.println("Creating annotation " + this.ccdAnnotationID + " on " + nodes.stream().map(CyNode::getSUID).collect(
+          Collectors.toList()).toString());
+      for (CyNode node: nodes) {
+        StorageDelegate.attachAnnotationToNode(networkSUID, this.ccdAnnotationID, this.cytoscapeID, Math.toIntExact(node.getSUID()), this.annotationValue);
+      }
+      for (CyEdge edge: edges) {
+        StorageDelegate.attachAnnotationToEdge(networkSUID, this.ccdAnnotationID, this.cytoscapeID, Math.toIntExact(edge.getSUID()), this.annotationValue);
+      }
+      System.out.println("After: " +
+          StorageDelegate.selectNodesWithAnnotation(networkSUID, this.annotationName).size() +
+          StorageDelegate.selectEdgesWithAnnotation(networkSUID, this.annotationName).size());
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 

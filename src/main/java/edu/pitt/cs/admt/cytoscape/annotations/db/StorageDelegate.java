@@ -93,6 +93,12 @@ public class StorageDelegate {
     connection.commit();
   }
 
+  protected static void destroy(final long networkSUID) throws SQLException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    dropDatabase(connection);
+    close(networkSUID);
+  }
+
   static void insertNode(final long networkSUID, final int nodeId) throws SQLException {
     JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
     if (connection == null)
@@ -418,7 +424,7 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  static Collection<Annotation> getAllAnnotations(final long networkSUID) throws SQLException {
+  public static Collection<Annotation> getAllAnnotations(final long networkSUID) throws SQLException {
     Collection<Annotation> collection = new ArrayList<>();
     JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
     if (connection == null)

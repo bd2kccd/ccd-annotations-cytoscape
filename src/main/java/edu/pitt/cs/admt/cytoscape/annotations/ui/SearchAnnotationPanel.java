@@ -1,28 +1,22 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
-import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -55,38 +49,35 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     searchButton.addActionListener((ActionEvent e) -> {
       String name = nameField.getText().toLowerCase();
       Set<String> matches = Collections.EMPTY_SET;
-      StorageDelegate delegate = getDelegate();
-      if (delegate != null) {
+      try {
+        matches = StorageDelegate.getAllAnnotations(this.networkSUID)
+            .stream()
+            .map(Annotation::getName)
+            .filter(a -> a.toLowerCase().contains(name))
+            .collect(Collectors.toSet());
+      } catch (SQLException exc) {
+        exc.printStackTrace();
+      }
+      results.clear();
+      resultPane.removeAll();
+      for (String m : matches) {
+        Collection<AnnotToEntity> res;
         try {
-          matches = delegate.getAllAnnotations()
-              .stream()
-              .map(Annotation::getName)
-              .filter(a -> a.toLowerCase().contains(name))
-              .collect(Collectors.toSet());
-        } catch (SQLException exc) {
+          res = StorageDelegate.selectNodesWithAnnotation(this.networkSUID, m);
+          res.stream()
+              .map(AnnotToEntity::getValue)
+              .forEach(a -> results.add(new ResultItem(m, a)));
+          res = StorageDelegate.selectEdgesWithAnnotation(this.networkSUID, m);
+          res.stream()
+              .map(AnnotToEntity::getValue)
+              .forEach(a -> results.add(new ResultItem(m, a)));
+        } catch (Exception exc) {
           exc.printStackTrace();
         }
-        results.clear();
-        resultPane.removeAll();
-        for (String m : matches) {
-          Collection<AnnotToEntity> res;
-          try {
-            res = delegate.selectNodesWithAnnotation(m);
-            res.stream()
-                .map(AnnotToEntity::getValue)
-                .forEach(a -> results.add(new ResultItem(m, a)));
-            res = delegate.selectEdgesWithAnnotation(m);
-            res.stream()
-                .map(AnnotToEntity::getValue)
-                .forEach(a -> results.add(new ResultItem(m, a)));
-          } catch (Exception exc) {
-            exc.printStackTrace();
-          }
-        }
-        for (ResultItem r: results) {
-          resultPane.add(r);
-        }
       }
+      for (ResultItem r: results) {
+        resultPane.add(r);
+        }
       resultPane.setPreferredSize(new Dimension(200, results.size() * 35));
       resultPane.setSize(new Dimension(200, results.size() * 35));
       revalidate();
@@ -115,16 +106,6 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     resultPane.setPreferredSize(new Dimension(200, 35));
     add(resultPane);
     setVisible(true);
-  }
-
-  private StorageDelegate getDelegate() {
-    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.networkSUID);
-    if (storageDelegateOptional.isPresent()) {
-      StorageDelegate delegate = storageDelegateOptional.get();
-      return delegate;
-    } else {
-      return null;
-    }
   }
 
 //  public void refresh() {

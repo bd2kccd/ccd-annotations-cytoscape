@@ -2,7 +2,6 @@ package edu.pitt.cs.admt.cytoscape.annotations.network;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.NetworkStorageUtility;
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
-import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
@@ -37,11 +36,8 @@ import org.cytoscape.view.presentation.annotations.AnnotationFactory;
 import org.cytoscape.view.presentation.annotations.AnnotationManager;
 import org.cytoscape.view.presentation.annotations.TextAnnotation;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
-import org.cytoscape.work.FinishStatus;
-import org.cytoscape.work.ObservableTask;
 import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
-import org.cytoscape.work.TaskObserver;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
@@ -59,18 +55,6 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
   // Type of graph component
   private enum ComponentType { NODE, EDGE };
 
-  private boolean initDelegate(StorageDelegate delegate) {
-    try {
-      delegate.init();
-      System.out.println("Initialized storage delegate");
-    } catch (SQLException e) {
-      System.out.println("Failed to initialize storage delegate");
-      e.printStackTrace();
-      return false;
-    }
-    return true;
-  }
-
   public NetworkListener(
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
@@ -84,18 +68,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
 
   public void handleEvent(final SetCurrentNetworkEvent event) {
     System.out.println("Current network set to suid: " + event.getNetwork().getSUID().toString());
-    try {
-      Long suid = event.getNetwork().getSUID();
-      if (!StorageDelegateFactory.getDelegate(suid).isPresent()) {
-        StorageDelegate delegate = StorageDelegateFactory.newDelegate(suid);
-        if (!initDelegate(delegate)) {
-          return;
-        }
-      }
-      ccdControlPanel.refresh(suid);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    ccdControlPanel.refresh(event.getNetwork().getSUID());
   }
 
   public void handleEvent(final NetworkViewAddedEvent event) {
@@ -104,7 +77,13 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     final CyTable networkTable = network.getDefaultNetworkTable();
     final CyTable nodeTable = network.getDefaultNodeTable();
     final CyTable edgeTable = network.getDefaultEdgeTable();
-    final StorageDelegate storageDelegate = StorageDelegateFactory.newDelegate(network.getSUID());
+    final Long networkSUID = network.getSUID();
+    try {
+      StorageDelegate.init(networkSUID);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return;
+    }
 
     // Generate columns in table panel
     if (networkTable.getColumn(CCD_ANNOTATION_ATTRIBUTE) == null) {
@@ -117,11 +96,6 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       edgeTable.createListColumn(CCD_ANNOTATION_SET_ATTRIBUTE, String.class, false);
     }
 
-    // Connect to database
-    if (!initDelegate(storageDelegate)) {
-      return;
-    }
-
     List<Node> nodes = this.getNodes(network);
     List<Edge> edges = this.getEdges(network);
     Set<UUID> cytoscapeAnnotationUUIDs = this.getCytoscapeAnnotations(network);
@@ -132,7 +106,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     System.out.println("# node annos: " + annotationsByComponent.get(ComponentType.NODE).size());
 
     try {
-      NetworkStorageUtility.importToDatabase(storageDelegate, nodes, edges,
+      NetworkStorageUtility.importToDatabase(networkSUID, nodes, edges,
           annotations, annotationsByComponent.get(ComponentType.NODE), annotationsByComponent.get(ComponentType.EDGE));
     } catch (Exception e) {
       System.out.println("Failed to import to database");
@@ -142,10 +116,10 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
 
     System.out.println("Test");
     try {
-      System.out.println("CCD annotation count: " + NetworkStorageUtility.exportAnnotations(storageDelegate).size());
-      Collection<AnnotToEntity> test = NetworkStorageUtility.exportAnnotationToEdges(storageDelegate);
-      Collection<Edge> test2 = NetworkStorageUtility.exportEdges(storageDelegate);
-      Collection<AnnotToEntity> test3 = NetworkStorageUtility.exportAnnotationToNodes(storageDelegate);
+      System.out.println("CCD annotation count: " + NetworkStorageUtility.exportAnnotations(networkSUID).size());
+      Collection<AnnotToEntity> test = NetworkStorageUtility.exportAnnotationToEdges(networkSUID);
+      Collection<Edge> test2 = NetworkStorageUtility.exportEdges(networkSUID);
+      Collection<AnnotToEntity> test3 = NetworkStorageUtility.exportAnnotationToNodes(networkSUID);
       System.out.println("# edges: " + test2.size());
       System.out.println("# annotations to edges: " + test.size());
       for (AnnotToEntity a: test) {
