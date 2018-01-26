@@ -84,6 +84,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       e.printStackTrace();
       return;
     }
+    ccdControlPanel.refresh(networkSUID);
 
     // Generate columns in table panel
     if (networkTable.getColumn(CCD_ANNOTATION_ATTRIBUTE) == null) {
