@@ -7,7 +7,7 @@ This app aims to bring CCD annotations to Cytoscape.
 - Maven 3
 
 ## Build
-`mvn clean package`
+`mvn clean package` (add option `-DskipTests` option to skip unit tests)
 
 ## Install
 1. Build the app
