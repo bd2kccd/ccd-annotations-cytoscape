@@ -30,7 +30,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import org.cytoscape.work.Task;
+import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
+import org.cytoscape.work.TaskMonitor;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
@@ -79,20 +82,32 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
       } else {
         name = (String) nameSelector.getSelectedItem();
       }
-      taskManager.execute(
-          createAnnotationTaskFactory
-          .createOnSelected(name)
-          .setAnnotationDescription(descriptionText.getText())
-          .setAnnotationValue(valueField.getText())
-          .createTaskIterator()
-      );
-      annotations.put(name, new Annotation(
-          UUID.randomUUID(),
-          name,
-          AnnotationValueType.parse(((String)valueTypeSelector.getSelectedItem()).toUpperCase()),
-          descriptionText.getText()));
-      System.out.println("Created annotation with text: " + descriptionText.getText());
-      updateView();
+      AnnotationValueType type = AnnotationValueType.parse((String)this.valueTypeSelector.getSelectedItem());
+      TaskIterator taskIterator = new TaskIterator();
+      taskIterator.append(createAnnotationTaskFactory
+        .createOnSelected(name)
+        .setAnnotationDescription(descriptionText.getText())
+        .setAnnotationValue(valueField.getText())
+        .setAnnotationValueType(type)
+        .enableDatabaseUpdate()
+        .createTaskIterator());
+      taskIterator.append(new Task() {
+        @Override
+        public void run(TaskMonitor taskMonitor) throws Exception {
+          refresh();
+        }
+
+        @Override
+        public void cancel() {
+
+        }
+      });
+      taskManager.execute(taskIterator);
+//      annotations.put(name, new Annotation(
+//          UUID.randomUUID(),
+//          name,
+//          AnnotationValueType.parse(((String)valueTypeSelector.getSelectedItem()).toUpperCase()),
+//          descriptionText.getText()));
     });
 
     nameSelector.addActionListener((ActionEvent e) -> {

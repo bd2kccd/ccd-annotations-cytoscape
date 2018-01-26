@@ -50,7 +50,8 @@ class AnnotationSchema {
       "id UUID PRIMARY KEY, " +
       "name VARCHAR(32) NOT NULL, " +
       "type VARCHAR(16) NOT NULL CHECK(type in ('BOOLEAN', 'INT', 'FLOAT', 'CHAR', 'STRING')), " +
-      "description VARCHAR(64) DEFAULT 'N/A'" +
+      "description VARCHAR(64) DEFAULT 'N/A', " +
+      "CONSTRAINT annotation_name_unique UNIQUE (name)" +
       ")";
 
   static final String CREATE_ANNOT_TO_NODE_TABLE = "CREATE TABLE " + ANNOT_TO_NODE_TABLE +
@@ -108,6 +109,9 @@ class AnnotationSchema {
 
   static final String SELECT_ANNOTATION = "SELECT id, name, type, description FROM " +
       ANNOTATION_TABLE + " WHERE id = ?";
+
+  static final String SELECT_ANNOTATION_BY_NAME = "SELECT id, name, type, description FROM " +
+      ANNOTATION_TABLE + " WHERE name LIKE ?";
 
   static final String SELECT_ALL_ANNOT_VALUES = "SELECT a_id, cy_a_id, suid, value FROM " +
       ANNOT_TO_NODE_TABLE +

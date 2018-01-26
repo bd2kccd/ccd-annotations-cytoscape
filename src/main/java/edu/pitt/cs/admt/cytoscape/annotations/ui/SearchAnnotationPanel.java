@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
   private final JButton searchButton = new JButton("Search");
   private final JButton clearButton = new JButton("Clear");
   private Long networkSUID = null;
-  private List<String> annotationNames = new LinkedList<>();
+//  private List<String> annotationNames = new LinkedList<>();
 //  private JPanel resultContainer = new JPanel(new GridLayout(0, 1));
 //  private JScrollPane resultPane = new JScrollPane(resultContainer, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
   private JPanel resultPane = new JPanel();
@@ -53,11 +54,18 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     // actions
     searchButton.addActionListener((ActionEvent e) -> {
       String name = nameField.getText().toLowerCase();
-      Set<String> matches = annotationNames.stream()
-          .filter(a -> a.toLowerCase().contains(name))
-          .collect(Collectors.toSet());
+      Set<String> matches = Collections.EMPTY_SET;
       StorageDelegate delegate = getDelegate();
       if (delegate != null) {
+        try {
+          matches = delegate.getAllAnnotations()
+              .stream()
+              .map(Annotation::getName)
+              .filter(a -> a.toLowerCase().contains(name))
+              .collect(Collectors.toSet());
+        } catch (SQLException exc) {
+          exc.printStackTrace();
+        }
         results.clear();
         resultPane.removeAll();
         for (String m : matches) {
@@ -119,26 +127,26 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     }
   }
 
-  public void refresh() {
-    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.networkSUID);
-    if (storageDelegateOptional.isPresent()) {
-      StorageDelegate delegate = storageDelegateOptional.get();
-      try {
-        this.annotationNames = delegate.getAllAnnotations()
-            .stream()
-            .map(Annotation::getName)
-            .collect(Collectors.toList());
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-    } else {
-      System.out.println("Search panel couldn't find storage delegate");
-    }
-  }
+//  public void refresh() {
+//    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.networkSUID);
+//    if (storageDelegateOptional.isPresent()) {
+//      StorageDelegate delegate = storageDelegateOptional.get();
+//      try {
+//        this.annotationNames = delegate.getAllAnnotations()
+//            .stream()
+//            .map(Annotation::getName)
+//            .collect(Collectors.toList());
+//      } catch (SQLException e) {
+//        e.printStackTrace();
+//      }
+//    } else {
+//      System.out.println("Search panel couldn't find storage delegate");
+//    }
+//  }
 
   public void refresh(Long suid) {
     this.networkSUID = suid;
-    refresh();
+//    refresh();
   }
 
   private class ResultItem extends JPanel {
