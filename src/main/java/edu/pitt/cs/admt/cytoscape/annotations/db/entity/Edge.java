@@ -1,6 +1,7 @@
 package edu.pitt.cs.admt.cytoscape.annotations.db.entity;
 
 /**
+ * Class representing an Edge
  * @author Nikos R. Katsipoulakis
  */
 public class Edge {
@@ -10,7 +11,15 @@ public class Edge {
   private int source;
 
   private int destination;
-
+  
+  /**
+   *
+   * @param suid the unique suid for the edge
+   * @param source the source {@link Node}'s <code>suid</code>
+   * @param destination the destination {@link Node}'s <code>suid</code>
+   * @throws IllegalArgumentException if <code>suid</code>, <code>source</code>, or
+   * <code>destination</code> values are negative
+   */
   public Edge(int suid, int source, int destination) {
     if (suid < 0 || source < 0 || destination < 0) {
       throw new IllegalArgumentException("invalid arguments given");
@@ -19,11 +28,19 @@ public class Edge {
     this.source = source;
     this.destination = destination;
   }
-
+  
+  /**
+   *
+   * @return an {@link Edge}'s id.
+   */
   public int getSuid() {
     return suid;
   }
-
+  
+  /**
+   *
+   * @param suid
+   */
   public void setSuid(int suid) {
     if (suid < 0) {
       throw new IllegalArgumentException("negative id given");
