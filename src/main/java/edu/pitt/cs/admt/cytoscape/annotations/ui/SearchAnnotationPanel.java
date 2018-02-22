@@ -6,23 +6,25 @@ import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Vector;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -34,8 +36,12 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
 
   private static final long serialVersionUID = -7995662050240929535L;
   private final JLabel title = new JLabel("Search for CCD Annotations", SwingConstants.CENTER);
+  private final JPanel namePanel = new JPanel();
   private final JLabel nameLabel = new JLabel("Name");
   private final JTextField nameField = new JTextField();
+  private final JPanel filterPanel = new JPanel();
+  private final JLabel filterLabel = new JLabel("Value");
+  private final JTextField filterField = new JTextField();
   private final JButton searchButton = new JButton("Search");
   private final JButton clearButton = new JButton("Clear");
   private Long networkSUID = null;
@@ -44,6 +50,11 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
 //  private JScrollPane resultPane = new JScrollPane(resultContainer, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
   private JPanel resultPane = new JPanel();
   private Set<ResultItem> results = new LinkedHashSet<>();
+  private final JComboBox<String> filterComparisonField = new JComboBox<>(
+      new DefaultComboBoxModel<>(
+          new Vector(Arrays.asList(new String[]{"", "equals", "not equals"}))
+      )
+  );
 
   public SearchAnnotationPanel() {
     // panel settings
@@ -68,16 +79,34 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
         }
         results.clear();
         resultPane.removeAll();
+        Predicate<String> filterPredicate;
+        String compare = filterField.getText();
+        switch(filterComparisonField.getSelectedIndex()) {
+          case 1:
+            filterPredicate = (value) -> value.equals(compare);
+            break;
+          case 2:
+            filterPredicate = (value) -> !value.equals(compare);
+            break;
+          case 0:
+          default:
+            filterPredicate = (value) -> true;
+            break;
+        }
         for (String m : matches) {
           Collection<AnnotToEntity> res;
           try {
             res = delegate.selectNodesWithAnnotation(m);
             res.stream()
                 .map(AnnotToEntity::getValue)
+                .map(a -> a.toString())
+                .filter(filterPredicate)
                 .forEach(a -> results.add(new ResultItem(m, a)));
             res = delegate.selectEdgesWithAnnotation(m);
             res.stream()
                 .map(AnnotToEntity::getValue)
+                .map(a -> a.toString())
+                .filter(filterPredicate)
                 .forEach(a -> results.add(new ResultItem(m, a)));
           } catch (Exception exc) {
             exc.printStackTrace();
@@ -94,6 +123,8 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
 
     clearButton.addActionListener((ActionEvent e) -> {
       nameField.setText("");
+      filterField.setText("");
+      filterComparisonField.setSelectedIndex(0);
       for (ResultItem r: results) {
         resultPane.remove(r);
       }
@@ -105,9 +136,22 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     });
 
     add(title);
-    nameField.setPreferredSize(new Dimension(200, 20));
-    add(nameLabel);
-    add(nameField);
+    namePanel.setBorder(new EmptyBorder(2,2,2,2));
+    nameField.setPreferredSize(new Dimension(180, 20));
+    nameField.setHorizontalAlignment(JTextField.RIGHT);
+    namePanel.add(nameLabel);
+    namePanel.add(nameField);
+    add(namePanel);
+    add(new JLabel("Filter"));
+    filterPanel.setBorder(new EmptyBorder(1, 2, 2, 2));
+    filterComparisonField.setSize(70, filterComparisonField.getPreferredSize().height);
+    filterLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+    filterPanel.add(filterLabel);
+    filterPanel.add(filterComparisonField);
+    filterField.setPreferredSize(new Dimension(80, 20));
+    filterField.setHorizontalAlignment(JTextField.RIGHT);
+    filterPanel.add(filterField);
+    add(filterPanel);
     add(clearButton);
     add(searchButton);
 //    resultPane.setViewportView(resultContainer);
