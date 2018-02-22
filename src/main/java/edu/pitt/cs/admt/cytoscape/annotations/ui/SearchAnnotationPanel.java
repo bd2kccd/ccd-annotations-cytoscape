@@ -1,5 +1,7 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
+import static edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate.selectEntitiesWithAnnotationNameAndPredicate;
+
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
@@ -12,8 +14,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
@@ -25,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import org.hsqldb.lib.Storage;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
@@ -75,17 +80,21 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       results.clear();
       resultPane.removeAll();
       Predicate<String> filterPredicate;
+      Function<Object, Boolean> filterFunc;
       String compare = filterField.getText();
       switch (filterComparisonField.getSelectedIndex()) {
         case 1:
           filterPredicate = (value) -> value.equals(compare);
+          filterFunc = (value) -> value.toString().equals(compare);
           break;
         case 2:
           filterPredicate = (value) -> !value.equals(compare);
+          filterFunc = (value) -> !value.toString().equals(compare);
           break;
         case 0:
         default:
           filterPredicate = (value) -> true;
+          filterFunc = (value) -> true;
           break;
       }
       for (String m : matches) {
@@ -110,6 +119,23 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       for (ResultItem r : results) {
         resultPane.add(r);
       }
+      try {
+        System.out.println("Testing storage delegate method:");
+        Collection<AnnotToEntity> test = StorageDelegate.selectEntitiesWithAnnotationNameAndPredicate(this.networkSUID, name, filterFunc);
+        System.out.println("Found: " + test.size());
+        for (AnnotToEntity ae: test) {
+          System.out.println(ae.getValue());
+        }
+        System.out.println("\nTesting search method:");
+        Collection<AnnotToEntity> test2 = StorageDelegate.searchEntitiesWithPredicate(this.networkSUID, name, filterFunc);
+        System.out.println("Found: " + test2.size());
+        for (AnnotToEntity ae: test2) {
+          System.out.println(ae.getValue());
+        }
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+      System.out.println();
       resultPane.setPreferredSize(new Dimension(200, results.size() * 35));
       resultPane.setSize(new Dimension(200, results.size() * 35));
       revalidate();
