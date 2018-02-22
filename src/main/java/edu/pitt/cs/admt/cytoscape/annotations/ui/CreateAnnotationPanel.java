@@ -1,7 +1,6 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
-import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegateFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
@@ -16,8 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.Vector;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -173,16 +170,10 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
   }
 
   public void refresh() {
-    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.networkSUID);
-    if (storageDelegateOptional.isPresent()) {
-      StorageDelegate delegate = storageDelegateOptional.get();
-      try {
-        this.setAnnotations(delegate.getAllAnnotations());
-      } catch(SQLException e) {
-        e.printStackTrace();
-      }
-    } else {
-      System.out.println("Create panel couldn't find storage delegate");
+    try {
+      this.setAnnotations(StorageDelegate.getAllAnnotations(this.networkSUID));
+    } catch(SQLException e) {
+      e.printStackTrace();
     }
     updateView();
   }
