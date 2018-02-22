@@ -12,10 +12,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
@@ -43,17 +41,17 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
   private final JTextField filterField = new JTextField();
   private final JButton searchButton = new JButton("Search");
   private final JButton clearButton = new JButton("Clear");
-  private Long networkSUID = null;
-//  private List<String> annotationNames = new LinkedList<>();
-//  private JPanel resultContainer = new JPanel(new GridLayout(0, 1));
-//  private JScrollPane resultPane = new JScrollPane(resultContainer, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-  private JPanel resultPane = new JPanel();
-  private Set<ResultItem> results = new LinkedHashSet<>();
   private final JComboBox<String> filterComparisonField = new JComboBox<>(
       new DefaultComboBoxModel<>(
           new Vector(Arrays.asList(new String[]{"", "equals", "not equals"}))
       )
   );
+  private Long networkSUID = null;
+  //  private List<String> annotationNames = new LinkedList<>();
+//  private JPanel resultContainer = new JPanel(new GridLayout(0, 1));
+//  private JScrollPane resultPane = new JScrollPane(resultContainer, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+  private JPanel resultPane = new JPanel();
+  private Set<ResultItem> results = new LinkedHashSet<>();
 
   public SearchAnnotationPanel() {
     // panel settings
@@ -76,62 +74,42 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       }
       results.clear();
       resultPane.removeAll();
+      Predicate<String> filterPredicate;
+      String compare = filterField.getText();
+      switch (filterComparisonField.getSelectedIndex()) {
+        case 1:
+          filterPredicate = (value) -> value.equals(compare);
+          break;
+        case 2:
+          filterPredicate = (value) -> !value.equals(compare);
+          break;
+        case 0:
+        default:
+          filterPredicate = (value) -> true;
+          break;
+      }
       for (String m : matches) {
         Collection<AnnotToEntity> res;
         try {
           res = StorageDelegate.selectNodesWithAnnotation(this.networkSUID, m);
           res.stream()
               .map(AnnotToEntity::getValue)
+              .map(a -> a.toString())
+              .filter(filterPredicate)
               .forEach(a -> results.add(new ResultItem(m, a)));
           res = StorageDelegate.selectEdgesWithAnnotation(this.networkSUID, m);
           res.stream()
               .map(AnnotToEntity::getValue)
+              .map(a -> a.toString())
+              .filter(filterPredicate)
               .forEach(a -> results.add(new ResultItem(m, a)));
         } catch (Exception exc) {
           exc.printStackTrace();
         }
-        results.clear();
-        resultPane.removeAll();
-        Predicate<String> filterPredicate;
-        String compare = filterField.getText();
-        switch(filterComparisonField.getSelectedIndex()) {
-          case 1:
-            filterPredicate = (value) -> value.equals(compare);
-            break;
-          case 2:
-            filterPredicate = (value) -> !value.equals(compare);
-            break;
-          case 0:
-          default:
-            filterPredicate = (value) -> true;
-            break;
-        }
-        for (String m : matches) {
-          Collection<AnnotToEntity> res;
-          try {
-            res = delegate.selectNodesWithAnnotation(m);
-            res.stream()
-                .map(AnnotToEntity::getValue)
-                .map(a -> a.toString())
-                .filter(filterPredicate)
-                .forEach(a -> results.add(new ResultItem(m, a)));
-            res = delegate.selectEdgesWithAnnotation(m);
-            res.stream()
-                .map(AnnotToEntity::getValue)
-                .map(a -> a.toString())
-                .filter(filterPredicate)
-                .forEach(a -> results.add(new ResultItem(m, a)));
-          } catch (Exception exc) {
-            exc.printStackTrace();
-          }
-        }
-        for (ResultItem r: results) {
-          resultPane.add(r);
-        }
       }
-      for (ResultItem r: results) {
+      for (ResultItem r : results) {
         resultPane.add(r);
-        }
+      }
       resultPane.setPreferredSize(new Dimension(200, results.size() * 35));
       resultPane.setSize(new Dimension(200, results.size() * 35));
       revalidate();
@@ -141,7 +119,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       nameField.setText("");
       filterField.setText("");
       filterComparisonField.setSelectedIndex(0);
-      for (ResultItem r: results) {
+      for (ResultItem r : results) {
         resultPane.remove(r);
       }
       resultPane.removeAll();
@@ -152,7 +130,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     });
 
     add(title);
-    namePanel.setBorder(new EmptyBorder(2,2,2,2));
+    namePanel.setBorder(new EmptyBorder(2, 2, 2, 2));
     nameField.setPreferredSize(new Dimension(180, 20));
     nameField.setHorizontalAlignment(JTextField.RIGHT);
     namePanel.add(nameLabel);
@@ -200,6 +178,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
   }
 
   private class ResultItem extends JPanel {
+
     ResultItem(final String name, final Object value) {
       setBackground(Color.WHITE);
       setPreferredSize(new Dimension(200, 30));

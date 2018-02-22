@@ -1,12 +1,6 @@
 package edu.pitt.cs.admt.cytoscape.annotations.task;
 
-import static edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask.createAnnotationTaskOnEdges;
-import static edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask.createAnnotationTaskOnNodes;
-import static edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask.createAnnotationTaskOnNodesAndEdges;
-import static edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask.createAnnotationTaskOnSelected;
-
 import java.util.Collection;
-import java.util.UUID;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNode;
