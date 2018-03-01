@@ -43,7 +43,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
   private final JButton clearButton = new JButton("Clear");
   private final JComboBox<String> filterComparisonField = new JComboBox<>(
       new DefaultComboBoxModel<>(
-          new Vector(Arrays.asList(new String[]{"", "equals", "not equals", ">", "≥", "<", "≤"}))
+          new Vector(Arrays.asList(new String[]{"", "equals", "not equals", "starts with", "ends with", ">", "≥", "<", "≤"}))
       )
   );
   private Long networkSUID = null;
@@ -86,9 +86,10 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       if (compare == null && (filterField.getText().equalsIgnoreCase("true") || filterField.getText().equalsIgnoreCase("false"))) {
         compare = Boolean.parseBoolean(filterField.getText());
       }
-      if (compare == null && filterField.getText().length() == 1) {
-        compare = filterField.getText().charAt(0);
-      }
+      // for chars (we probably won't use chars)
+//      if (compare == null && filterField.getText().length() == 1) {
+//        compare = filterField.getText().charAt(0);
+//      }
       if (compare == null) {
         compare = filterField.getText();
       }
@@ -110,6 +111,20 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
           }
           break;
         case 3:
+          if (!(comparer instanceof String)) {
+            filterFunc = (value) -> false;
+          } else {
+            filterFunc = (value) -> value instanceof String && ((String) value).startsWith((String)comparer);
+          }
+          break;
+        case 4:
+          if (!(comparer instanceof String)) {
+            filterFunc = (value) -> false;
+          } else {
+            filterFunc = (value) -> value instanceof String && ((String) value).endsWith((String)comparer);
+          }
+          break;
+        case 5:
           if (comparer instanceof String) {
             filterFunc = (value) -> value.toString().compareTo((String) comparer) > 0;
           } else if (comparer instanceof Boolean){
@@ -120,7 +135,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
             filterFunc = (value) -> false;
           }
           break;
-        case 4:
+        case 6:
           if (comparer instanceof String) {
             filterFunc = (value) -> value.toString().compareTo((String) comparer) >= 0;
           } else if (comparer instanceof Boolean){
@@ -131,7 +146,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
             filterFunc = (value) -> false;
           }
           break;
-        case 5:
+        case 7:
           if (comparer instanceof String) {
             filterFunc = (value) -> value.toString().compareTo((String) comparer) < 0;
           } else if (comparer instanceof Boolean){
@@ -142,7 +157,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
             filterFunc = (value) -> false;
           }
           break;
-        case 6:
+        case 8:
           if (comparer instanceof String) {
             filterFunc = (value) -> value.toString().compareTo((String) comparer) <= 0;
           } else if (comparer instanceof Boolean){
@@ -173,48 +188,9 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
         ex.printStackTrace();
         return;
       }
-//      StorageDelegate.searchEntitiesWithPredicate(this.networkSUID, name, filterFunc)
-//          .stream()
-//          .map(a -> results.add(new ResultItem(StorageDelegate.getAnnotation(this.networkSUID, a.)a.getValue())))
-//      for (String m : matches) {
-//        Collection<AnnotToEntity> res;
-//        try {
-//          res = StorageDelegate.selectNodesWithAnnotation(this.networkSUID, m);
-//          res.stream()
-//              .map(AnnotToEntity::getValue)
-//              .map(a -> a.toString())
-//              .filter(filterPredicate)
-//              .forEach(a -> results.add(new ResultItem(m, a)));
-//          res = StorageDelegate.selectEdgesWithAnnotation(this.networkSUID, m);
-//          res.stream()
-//              .map(AnnotToEntity::getValue)
-//              .map(a -> a.toString())
-//              .filter(filterPredicate)
-//              .forEach(a -> results.add(new ResultItem(m, a)));
-//        } catch (Exception exc) {
-//          exc.printStackTrace();
-//        }
-//      }
       for (ResultItem r : results) {
         resultPane.add(r);
       }
-      try {
-        System.out.println("Testing storage delegate method:");
-        Collection<AnnotToEntity> test = StorageDelegate.selectEntitiesWithAnnotationNameAndPredicate(this.networkSUID, name, filterFunc);
-        System.out.println("Found: " + test.size());
-        for (AnnotToEntity ae: test) {
-          System.out.println(ae.getValue());
-        }
-        System.out.println("\nTesting search method:");
-        Collection<AnnotToEntity> test2 = StorageDelegate.searchEntitiesWithPredicate(this.networkSUID, name, filterFunc);
-        System.out.println("Found: " + test2.size());
-        for (AnnotToEntity ae: test2) {
-          System.out.println(ae.getValue());
-        }
-      } catch (Exception ex) {
-        ex.printStackTrace();
-      }
-      System.out.println();
       int height = 0;
       for (ResultItem r: results) {
         height += r.getMaximumSize().height + 5;
@@ -262,6 +238,8 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     resultPane.setPreferredSize(new Dimension(250, 55));
     add(resultPane);
     setVisible(true);
+    // do click to prepare result set
+//    searchButton.doClick();
   }
 
 //  public void refresh() {
