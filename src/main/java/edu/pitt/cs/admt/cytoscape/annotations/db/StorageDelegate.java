@@ -592,6 +592,70 @@ public class StorageDelegate {
   }
 
   /**
+   * @param search if empty, all annotations to nodes are returned. Not nullable
+   */
+  public static Collection<AnnotToEntity> searchNodesWithAnnotation(final long networkSUID, String search)
+      throws SQLException, IOException, ClassNotFoundException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
+    PreparedStatement statement = null;
+    if (search == null) {
+      statement = connection.prepareStatement(AnnotationSchema.SELECT_ANNOT_TO_NODE);
+    } else {
+      statement = connection.prepareStatement(
+          AnnotationSchema.SEARCH_ANNOT_TO_NODES);
+      statement.setString(1, search);
+      statement.setString(2, search);
+    }
+    ResultSet resultSet = statement.executeQuery();
+    Collection<AnnotToEntity> collection = new ArrayList<>();
+    while (resultSet.next()) {
+      UUID uuid = (UUID) resultSet.getObject(1);
+      UUID cyId = (UUID) resultSet.getObject(2);
+      Integer suid = resultSet.getInt(3);
+      Object value = convertToObject(resultSet.getBytes(4));
+      collection.add(new AnnotToEntity(uuid, cyId, suid, value));
+    }
+    resultSet.close();
+    statement.close();
+    return collection;
+  }
+
+  /**
+   * @param search if empty, all annotations to edges are returned. Not nullable
+   */
+  public static Collection<AnnotToEntity> searchEdgesWithAnnotation(final long networkSUID, String search)
+      throws SQLException, IOException, ClassNotFoundException {
+    JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
+    if (connection == null)
+      throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
+          " does not exist.");
+    PreparedStatement statement = null;
+    if (search == null) {
+      statement = connection.prepareStatement(AnnotationSchema.SELECT_ANNOT_TO_EDGES);
+    } else {
+      statement = connection.prepareStatement(
+          AnnotationSchema.SEARCH_ANNOT_TO_EDGES);
+      statement.setString(1, search);
+      statement.setString(2, search);
+    }
+    ResultSet resultSet = statement.executeQuery();
+    Collection<AnnotToEntity> collection = new ArrayList<>();
+    while (resultSet.next()) {
+      UUID uuid = (UUID) resultSet.getObject(1);
+      UUID cyId = (UUID) resultSet.getObject(2);
+      Integer suid = resultSet.getInt(3);
+      Object value = convertToObject(resultSet.getBytes(4));
+      collection.add(new AnnotToEntity(uuid, cyId, suid, value));
+    }
+    resultSet.close();
+    statement.close();
+    return collection;
+  }
+
+  /**
    * @param name Not nullable
    */
   static Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicateOrdered(
@@ -760,9 +824,10 @@ public class StorageDelegate {
   /**
    * @param name Not nullable
    */
-  static Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicate(
+  public static Collection<AnnotToEntity> selectEntitiesWithAnnotationNameAndPredicate(
       final long networkSUID,
-      String name, Function<Object, Boolean> predicate)
+      String name,
+      Function<Object, Boolean> predicate)
       throws SQLException, IOException, ClassNotFoundException {
     Collection<AnnotToEntity> nodes = selectNodesWithAnnotation(networkSUID, name);
     Collection<AnnotToEntity> edges = selectEdgesWithAnnotation(networkSUID, name);
@@ -773,6 +838,30 @@ public class StorageDelegate {
       }
     }
     for (AnnotToEntity a : edges) {
+      if (predicate.apply(a.getValue())) {
+        collection.add(a);
+      }
+    }
+    return collection;
+  }
+
+  /**
+   * @param search Not nullable
+   */
+  public static Collection<AnnotToEntity> searchEntitiesWithPredicate(
+      final long networkSUID,
+      final String search,
+      Function<Object, Boolean> predicate)
+      throws SQLException, IOException, ClassNotFoundException {
+    Collection<AnnotToEntity> nodes = searchNodesWithAnnotation(networkSUID, "%"+search+"%");
+    Collection<AnnotToEntity> edges = searchEdgesWithAnnotation(networkSUID, "%"+search+"%");
+    Collection<AnnotToEntity> collection = new ArrayList<>();
+    for (AnnotToEntity a: nodes) {
+      if (predicate.apply(a.getValue())) {
+        collection.add(a);
+      }
+    }
+    for (AnnotToEntity a: edges) {
       if (predicate.apply(a.getValue())) {
         collection.add(a);
       }

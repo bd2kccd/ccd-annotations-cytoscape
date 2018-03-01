@@ -127,10 +127,24 @@ class AnnotationSchema {
       +
       ANNOTATION_TABLE + ".id WHERE " + ANNOTATION_TABLE + ".name = ?";
 
+  static final String SEARCH_ANNOT_TO_NODES = "SELECT a_id, cy_a_id, suid, value FROM " +
+      ANNOT_TO_NODE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_NODE_TABLE + ".a_id = "
+      +
+      ANNOTATION_TABLE + ".id WHERE " + ANNOTATION_TABLE + ".name LIKE ?"
+      +
+      " OR " + ANNOTATION_TABLE + ".description LIKE ?";
+
   static final String SELECT_ANNOT_TO_EDGES_ON_NAME = "SELECT a_id, cy_a_id, suid, value FROM " +
       ANNOT_TO_EDGE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_EDGE_TABLE + ".a_id = "
       +
       ANNOTATION_TABLE + ".id WHERE " + ANNOTATION_TABLE + ".name = ?";
+
+  static final String SEARCH_ANNOT_TO_EDGES = "SELECT a_id, cy_a_id, suid, value FROM " +
+      ANNOT_TO_EDGE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_EDGE_TABLE + ".a_id = "
+      +
+      ANNOTATION_TABLE + ".id WHERE " + ANNOTATION_TABLE + ".name LIKE ?"
+      +
+      " OR " + ANNOTATION_TABLE + ".description LIKE ?";
 
   static final String SELECT_ANNOT_TO_EDGES = "SELECT a_id, cy_a_id, suid, value FROM " +
       ANNOT_TO_EDGE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_EDGE_TABLE + ".a_id = "

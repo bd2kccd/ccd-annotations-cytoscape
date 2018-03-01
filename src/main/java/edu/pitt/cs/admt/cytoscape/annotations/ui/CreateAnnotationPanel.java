@@ -60,6 +60,7 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
   );
   private final JTextField valueField = new JTextField();
   private final JButton createButton = new JButton("Create");
+  private final JLabel createError = new JLabel("");
   private Map<String, Annotation> annotations = new HashMap<>();
   private Long networkSUID = null;
 
@@ -73,6 +74,7 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
 
     // actions
     createButton.addActionListener((ActionEvent e) -> {
+      createError.setText("");
       String name;
       if (nameSelector.getSelectedIndex() == 0) {
         name = newNameField.getText();
@@ -81,10 +83,39 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
       }
       AnnotationValueType type = AnnotationValueType.parse((String)this.valueTypeSelector.getSelectedItem());
       TaskIterator taskIterator = new TaskIterator();
+      String valueText = valueField.getText();
+      Object value = null;
+      switch(type) {
+        case BOOLEAN:
+          value = Boolean.parseBoolean(valueText);
+          break;
+        case CHAR:
+          value = valueText.charAt(0);
+          break;
+        case INT:
+          try {
+            value = Integer.parseInt(valueText);
+          } catch (Exception ex) {
+            createError.setText("Error: integer value required");
+            return;
+          }
+          break;
+        case FLOAT:
+          try {
+            value = Float.parseFloat(valueText);
+          } catch (Exception ex) {
+            createError.setText("Error: floating point value required");
+            return;
+          }
+          break;
+        case STRING:
+          value = valueText;
+          break;
+      }
       taskIterator.append(createAnnotationTaskFactory
         .createOnSelected(name)
         .setAnnotationDescription(descriptionText.getText())
-        .setAnnotationValue(valueField.getText())
+        .setAnnotationValue(value)
         .setAnnotationValueType(type)
         .enableDatabaseUpdate()
         .createTaskIterator());
@@ -156,6 +187,7 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
     add(valueLabel);
     add(valueField);
     add(createButton);
+    add(createError);
 
     setVisible(true);
   }
