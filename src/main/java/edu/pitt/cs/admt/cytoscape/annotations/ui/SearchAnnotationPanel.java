@@ -62,16 +62,6 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     // actions
     searchButton.addActionListener((ActionEvent e) -> {
       String name = nameField.getText().toLowerCase();
-//      Set<String> matches = Collections.EMPTY_SET;
-//      try {
-//        matches = StorageDelegate.getAllAnnotations(this.networkSUID)
-//            .stream()
-//            .map(Annotation::getName)
-//            .filter(a -> a.toLowerCase().contains(name))
-//            .collect(Collectors.toSet());
-//      } catch (SQLException exc) {
-//        exc.printStackTrace();
-//      }
       results.clear();
       resultPane.removeAll();
       Predicate<String> filterPredicate;
@@ -80,9 +70,11 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       try {
         compare = Integer.parseInt(filterField.getText());
       } catch (Exception ex) { }
-      try {
-        compare = Float.parseFloat(filterField.getText());
-      } catch (Exception ex) { }
+      if (compare == null) {
+        try {
+          compare = Float.parseFloat(filterField.getText());
+        } catch (Exception ex) { }
+      }
       if (compare == null && (filterField.getText().equalsIgnoreCase("true") || filterField.getText().equalsIgnoreCase("false"))) {
         compare = Boolean.parseBoolean(filterField.getText());
       }
