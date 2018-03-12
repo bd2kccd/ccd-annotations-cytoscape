@@ -26,16 +26,20 @@ This app aims to bring CCD annotations to Cytoscape.
 
 ## CCD Annotations Guide
 
-We extended Cytoscape's Annotation framework to be able to relate annotations with network 
-components and support annotation searching and highlighting. To this end, we had to have a 
-2-level approach on an annotation, which now has a __Visualization__ and a __Semantic__ view.
+The goal of this plugin is to extend Cytoscape's annotating capabilities in order to 
+be able to connect annotations with network components and support annotation 
+searching and filtering. To this end, CCD-annotation-plugin follows a dual level 
+view on annotations: the __Visualization__ and the __Semantic__ view.
 
-The __Visualization__ is responsible for rendering an annotation on the network and is mostly 
-handled by Cytoscape's visualization engine. The __Semantic__ is the one that is not supported by
- Cytoscape and we had to develop it, without violating Cytoscape's OSGi specifications and by 
- using the existing annotation rendering engine. 
+The __Visualization__ view is responsible for rendering an annotation on a network 
+and is mostly handled by Cytoscape's visualization engine. 
+The __Semantic__ view is responsible for annotation, search, filter actions, in 
+agreement with Cytoscape's OSGi specifications. 
+
+The aforementioned views appear in the storage engine of the plugin and on Import/Export 
+functionality of Cytoscape. 
  
-### Annotation Conceptual Schema
+### Annotation Semantic View
 
 The __CCD Annotations for Cytoscape__ plugin (__ccd_annot__) is designed to support two types of 
 CCD annotations: 
