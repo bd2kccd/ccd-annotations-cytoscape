@@ -1,5 +1,8 @@
 package edu.pitt.cs.admt.cytoscape.annotations.task;
 
+import static edu.pitt.cs.admt.cytoscape.annotations.view.CCDAnnotation.CCD_ANNOTATION_SET;
+import static edu.pitt.cs.admt.cytoscape.annotations.view.CCDAnnotation.CCD_NETWORK_ANNOTATIONS;
+
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
@@ -12,12 +15,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.cytoscape.application.CyApplicationManager;
+import org.cytoscape.model.CyColumn;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
@@ -35,8 +39,8 @@ import org.cytoscape.work.TaskMonitor;
 public class CreateAnnotationTask extends AbstractTask {
 
   // table panel column names
-  private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
-  private static final String ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
+//  private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
+//  private static final String ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
 
   // network table column
   private static final String SELECTED = "selected";
@@ -47,9 +51,10 @@ public class CreateAnnotationTask extends AbstractTask {
   private static final String CANVAS = "foreground";
   private static final String FONT_FAMILY = "Arial";
 
+  private CyApplicationManager applicationManager;
   private final AnnotationManager annotationManager;
   private final AnnotationFactory<TextAnnotation> annotationFactory;
-  private final CyNetwork network;
+  private CyNetwork network;
   private final CyNetworkView networkView;
   private final Long networkSUID;
   private final List<CyNode> nodes = new ArrayList<>(0);
@@ -67,6 +72,7 @@ public class CreateAnnotationTask extends AbstractTask {
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
       final String annotationName) {
+    this.applicationManager = applicationManager;
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
     this.annotationName = annotationName;
@@ -282,8 +288,10 @@ public class CreateAnnotationTask extends AbstractTask {
 
   private void updateNetworkTable(final TextAnnotation annotation) {
     // add to network
-    List<String> row = this.network.getRow(this.network)
-        .getList(CCD_ANNOTATION_ATTRIBUTE, String.class);
+    List<String> row = this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS).getList(CCD_NETWORK_ANNOTATIONS, String.class);
+    if (row == null) {
+
+    }
     String type = "";
     if (this.annotationValueType == null) {
       System.out.print("Value type is null");
@@ -300,25 +308,30 @@ public class CreateAnnotationTask extends AbstractTask {
     row.add(annotationString);
     Set<String> rowSet = new HashSet<>(row);
     this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS)
-        .set(CCD_ANNOTATION_ATTRIBUTE, new ArrayList<>(rowSet));
+        .set(CCD_NETWORK_ANNOTATIONS, new ArrayList<>(rowSet));
 
-//    if (this.cytoscapeID == null) {
-//      this.cytoscapeID = annotation.getUUID();
-//    }
+    if (this.cytoscapeID == null) {
+      this.cytoscapeID = annotation.getUUID();
+    }
+
     // add to node table
     for (CyNode node : this.nodes) {
+      System.out.println(node.toString());
       addToRow(node, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
     }
 
     // add to edge table
     for (CyEdge edge : this.edges) {
+      System.out.println(edge.toString());
       addToRow(edge, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
     }
   }
 
   private void addToRow(CyIdentifiable cyIdentifiable, String anUUID, String cyUUID) {
-    List<String> row = this.network.getRow(cyIdentifiable)
-        .getList(ANNOTATION_SET_ATTRIBUTE, String.class);
+    List<String> row = this.network.getRow(cyIdentifiable, CyNetwork.LOCAL_ATTRS).getList(CCD_ANNOTATION_SET, String.class);
+    System.out.println("CyIdentifiable: " + cyIdentifiable.toString());
+    System.out.println("Row: " + row.toString());
+    System.out.println("Desired row: " + this.applicationManager.getCurrentNetwork().getDefaultNodeTable().getRow(cyIdentifiable.getSUID()).getList(CCD_ANNOTATION_SET, String.class));
     String rowString = new StringBuilder()
         .append("a_id=").append(anUUID).append("|")
         .append("cy_id=").append(cyUUID).append("|")
@@ -328,7 +341,9 @@ public class CreateAnnotationTask extends AbstractTask {
     }
     row.add(rowString);
     Set<String> rowSet = new HashSet<>(row);
-    this.network.getRow(cyIdentifiable).set(ANNOTATION_SET_ATTRIBUTE, new ArrayList<>(rowSet));
+    CyColumn x = this.network.getDefaultNodeTable().getColumn(CCD_ANNOTATION_SET);
+    this.network.getRow(cyIdentifiable).set(CCD_ANNOTATION_SET, new ArrayList<>(rowSet));
+    CyColumn y = this.network.getDefaultNodeTable().getColumn(CCD_ANNOTATION_SET);
   }
 
   private Coordinates calculateAverageLocation() {
