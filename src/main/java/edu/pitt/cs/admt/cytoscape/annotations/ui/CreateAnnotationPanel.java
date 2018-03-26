@@ -77,13 +77,14 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
       createError.setText("");
       String name;
       if (nameSelector.getSelectedIndex() == 0) {
-        name = newNameField.getText();
+        name = newNameField.getText().trim();
       } else {
         name = (String) nameSelector.getSelectedItem();
       }
+      String description = descriptionText.getText().trim();
       AnnotationValueType type = AnnotationValueType.parse((String)this.valueTypeSelector.getSelectedItem());
       TaskIterator taskIterator = new TaskIterator();
-      String valueText = valueField.getText();
+      String valueText = valueField.getText().trim();
       Object value = null;
       switch(type) {
         case BOOLEAN:
@@ -114,7 +115,7 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
       }
       taskIterator.append(createAnnotationTaskFactory
         .createOnSelected(name)
-        .setAnnotationDescription(descriptionText.getText())
+        .setAnnotationDescription(description)
         .setAnnotationValue(value)
         .setAnnotationValueType(type)
         .enableDatabaseUpdate()
