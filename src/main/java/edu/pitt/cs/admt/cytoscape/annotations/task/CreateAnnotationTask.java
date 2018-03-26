@@ -289,9 +289,6 @@ public class CreateAnnotationTask extends AbstractTask {
   private void updateNetworkTable(final TextAnnotation annotation) {
     // add to network
     List<String> row = this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS).getList(CCD_NETWORK_ANNOTATIONS, String.class);
-    if (row == null) {
-
-    }
     String type = "";
     if (this.annotationValueType == null) {
       System.out.print("Value type is null");
@@ -329,9 +326,6 @@ public class CreateAnnotationTask extends AbstractTask {
 
   private void addToRow(CyIdentifiable cyIdentifiable, String anUUID, String cyUUID) {
     List<String> row = this.network.getRow(cyIdentifiable, CyNetwork.LOCAL_ATTRS).getList(CCD_ANNOTATION_SET, String.class);
-    System.out.println("CyIdentifiable: " + cyIdentifiable.toString());
-    System.out.println("Row: " + row.toString());
-    System.out.println("Desired row: " + this.applicationManager.getCurrentNetwork().getDefaultNodeTable().getRow(cyIdentifiable.getSUID()).getList(CCD_ANNOTATION_SET, String.class));
     String rowString = new StringBuilder()
         .append("a_id=").append(anUUID).append("|")
         .append("cy_id=").append(cyUUID).append("|")
