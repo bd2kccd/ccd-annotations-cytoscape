@@ -308,7 +308,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     }
 
     // Iterate through Cytoscape annotation UUIDs
-    // and generate 1 Cytoscape annotatino per entry
+    // and generate 1 Cytoscape annotation per entry
     for (Map.Entry<UUID, List<AnnotToEntity>> entry: entityAnnotationByCyID.entrySet()) {
       UUID cyUUID = entry.getKey();
       if (!cytoscapeAnnotations.contains(cyUUID)) {
