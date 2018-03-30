@@ -263,11 +263,6 @@ public class CreateAnnotationTask extends AbstractTask {
       updateDatabase();
     }
     updateNetworkTable(annotation);
-    try {
-      System.out.println(NetworkStorageUtility.exportNodes(this.networkSUID));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
   private void updateDatabase() {
