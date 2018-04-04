@@ -93,8 +93,8 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     // Generate columns in table panel
     if (network.getDefaultNetworkTable().getColumn(CCD_NETWORK_ANNOTATIONS) == null) {
       network.getDefaultNetworkTable().createListColumn(CCD_NETWORK_ANNOTATIONS, String.class, false);
+      network.getRow(network, CyNetwork.LOCAL_ATTRS).set(CCD_NETWORK_ANNOTATIONS, new ArrayList<String>(0));
     }
-    network.getRow(network, CyNetwork.LOCAL_ATTRS).set(CCD_NETWORK_ANNOTATIONS, new ArrayList<String>(0));
     if (nodeTable.getColumn(CCD_ANNOTATION_SET) == null) {
       nodeTable.createListColumn(CCD_ANNOTATION_SET, String.class, false);
     }
