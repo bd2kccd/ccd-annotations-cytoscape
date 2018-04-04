@@ -55,6 +55,13 @@ public class Node {
   }
 
   @Override
+  public String toString() {
+    return "Node{" +
+        "suid=" + suid +
+        '}';
+  }
+
+  @Override
   public int hashCode() {
     return suid;
   }

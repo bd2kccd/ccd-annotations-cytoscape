@@ -62,120 +62,14 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     // actions
     searchButton.addActionListener((ActionEvent e) -> {
       String name = nameField.getText().toLowerCase();
-//      Set<String> matches = Collections.EMPTY_SET;
-//      try {
-//        matches = StorageDelegate.getAllAnnotations(this.networkSUID)
-//            .stream()
-//            .map(Annotation::getName)
-//            .filter(a -> a.toLowerCase().contains(name))
-//            .collect(Collectors.toSet());
-//      } catch (SQLException exc) {
-//        exc.printStackTrace();
-//      }
       results.clear();
       resultPane.removeAll();
-      Predicate<String> filterPredicate;
-      Function<Object, Boolean> filterFunc;
-      Object compare = null;
-      try {
-        compare = Integer.parseInt(filterField.getText());
-      } catch (Exception ex) { }
-      try {
-        compare = Float.parseFloat(filterField.getText());
-      } catch (Exception ex) { }
-      if (compare == null && (filterField.getText().equalsIgnoreCase("true") || filterField.getText().equalsIgnoreCase("false"))) {
-        compare = Boolean.parseBoolean(filterField.getText());
-      }
-      // for chars (we probably won't use chars)
-//      if (compare == null && filterField.getText().length() == 1) {
-//        compare = filterField.getText().charAt(0);
-//      }
-      if (compare == null) {
-        compare = filterField.getText();
-      }
-      final Object comparer = compare;
 
-      switch (filterComparisonField.getSelectedIndex()) {
-        case 1:
-          if (comparer instanceof String) {
-            filterFunc = (value) -> value.toString().equals((String) comparer);
-          } else {
-            filterFunc = (value) -> value == comparer;
-          }
-          break;
-        case 2:
-          if (comparer instanceof String) {
-            filterFunc = (value) -> !value.toString().equals((String) comparer);
-          } else {
-            filterFunc = (value) -> value != comparer;
-          }
-          break;
-        case 3:
-          if (!(comparer instanceof String)) {
-            filterFunc = (value) -> false;
-          } else {
-            filterFunc = (value) -> value instanceof String && ((String) value).startsWith((String)comparer);
-          }
-          break;
-        case 4:
-          if (!(comparer instanceof String)) {
-            filterFunc = (value) -> false;
-          } else {
-            filterFunc = (value) -> value instanceof String && ((String) value).endsWith((String)comparer);
-          }
-          break;
-        case 5:
-          if (comparer instanceof String) {
-            filterFunc = (value) -> value.toString().compareTo((String) comparer) > 0;
-          } else if (comparer instanceof Boolean){
-            filterFunc = (value) -> false;
-          } else if (comparer instanceof Float || comparer instanceof Integer){
-            filterFunc = (value) -> (value instanceof Float || value instanceof Integer) && (Float) value > (Float) comparer;
-          } else {
-            filterFunc = (value) -> false;
-          }
-          break;
-        case 6:
-          if (comparer instanceof String) {
-            filterFunc = (value) -> value.toString().compareTo((String) comparer) >= 0;
-          } else if (comparer instanceof Boolean){
-            filterFunc = (value) -> false;
-          } else if (comparer instanceof Float || comparer instanceof Integer){
-            filterFunc = (value) -> (value instanceof Float || value instanceof Integer) && (Float) value >= (Float) comparer;
-          } else {
-            filterFunc = (value) -> false;
-          }
-          break;
-        case 7:
-          if (comparer instanceof String) {
-            filterFunc = (value) -> value.toString().compareTo((String) comparer) < 0;
-          } else if (comparer instanceof Boolean){
-            filterFunc = (value) -> false;
-          } else if (comparer instanceof Float || comparer instanceof Integer){
-            filterFunc = (value) -> (value instanceof Float || value instanceof Integer) && (Float) value < (Float) comparer;
-          } else {
-            filterFunc = (value) -> false;
-          }
-          break;
-        case 8:
-          if (comparer instanceof String) {
-            filterFunc = (value) -> value.toString().compareTo((String) comparer) <= 0;
-          } else if (comparer instanceof Boolean){
-            filterFunc = (value) -> false;
-          } else if (comparer instanceof Float || comparer instanceof Integer){
-            filterFunc = (value) -> (value instanceof Float || value instanceof Integer) && (Float) value <= (Float) comparer;
-          } else {
-            filterFunc = (value) -> false;
-          }
-          break;
-        case 0:
-        default:
-          filterFunc = (value) -> true;
-          break;
-      }
+      Function<Object, Boolean> valueFilter = buildValueFilter();
+
       try {
         Collection<AnnotToEntity> res = StorageDelegate
-            .searchEntitiesWithPredicate(this.networkSUID, name, filterFunc);
+            .searchEntitiesWithPredicate(this.networkSUID, name, valueFilter);
         HashMap<UUID, Annotation> annotationNameMap = new HashMap<>();
         for (AnnotToEntity r: res) {
           if (!annotationNameMap.containsKey(r.getAnnotationId())) {
@@ -264,19 +158,161 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
 //    refresh();
   }
 
+  private Function<Object, Boolean> buildValueFilter() {
+    int filterComparator = filterComparisonField.getSelectedIndex();
+    Object compare = null;
+    if (filterComparator == 3 || filterComparator == 4) {
+      compare = filterField.getText();
+    }
+    if (compare == null) {
+      try {
+        compare = Integer.parseInt(filterField.getText());
+      } catch (Exception ex) {
+      }
+    }
+    if (compare == null) {
+      try {
+        compare = Float.parseFloat(filterField.getText());
+      } catch (Exception ex) { }
+    }
+    if (compare == null && (filterField.getText().equalsIgnoreCase("true") || filterField.getText().equalsIgnoreCase("false"))) {
+      compare = Boolean.parseBoolean(filterField.getText());
+    }
+    // for chars (we probably won't use chars)
+//      if (compare == null && filterField.getText().length() == 1) {
+//        compare = filterField.getText().charAt(0);
+//      }
+    if (compare == null) {
+      compare = filterField.getText();
+    }
+    final Object comparer = compare;
+    switch (filterComparator) {
+      case 1:   // equals
+        if (comparer instanceof String) {
+          return (value) -> value.toString().equals((String) comparer);
+        } else if (comparer instanceof Integer) {
+          return (value) ->
+              (value instanceof Integer && Integer.compare((Integer) value, (Integer) comparer) == 0) ||
+              (value instanceof Float && Float.compare((Float) value, new Float((Integer) comparer)) == 0);
+        } else if (comparer instanceof Float) {
+          return (value) ->
+              (value instanceof Integer && Float.compare(new Float((Integer) value), (Float) comparer) == 0) ||
+              (value instanceof Float && Float.compare((Float) value, (Float) comparer) == 0);
+        } else if (comparer instanceof Boolean) {
+          return (value) -> value instanceof Boolean && Boolean.compare((Boolean) value, (Boolean) comparer) == 0;
+        } else {
+          return (value) -> value == comparer;
+        }
+//        break;
+      case 2: // not equals
+        if (comparer instanceof String) {
+          return (value) -> !value.toString().equals((String) comparer);
+        } else if (comparer instanceof Integer) {
+          return (value) ->
+              (value instanceof Integer && Integer.compare((Integer) value, (Integer) comparer) != 0) ||
+              (value instanceof Float && Float.compare((Float) value, new Float((Integer) comparer)) != 0);
+        } else if (comparer instanceof Float) {
+          return (value) ->
+              (value instanceof Integer && Float.compare(new Float((Integer) value), (Float) comparer) != 0) ||
+              (value instanceof Float && Float.compare((Float) value, (Float) comparer) != 0);
+        } else if (comparer instanceof Boolean) {
+          return (value) -> value instanceof Boolean && Boolean.compare((Boolean) value, (Boolean) comparer) != 0;
+        } else {
+          return (value) -> value != comparer;
+        }
+//        break;
+      case 3: // starts with
+        if (!(comparer instanceof String)) {
+          return (value) -> false;
+        }
+        return (value) -> value instanceof String && ((String) value).startsWith((String) comparer);
+//        break;
+      case 4: // ends with
+        if (!(comparer instanceof String)) {
+          return (value) -> false;
+        }
+        return (value) -> value instanceof String && ((String) value).endsWith((String) comparer);
+//        break;
+      case 5: // greater than
+        if (comparer instanceof String) {
+          return (value) -> value.toString().compareTo((String) comparer) > 0;
+        } else if (comparer instanceof Integer) {
+          return (value) ->
+              (value instanceof Integer && Integer.compare((Integer) value, (Integer) comparer) > 0) ||
+              (value instanceof Float && Float.compare((Float) value, new Float((Integer) comparer)) > 0);
+        } else if (comparer instanceof Float) {
+          return (value) ->
+              (value instanceof Integer && Float.compare(new Float((Integer) value), (Float) comparer) > 0) ||
+              (value instanceof Float && Float.compare((Float) value, (Float) comparer) > 0);
+        } else {
+          return (value) -> false;
+        }
+//        break;
+      case 6: // greater than or equal to
+        if (comparer instanceof String) {
+          return (value) -> value.toString().compareTo((String) comparer) >= 0;
+        } else if (comparer instanceof Integer) {
+          return (value) ->
+              (value instanceof Integer && Integer.compare((Integer) value, (Integer) comparer) >= 0) ||
+              (value instanceof Float && Float.compare((Float) value, new Float((Integer) comparer)) >= 0);
+        } else if (comparer instanceof Float) {
+          return (value) ->
+              (value instanceof Integer && Float.compare(new Float((Integer) value), (Float) comparer) >= 0) ||
+              (value instanceof Float && Float.compare((Float) value, (Float) comparer) >= 0);
+        } else {
+          return (value) -> false;
+        }
+//        break;
+      case 7: // less than
+        if (comparer instanceof String) {
+          return (value) -> value.toString().compareTo((String) comparer) < 0;
+        } else if (comparer instanceof Integer) {
+          return (value) ->
+              (value instanceof Integer && Integer.compare((Integer) value, (Integer) comparer) < 0) ||
+                  (value instanceof Float && Float.compare((Float) value, new Float((Integer) comparer)) < 0);
+        } else if (comparer instanceof Float) {
+          return (value) ->
+              (value instanceof Integer && Float.compare(new Float((Integer) value), (Float) comparer) < 0) ||
+                  (value instanceof Float && Float.compare((Float) value, (Float) comparer) < 0);
+        } else {
+          return (value) -> false;
+        }
+//        break;
+      case 8: // less than or equal to
+        if (comparer instanceof String) {
+          return (value) -> value.toString().compareTo((String) comparer) <= 0;
+        } else if (comparer instanceof Integer) {
+          return (value) ->
+              (value instanceof Integer && Integer.compare((Integer) value, (Integer) comparer) <= 0) ||
+                  (value instanceof Float && Float.compare((Float) value, new Float((Integer) comparer)) <= 0);
+        } else if (comparer instanceof Float) {
+          return (value) ->
+              (value instanceof Integer && Float.compare(new Float((Integer) value), (Float) comparer) <= 0) ||
+                  (value instanceof Float && Float.compare((Float) value, (Float) comparer) <= 0);
+        } else {
+          return (value) -> false;
+        }
+//        break;
+      case 0: // no filter
+      default:
+        return (value) -> true;
+//        break;
+    }
+  }
+
   private class ResultItem extends JPanel {
     ResultItem(final String name, String description, final Object value) {
       setBackground(Color.WHITE);
       setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.GRAY));
       int height = 60;
-      if (description.length() > 10) {
+      if (description != null && description.length() > 10) {
         description = description.substring(0, 11) + "<br/>" + description.substring(11, description.length());
         height += 20;
       }
+      String descriptionLabel = description != null ? "Description: " + description + "<br/>" : "";
       JLabel resultLabel = new JLabel("<html>Name: " + name +
           "<br/>" +
-          "Description: " + description +
-          "<br/>" +
+          descriptionLabel +
           "Value: " + value +
           "</html>");
       setPreferredSize(new Dimension(250, height));

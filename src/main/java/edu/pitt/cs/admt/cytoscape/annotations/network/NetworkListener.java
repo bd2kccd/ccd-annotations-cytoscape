@@ -1,5 +1,9 @@
 package edu.pitt.cs.admt.cytoscape.annotations.network;
 
+import static edu.pitt.cs.admt.cytoscape.annotations.view.CCDAnnotation.ANNOTATION_SET;
+import static edu.pitt.cs.admt.cytoscape.annotations.view.CCDAnnotation.CCD_ANNOTATION_SET;
+import static edu.pitt.cs.admt.cytoscape.annotations.view.CCDAnnotation.CCD_NETWORK_ANNOTATIONS;
+
 import edu.pitt.cs.admt.cytoscape.annotations.db.NetworkStorageUtility;
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
@@ -11,11 +15,14 @@ import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTask;
 import edu.pitt.cs.admt.cytoscape.annotations.ui.CCDControlPanel;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -44,9 +51,6 @@ import org.cytoscape.work.TaskManager;
  */
 public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetworkListener {
 
-  private static final String CCD_ANNOTATION_ATTRIBUTE = "__CCD_Annotations";
-  private static final String CCD_ANNOTATION_SET_ATTRIBUTE = "__CCD_Annotation_Set";
-  private static final String ANNOTATION_ATTRIBUTE = "__Annotations";
   private final AnnotationManager annotationManager;
   private final AnnotationFactory<TextAnnotation> annotationFactory;
   private final TaskManager taskManager;
@@ -72,12 +76,12 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
   }
 
   public void handleEvent(final NetworkViewAddedEvent event) {
-    final CyNetworkView view = event.getNetworkView();
-    final CyNetwork network = view.getModel();
-    final CyTable networkTable = network.getDefaultNetworkTable();
-    final CyTable nodeTable = network.getDefaultNodeTable();
-    final CyTable edgeTable = network.getDefaultEdgeTable();
-    final Long networkSUID = network.getSUID();
+    CyNetworkView view = event.getNetworkView();
+    CyNetwork network = view.getModel();
+    CyTable nodeTable = network.getDefaultNodeTable();
+    CyTable edgeTable = network.getDefaultEdgeTable();
+    Long networkSUID = network.getSUID();
+    System.out.println("Beginning network import");
     try {
       StorageDelegate.init(networkSUID);
     } catch (SQLException e) {
@@ -87,14 +91,25 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     ccdControlPanel.refresh(networkSUID);
 
     // Generate columns in table panel
-    if (networkTable.getColumn(CCD_ANNOTATION_ATTRIBUTE) == null) {
-      networkTable.createListColumn(CCD_ANNOTATION_ATTRIBUTE, String.class, false);
+    if (network.getDefaultNetworkTable().getColumn(CCD_NETWORK_ANNOTATIONS) == null) {
+      network.getDefaultNetworkTable().createListColumn(CCD_NETWORK_ANNOTATIONS, String.class, false);
+      network.getRow(network, CyNetwork.LOCAL_ATTRS).set(CCD_NETWORK_ANNOTATIONS, new ArrayList<String>(0));
     }
-    if (nodeTable.getColumn(CCD_ANNOTATION_SET_ATTRIBUTE) == null) {
-      nodeTable.createListColumn(CCD_ANNOTATION_SET_ATTRIBUTE, String.class, false);
+    if (nodeTable.getColumn(CCD_ANNOTATION_SET) == null) {
+      nodeTable.createListColumn(CCD_ANNOTATION_SET, String.class, false);
     }
-    if (edgeTable.getColumn(CCD_ANNOTATION_SET_ATTRIBUTE) == null) {
-      edgeTable.createListColumn(CCD_ANNOTATION_SET_ATTRIBUTE, String.class, false);
+    for (CyRow row: nodeTable.getAllRows()) {
+      if (row.getList(CCD_ANNOTATION_SET, String.class) == null) {
+        row.set(CCD_ANNOTATION_SET, new ArrayList<String>(0));
+      }
+    }
+    if (edgeTable.getColumn(CCD_ANNOTATION_SET) == null) {
+      edgeTable.createListColumn(CCD_ANNOTATION_SET, String.class, false);
+    }
+    for (CyRow row: edgeTable.getAllRows()) {
+      if (row.getList(CCD_ANNOTATION_SET, String.class) == null) {
+        row.set(CCD_ANNOTATION_SET, new ArrayList<String>(0));
+      }
     }
 
     List<Node> nodes = this.getNodes(network);
@@ -102,10 +117,17 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     Set<UUID> cytoscapeAnnotationUUIDs = this.getCytoscapeAnnotations(network);
     Map<UUID, Annotation> ccdAnnotationByUUID = this.getAnnotations(network);
     Collection<Annotation> annotations = ccdAnnotationByUUID.values();
-    Map<ComponentType, List<AnnotToEntity>> annotationsByComponent = this.getAnnotationsForComponents(
-        view, network, nodeTable, edgeTable, ccdAnnotationByUUID, cytoscapeAnnotationUUIDs);
-    System.out.println("# node annos: " + annotationsByComponent.get(ComponentType.NODE).size());
+    Map<ComponentType, List<AnnotToEntity>> annotationsByComponent;
+    if (ccdAnnotationByUUID.isEmpty()) {
+      annotationsByComponent = new HashMap<>();
+      annotationsByComponent.put(ComponentType.NODE, Collections.EMPTY_LIST);
+      annotationsByComponent.put(ComponentType.EDGE, Collections.EMPTY_LIST);
+    } else {
+      annotationsByComponent = this.getAnnotationsForComponents(
+              view, network, nodeTable, edgeTable, ccdAnnotationByUUID, cytoscapeAnnotationUUIDs);
+    }
 
+    System.out.println("Importing network into database");
     try {
       NetworkStorageUtility.importToDatabase(networkSUID, nodes, edges,
           annotations, annotationsByComponent.get(ComponentType.NODE), annotationsByComponent.get(ComponentType.EDGE));
@@ -115,32 +137,34 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     }
     System.out.println("Successfully imported annotations");
 
-    System.out.println("Test");
-    try {
-      System.out.println("CCD annotation count: " + NetworkStorageUtility.exportAnnotations(networkSUID).size());
-      Collection<AnnotToEntity> test = NetworkStorageUtility.exportAnnotationToEdges(networkSUID);
-      Collection<Edge> test2 = NetworkStorageUtility.exportEdges(networkSUID);
-      Collection<AnnotToEntity> test3 = NetworkStorageUtility.exportAnnotationToNodes(networkSUID);
-      System.out.println("# edges: " + test2.size());
-      System.out.println("# annotations to edges: " + test.size());
-      for (AnnotToEntity a: test) {
-        System.out.println(a.toString() + " SUID: " + a.getEntityId());
-      }
-      System.out.println("# annotations to nodes: " + test3.size());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+//    System.out.println("Test");
+//    try {
+//      System.out.println("CCD annotation count: " + NetworkStorageUtility.exportAnnotations(networkSUID).size());
+//      Collection<AnnotToEntity> test = NetworkStorageUtility.exportAnnotationToEdges(networkSUID);
+//      Collection<Edge> test2 = NetworkStorageUtility.exportEdges(networkSUID);
+//      System.out.println("Edge size: " + StorageDelegate.getEdges(networkSUID).size());
+//      Collection<AnnotToEntity> test3 = NetworkStorageUtility.exportAnnotationToNodes(networkSUID);
+//      System.out.println("# edges: " + test2.size());
+//      System.out.println("# annotations to edges: " + test.size());
+//      for (AnnotToEntity a: test) {
+//        System.out.println(a.toString() + " SUID: " + a.getEntityId());
+//      }
+//      System.out.println("# annotations to nodes: " + test3.size());
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
   }
 
   private List<Node> getNodes(final CyNetwork network) {
     // Get the list of all nodes
     // and convert to our entity
-    return network.getNodeList()
+    List<Node> nodes = network.getNodeList()
         .stream()
         .map(CyNode::getSUID)
         .map(Math::toIntExact)
         .map(Node::new)
         .collect(Collectors.toList());
+    return nodes;
   }
 
   private List<Edge> getEdges(final CyNetwork network) {
@@ -158,16 +182,20 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
   }
 
   private Map<UUID, Annotation> getAnnotations(final CyNetwork network) {
-    return network.getRow(network, CyNetwork.LOCAL_ATTRS)
-        .getList(CCD_ANNOTATION_ATTRIBUTE, String.class)
+    List<String> rows = network.getRow(network, CyNetwork.LOCAL_ATTRS).getList(CCD_NETWORK_ANNOTATIONS, String.class);
+    if (rows == null) {
+      return Collections.EMPTY_MAP;
+    }
+    return rows
         .stream()
         .map(this::parseCCDAnnotationString)
+        .filter(Objects::nonNull)
         .collect(Collectors.toMap(Annotation::getId, Function.identity()));
   }
 
   private Set<UUID> getCytoscapeAnnotations(final CyNetwork network) {
     return network.getRow(network, CyNetwork.LOCAL_ATTRS)
-        .getList(ANNOTATION_ATTRIBUTE, String.class)
+        .getList(ANNOTATION_SET, String.class)
         .stream()
         .map(this::getUUIDFromCytoscapeAnnotationString)
         .filter(Optional::isPresent)
@@ -188,7 +216,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     // Prepare nodes
     for (CyRow row: nodes.getAllRows()) {
       Long suid = row.get("suid", Long.class);
-      List<String> rowAnnos = row.getList(CCD_ANNOTATION_SET_ATTRIBUTE, String.class);
+      List<String> rowAnnos = row.getList(CCD_ANNOTATION_SET, String.class);
       for (int i = 0; i < rowAnnos.size(); i++) {
         AnnotToNode nodeAnno = new AnnotToNode(parseAnnotToEntityString(rowAnnos.get(i), suid, ccdAnnotations));
         UUID cyUUID;
@@ -214,13 +242,13 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
         }
         rowAnnos.set(i, nodeAnno.toString());
       }
-      row.set(CCD_ANNOTATION_SET_ATTRIBUTE, rowAnnos);
+      row.set(CCD_ANNOTATION_SET, rowAnnos);
     }
 
     // Prepare edges
     for (CyRow row: edges.getAllRows()) {
       Long suid = row.get("suid", Long.class);
-      List<String> rowAnnos = row.getList(CCD_ANNOTATION_SET_ATTRIBUTE, String.class);
+      List<String> rowAnnos = row.getList(CCD_ANNOTATION_SET, String.class);
       for (int i = 0; i < rowAnnos.size(); i++) {
         AnnotToEdge edgeAnno = new AnnotToEdge(
             parseAnnotToEntityString(rowAnnos.get(i), suid, ccdAnnotations));
@@ -247,7 +275,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
         }
         rowAnnos.set(i, edgeAnno.toString());
       }
-      row.set(CCD_ANNOTATION_SET_ATTRIBUTE, rowAnnos);
+      row.set(CCD_ANNOTATION_SET, rowAnnos);
     }
 
     TaskIterator createAnnotationTaskIterator = new TaskIterator();
@@ -280,7 +308,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     }
 
     // Iterate through Cytoscape annotation UUIDs
-    // and generate 1 Cytoscape annotatino per entry
+    // and generate 1 Cytoscape annotation per entry
     for (Map.Entry<UUID, List<AnnotToEntity>> entry: entityAnnotationByCyID.entrySet()) {
       UUID cyUUID = entry.getKey();
       if (!cytoscapeAnnotations.contains(cyUUID)) {
@@ -310,7 +338,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
 
     this.taskManager.execute(createAnnotationTaskIterator);
 
-    System.out.println("Type test: " + entityAnnotationByCcdID.values().stream().findAny().get().get(0).getClass().toString());
+//    System.out.println("Type test: " + entityAnnotationByCcdID.values().stream().findAny().get().get(0).getClass().toString());
 
     Map<ComponentType, List<AnnotToEntity>> entityByType = new HashMap<>();
     entityByType.put(ComponentType.NODE, new ArrayList<>());
@@ -344,7 +372,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       final CyRow row,
       final Map<UUID, Annotation> ccdAnnotationByUUID) {
     final Long suid = row.get("suid", Long.class);
-    final List<String> annoList = row.getList(CCD_ANNOTATION_SET_ATTRIBUTE, String.class);
+    final List<String> annoList = row.getList(CCD_ANNOTATION_SET, String.class);
     final List<AnnotToEntity> annotToEntities = new LinkedList<>();
     for (int i = 0; i < annoList.size(); i++) {
       AnnotToEntity annotToEntity = parseAnnotToEntityString(annoList.get(i), suid, ccdAnnotationByUUID);
@@ -358,7 +386,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       }
       annotToEntities.add(annotToEntity);
     }
-    row.set(CCD_ANNOTATION_SET_ATTRIBUTE, annoList);
+    row.set(CCD_ANNOTATION_SET, annoList);
     return annotToEntities;
   }
 
@@ -368,7 +396,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       final CyRow row,
       final Map<UUID, Annotation> ccdAnnotationByUUID) {
     final Long suid = row.get("suid", Long.class);
-    final List<String> annoList = row.getList(CCD_ANNOTATION_SET_ATTRIBUTE, String.class);
+    final List<String> annoList = row.getList(CCD_ANNOTATION_SET, String.class);
     final List<AnnotToEntity> annotToEntities = new LinkedList<>();
     for (int i = 0; i < annoList.size(); i++) {
       AnnotToEntity annotToEntity = parseAnnotToEntityString(annoList.get(i), suid, ccdAnnotationByUUID);
@@ -382,7 +410,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       }
       annotToEntities.add(annotToEntity);
     }
-    row.set(CCD_ANNOTATION_SET_ATTRIBUTE, annoList);
+    row.set(CCD_ANNOTATION_SET, annoList);
     return annotToEntities;
   }
 
@@ -397,14 +425,21 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
   }
 
   private Annotation parseCCDAnnotationString(final String str) {
-    String[] s = str.split("\\|");
-    UUID uuid = UUID.fromString(s[0].split("=")[1]);
-    String name = s[1].split("=")[1];
-    String typeStr = s[2].split("=")[1];
-    AnnotationValueType type = AnnotationValueType.parse(typeStr.toUpperCase());
-    System.out.println("Type: " + type.name());
-    String desc = s[3].split("=")[1];
-    return new Annotation(uuid, name, type, desc);
+    if (str == null || str.isEmpty()) {
+      return null;
+    }
+    try {
+      String[] s = str.split("\\|");
+      UUID uuid = UUID.fromString(s[0].split("=")[1]);
+      String name = s[1].split("=")[1];
+      String typeStr = s[2].split("=")[1];
+      AnnotationValueType type = AnnotationValueType.parse(typeStr.toUpperCase());
+//      System.out.println("Type: " + type.name());
+      String desc = s[3].split("=")[1];
+      return new Annotation(uuid, name, type, desc);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   private AnnotToEntity parseAnnotToEntityString(

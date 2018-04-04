@@ -21,14 +21,16 @@ public class NetworkStorageUtility {
       throws SQLException, IOException {
     StorageDelegate.insertNodes(networkSUID, nodes);
     StorageDelegate.insertEdges(networkSUID, edges);
-    StorageDelegate.insertAnnotations(networkSUID, annotations);
-    for (AnnotToEntity e : annotationToNode) {
-      StorageDelegate.attachAnnotationToNode(networkSUID, e.getAnnotationId(),
-          e.getCytoscapeAnnotationId(), e.getEntityId(), e.getValue());
-    }
-    for (AnnotToEntity e : annotationToEdge) {
-      StorageDelegate.attachAnnotationToEdge(networkSUID, e.getAnnotationId(),
-          e.getCytoscapeAnnotationId(), e.getEntityId(), e.getValue());
+    if (!annotations.isEmpty()) {
+      StorageDelegate.insertAnnotations(networkSUID, annotations);
+      for (AnnotToEntity e : annotationToNode) {
+        StorageDelegate.attachAnnotationToNode(networkSUID, e.getAnnotationId(),
+            e.getCytoscapeAnnotationId(), e.getEntityId(), e.getValue());
+      }
+      for (AnnotToEntity e : annotationToEdge) {
+        StorageDelegate.attachAnnotationToEdge(networkSUID, e.getAnnotationId(),
+            e.getCytoscapeAnnotationId(), e.getEntityId(), e.getValue());
+      }
     }
   }
 
