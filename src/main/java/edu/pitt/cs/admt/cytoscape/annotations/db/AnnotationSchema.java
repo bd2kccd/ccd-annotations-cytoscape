@@ -150,4 +150,8 @@ class AnnotationSchema {
       ANNOT_TO_EDGE_TABLE + " JOIN " + ANNOTATION_TABLE + " ON " + ANNOT_TO_EDGE_TABLE + ".a_id = "
       +
       ANNOTATION_TABLE + ".id";
+  
+  static final String NETWORK_COMPONENTS_BASED_ON_CY_ID = "SELECT suid FROM " +
+      ANNOT_TO_NODE_TABLE + " WHERE cy_a_id = ? UNION SELECT suid FROM " + ANNOT_TO_EDGE_TABLE +
+      " WHERE cy_a_id = ?";
 }
