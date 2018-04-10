@@ -1,13 +1,11 @@
 package edu.pitt.cs.admt.cytoscape.annotations.task;
 
-import static edu.pitt.cs.admt.cytoscape.annotations.view.CCDAnnotation.CCD_ANNOTATION_SET;
-import static edu.pitt.cs.admt.cytoscape.annotations.view.CCDAnnotation.CCD_NETWORK_ANNOTATIONS;
+import static edu.pitt.cs.admt.cytoscape.annotations.CCDAnnotation.CCD_ANNOTATION_SET;
+import static edu.pitt.cs.admt.cytoscape.annotations.CCDAnnotation.CCD_NETWORK_ANNOTATIONS;
 
-import edu.pitt.cs.admt.cytoscape.annotations.db.NetworkStorageUtility;
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotationValueType;
-import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Node;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,7 +21,6 @@ import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyIdentifiable;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
-import org.cytoscape.model.CyRow;
 import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.view.model.CyNetworkView;
 import org.cytoscape.view.model.View;
