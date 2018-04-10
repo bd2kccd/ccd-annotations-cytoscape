@@ -221,7 +221,6 @@ public class CreateAnnotationPanel extends JPanel implements Serializable {
   }
 
   public void setAnnotations(Collection<Annotation> annotations) {
-    System.out.println("Setting " + annotations.size() + " annotations");
     this.annotations = annotations
         .stream()
         .collect(Collectors.toMap(Annotation::getName, Function.identity()));
