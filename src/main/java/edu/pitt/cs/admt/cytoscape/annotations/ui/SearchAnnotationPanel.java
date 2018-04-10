@@ -3,10 +3,14 @@ package edu.pitt.cs.admt.cytoscape.annotations.ui;
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
+import edu.pitt.cs.admt.cytoscape.annotations.task.ComponentHighlightTaskFactory;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +19,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -25,6 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.TaskManager;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
@@ -32,6 +37,7 @@ import javax.swing.border.EmptyBorder;
 public class SearchAnnotationPanel extends JPanel implements Serializable {
 
   private static final long serialVersionUID = -7995662050240929535L;
+
   private final JLabel title = new JLabel("Search for CCD Annotations", SwingConstants.CENTER);
   private final JPanel namePanel = new JPanel();
   private final JLabel nameLabel = new JLabel("Name");
@@ -53,7 +59,8 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
   private JPanel resultPane = new JPanel();
   private Set<ResultItem> results = new LinkedHashSet<>();
 
-  public SearchAnnotationPanel() {
+  public SearchAnnotationPanel(final TaskManager taskManager, final ComponentHighlightTaskFactory highlightTaskFactory) {
+
     // panel settings
     setBorder(new EmptyBorder(10, 10, 10, 10));
     setPreferredSize(new Dimension(300, 800));
@@ -76,7 +83,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
             annotationNameMap.put(r.getAnnotationId(), StorageDelegate.getAnnotation(this.networkSUID, r.getAnnotationId()).get());
           }
           Annotation a = annotationNameMap.get(r.getAnnotationId());
-          results.add(new ResultItem(a.getName(), a.getDescription(), r.getValue()));
+          results.add(new ResultItem(this, taskManager, highlightTaskFactory, networkSUID, a, r));
         }
       } catch (Exception ex) {
         ex.printStackTrace();
@@ -95,6 +102,8 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     });
 
     clearButton.addActionListener((ActionEvent e) -> {
+      this.clearSelected();
+      taskManager.execute(highlightTaskFactory.clearComponentHighlight().toTaskIterator());
       nameField.setText("");
       filterField.setText("");
       filterComparisonField.setSelectedIndex(0);
@@ -136,26 +145,14 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
 //    searchButton.doClick();
   }
 
-//  public void refresh() {
-//    Optional<StorageDelegate> storageDelegateOptional = StorageDelegateFactory.getDelegate(this.networkSUID);
-//    if (storageDelegateOptional.isPresent()) {
-//      StorageDelegate delegate = storageDelegateOptional.get();
-//      try {
-//        this.annotationNames = delegate.getAllAnnotations()
-//            .stream()
-//            .map(Annotation::getName)
-//            .collect(Collectors.toList());
-//      } catch (SQLException e) {
-//        e.printStackTrace();
-//      }
-//    } else {
-//      System.out.println("Search panel couldn't find storage delegate");
-//    }
-//  }
-
   public void refresh(Long suid) {
     this.networkSUID = suid;
-//    refresh();
+  }
+
+  public void clearSelected() {
+    for (ResultItem r: this.results) {
+      r.deselect();
+    }
   }
 
   private Function<Object, Boolean> buildValueFilter() {
@@ -301,24 +298,83 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
   }
 
   private class ResultItem extends JPanel {
-    ResultItem(final String name, String description, final Object value) {
+
+    private final SearchAnnotationPanel searchPanel;
+    private final Annotation annotation;
+    private final AnnotToEntity annotToEntity;
+
+    ResultItem(
+        final SearchAnnotationPanel searchPanel,
+        final TaskManager taskManager,
+        final ComponentHighlightTaskFactory highlightTaskFactory,
+        final Long network,
+        final Annotation annotation,
+        final AnnotToEntity annotToEntity) {
+      this.searchPanel = searchPanel;
+      this.annotation = annotation;
+      this.annotToEntity = annotToEntity;
       setBackground(Color.WHITE);
       setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.GRAY));
-      int height = 60;
+      int height;
+
+      String description = annotation.getDescription();
+      String name = annotation.getName();
+      Object value = annotToEntity.getValue();
+
       if (description != null && description.length() > 10) {
         description = description.substring(0, 11) + "<br/>" + description.substring(11, description.length());
-        height += 20;
+        height = 80;
+      } else {
+        height = 60;
       }
+
+      setPreferredSize(new Dimension(250, height));
+      setMaximumSize(new Dimension(250, height));
+
       String descriptionLabel = description != null ? "Description: " + description + "<br/>" : "";
       JLabel resultLabel = new JLabel("<html>Name: " + name +
           "<br/>" +
           descriptionLabel +
           "Value: " + value +
           "</html>");
-      setPreferredSize(new Dimension(250, height));
-      setMaximumSize(new Dimension(250, height));
       add(resultLabel);
       setVisible(true);
+
+      addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          // not currently using this; too specific
+          // click must not be drag, released outside of panel, etc.
+          super.mouseClicked(e);
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+          super.mousePressed(e);
+          ResultItem item = (ResultItem) e.getComponent();
+          item.getSearchPanel().clearSelected();
+          item.select();
+          UUID cyId = annotToEntity.getCytoscapeAnnotationId();
+          try {
+            Collection<Integer> components = StorageDelegate.getNetworkComponentsOnCytoscapeAnnotUUID(networkSUID, cyId);
+            taskManager.execute(highlightTaskFactory.createComponentHighlightTask(components).toTaskIterator());
+          } catch (SQLException ex) {
+            ex.printStackTrace();
+          }
+        }
+      });
+    }
+
+    public void select() {
+      this.setBackground(Color.YELLOW);
+    }
+
+    public void deselect() {
+      this.setBackground(Color.WHITE);
+    }
+
+    public SearchAnnotationPanel getSearchPanel() {
+      return this.searchPanel;
     }
   }
 }

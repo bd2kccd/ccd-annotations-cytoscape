@@ -2,6 +2,7 @@ package edu.pitt.cs.admt.cytoscape.annotations;
 
 import edu.pitt.cs.admt.cytoscape.annotations.action.AnnotationLayoutAction;
 import edu.pitt.cs.admt.cytoscape.annotations.network.NetworkListener;
+import edu.pitt.cs.admt.cytoscape.annotations.task.ComponentHighlightTaskFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.ui.CCDControlPanel;
 import java.util.Properties;
@@ -43,12 +44,15 @@ public class CyActivator extends AbstractCyActivator {
         applicationManager, annotationManager, textAnnotationFactory);
     registerService(context, createAnnotationTaskFactory, TaskFactory.class, new Properties());
 
+    ComponentHighlightTaskFactory highlightTaskFactory = new ComponentHighlightTaskFactory(applicationManager);
+    registerService(context, highlightTaskFactory, TaskFactory.class, new Properties());
+
     // actions
     AnnotationLayoutAction annotationLayoutAction = new AnnotationLayoutAction(applicationManager, annotationManager, taskManager);
     registerService(context, annotationLayoutAction, CyAction.class, new Properties());
 
     // ui components
-    CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, taskManager, createAnnotationTaskFactory);
+    CCDControlPanel ccdControlPanel = new CCDControlPanel(applicationManager, taskManager, createAnnotationTaskFactory, highlightTaskFactory);
     registerService(context, ccdControlPanel, CytoPanelComponent.class, new Properties());
 
     // listeners

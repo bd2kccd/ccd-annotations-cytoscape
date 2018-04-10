@@ -1,6 +1,7 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
+import edu.pitt.cs.admt.cytoscape.annotations.task.ComponentHighlightTaskFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import java.awt.Component;
 import java.io.Serializable;
@@ -37,16 +38,17 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
   private final JLabel baseLabel = new JLabel("<html>You must select a network before managing CCD Annotations.</html>");
   private JTabbedPane basePanel = new JTabbedPane(JTabbedPane.BOTTOM);
   private CreateAnnotationPanel createPanel;
-  private SearchAnnotationPanel searchPanel = new SearchAnnotationPanel();
+  private SearchAnnotationPanel searchPanel;
   private JTabbedPane tabs = new JTabbedPane();
 
   public CCDControlPanel(
       final CyApplicationManager applicationManager,
       final TaskManager taskManager,
-      final CreateAnnotationTaskFactory createAnnotationTaskFactory) {
+      final CreateAnnotationTaskFactory createAnnotationTaskFactory,
+      final ComponentHighlightTaskFactory highlightTaskFactory) {
     this.applicationManager = applicationManager;
     createPanel = new CreateAnnotationPanel(taskManager, createAnnotationTaskFactory);
-    searchPanel = new SearchAnnotationPanel();
+    searchPanel = new SearchAnnotationPanel(taskManager, highlightTaskFactory);
 //    final Dimension minSize = new Dimension(250, 800);
 //    final Dimension prefSize = new Dimension(300, 300);
     this.add(baseLabel);
