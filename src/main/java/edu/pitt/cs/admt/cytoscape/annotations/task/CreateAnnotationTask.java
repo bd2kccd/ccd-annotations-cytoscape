@@ -250,7 +250,6 @@ public class CreateAnnotationTask extends AbstractTask {
       args.put("text", this.annotationName);
     }
     args.put("uuid", this.cytoscapeID.toString());
-    System.out.println("Text: " + args.get("text"));
 
     // Create and add annotation to network
     TextAnnotation annotation = this.annotationFactory
@@ -289,11 +288,7 @@ public class CreateAnnotationTask extends AbstractTask {
     // add to network
     List<String> row = this.network.getRow(this.network, CyNetwork.LOCAL_ATTRS).getList(CCD_NETWORK_ANNOTATIONS, String.class);
     String type = "";
-    if (this.annotationValueType == null) {
-      System.out.print("Value type is null");
-      System.out.println(" for annotation: " + this.annotationName);
-    } else {
-      System.out.println("value type: " + this.annotationValueType.toString());
+    if (this.annotationValueType != null) {
       type = this.annotationValueType.toString();
     }
     String annotationString = new StringBuilder()
@@ -312,13 +307,11 @@ public class CreateAnnotationTask extends AbstractTask {
 
     // add to node table
     for (CyNode node : this.nodes) {
-      System.out.println(node.toString());
       addToRow(node, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
     }
 
     // add to edge table
     for (CyEdge edge : this.edges) {
-      System.out.println(edge.toString());
       addToRow(edge, this.ccdAnnotationID.toString(), this.cytoscapeID.toString());
     }
   }
