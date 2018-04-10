@@ -70,7 +70,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
   }
 
   public void handleEvent(final SetCurrentNetworkEvent event) {
-    System.out.println("Current network set to suid " + event.getNetwork().getSUID().toString());
+    System.out.println("Current network set to " + event.getNetwork().getSUID().toString());
     ccdControlPanel.refresh(event.getNetwork().getSUID());
   }
 
@@ -318,8 +318,6 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
 
     this.taskManager.execute(createAnnotationTaskIterator);
 
-//    System.out.println("Type test: " + entityAnnotationByCcdID.values().stream().findAny().get().get(0).getClass().toString());
-
     Map<ComponentType, List<AnnotToEntity>> entityByType = new HashMap<>();
     entityByType.put(ComponentType.NODE, new ArrayList<>());
     entityByType.put(ComponentType.EDGE, new ArrayList<>());
@@ -414,7 +412,6 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       String name = s[1].split("=")[1];
       String typeStr = s[2].split("=")[1];
       AnnotationValueType type = AnnotationValueType.parse(typeStr.toUpperCase());
-//      System.out.println("Type: " + type.name());
       String desc = s[3].split("=")[1];
       return new Annotation(uuid, name, type, desc);
     } catch (Exception e) {
