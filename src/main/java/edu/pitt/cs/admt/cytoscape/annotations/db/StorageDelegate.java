@@ -125,6 +125,9 @@ public class StorageDelegate {
           " does not exist.");
     if (nodes == null)
       throw new IllegalArgumentException("empty collection of nodes");
+    if (nodes.isEmpty()) {
+      return;
+    }
     int s = nodes.stream().filter(n -> n.getSuid() < 0).collect(Collectors.toList()).size();
     if (s > 0) {
       throw new IllegalArgumentException("collection with nodes that have negative id " +
@@ -175,6 +178,9 @@ public class StorageDelegate {
       throws SQLException {
     if (edges == null)
       throw new IllegalArgumentException("empty collection of edges");
+    if (edges.isEmpty()) {
+      return;
+    }
     JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
     if (connection == null)
       throw new IllegalArgumentException("JDBC connection with network id: " + networkSUID +
