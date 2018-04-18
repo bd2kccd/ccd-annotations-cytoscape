@@ -352,8 +352,6 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
           fmtDescription.append("<br/>");
           int limit = 25;
           int parts = description.length() / (int) limit;
-          System.out.println("Description: " + description);
-          System.out.println("pars: " + parts);
           for (int i = 0; i < parts; i++) {
             int min = Math.min(11 + limit * (i + 1), description.length());
             fmtDescription.append(description.substring(11 + limit * i, min));
