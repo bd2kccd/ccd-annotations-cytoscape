@@ -2,9 +2,13 @@ package edu.pitt.cs.admt.cytoscape.annotations.network;
 
 import static edu.pitt.cs.admt.cytoscape.annotations.task.AnnotationLayoutTask.CreateAnnotationLayoutTask;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyEdge.Type;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.view.model.events.ViewChangeRecord;
 import org.cytoscape.view.model.events.ViewChangedEvent;
@@ -48,24 +52,21 @@ public class ViewListener implements ViewChangedListener {
   }
 
   private void relayout() {
-    taskManager.execute(CreateAnnotationLayoutTask(annotationManager, applicationManager.getCurrentNetworkView()).toTaskIterator());
+    if (applicationManager.getCurrentNetworkView() != null) {
+      taskManager.execute(CreateAnnotationLayoutTask(annotationManager, applicationManager.getCurrentNetworkView()).toTaskIterator());
+    }
   }
 
   @Override
   public void handleEvent(ViewChangedEvent<?> e) {
-    if (!enabled) {
+    if (!enabled || applicationManager.getCurrentNetwork() == null) {
       return;
     }
-    Collection<? extends ViewChangeRecord<?>> vps = e.getPayloadCollection();
-    for (ViewChangeRecord v : vps) {
+
+    for (ViewChangeRecord v : e.getPayloadCollection()) {
       String property = v.getVisualProperty().getIdString();
-      Object model = v.getView().getModel();
-      if ((model instanceof CyNode || model instanceof CyEdge) &&
-          (property.equals("NODE_X_LOCATION") || property.equals("NODE_Y_LOCATION"))) {
-        // annotations must be re-layout
-        if (applicationManager.getCurrentNetworkView() != null) {
-          relayout();
-        }
+      if (property.equals("NODE_X_LOCATION") || property.equals("NODE_Y_LOCATION")) {
+        relayout();
         break;
       }
     }

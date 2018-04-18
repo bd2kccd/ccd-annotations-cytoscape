@@ -7,7 +7,7 @@ import org.cytoscape.application.swing.AbstractCyAction;
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
  */
-public class AnnotationLayoutAction extends AbstractCyAction {
+public class AutomaticAnnotationLayoutAction extends AbstractCyAction {
 
   private static final long serialVersionUID = 4125398496302851531L;
 
@@ -15,7 +15,7 @@ public class AnnotationLayoutAction extends AbstractCyAction {
   private static boolean automaticLayout = true;
   private static final String title = "Automatic CCD Annotation Relayout";
 
-  public AnnotationLayoutAction(final ViewListener listener) {
+  public AutomaticAnnotationLayoutAction(final ViewListener listener) {
     super(title + " ✓");
     this.setPreferredMenu("Layout");
 

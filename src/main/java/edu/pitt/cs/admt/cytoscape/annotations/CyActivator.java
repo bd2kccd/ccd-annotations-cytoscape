@@ -1,6 +1,7 @@
 package edu.pitt.cs.admt.cytoscape.annotations;
 
-import edu.pitt.cs.admt.cytoscape.annotations.action.AnnotationLayoutAction;
+import edu.pitt.cs.admt.cytoscape.annotations.action.AutomaticAnnotationLayoutAction;
+import edu.pitt.cs.admt.cytoscape.annotations.action.ManualAnnotationLayoutAction;
 import edu.pitt.cs.admt.cytoscape.annotations.network.NetworkListener;
 import edu.pitt.cs.admt.cytoscape.annotations.network.ViewListener;
 import edu.pitt.cs.admt.cytoscape.annotations.task.ComponentHighlightTaskFactory;
@@ -62,7 +63,10 @@ public class CyActivator extends AbstractCyActivator {
     registerService(context, networkListener, SetCurrentNetworkListener.class, new Properties());
 
     // actions
-    AnnotationLayoutAction annotationLayoutAction = new AnnotationLayoutAction(viewListener);
+    ManualAnnotationLayoutAction annotationLayoutAction = new ManualAnnotationLayoutAction(applicationManager, annotationManager, taskManager);
     registerService(context, annotationLayoutAction, CyAction.class, new Properties());
+
+    AutomaticAnnotationLayoutAction autoAnnotationLayoutAction = new AutomaticAnnotationLayoutAction(viewListener);
+    registerService(context, autoAnnotationLayoutAction, CyAction.class, new Properties());
   }
 }
