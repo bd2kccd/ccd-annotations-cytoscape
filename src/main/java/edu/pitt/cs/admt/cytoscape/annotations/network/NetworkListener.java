@@ -279,7 +279,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
           .collect(Collectors.toList());
 
       createAnnotationTaskIterator.append(
-          CreateAnnotationTask.onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory, annotation.getName(), nodesToAnnotate, edgesToAnnotate)
+          CreateAnnotationTask.onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory, this.taskManager, annotation.getName(), nodesToAnnotate, edgesToAnnotate)
               .setAnnotationDescription(annotation.getDescription())
               .setCCDAnnotationID(ccdUUID)
               .setCytoscapeID(entityAnnotationGeneratedUUID.get(ccdUUID))
@@ -307,7 +307,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
             .collect(Collectors.toList());
         createAnnotationTaskIterator.append(
             CreateAnnotationTask
-                .onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory,
+                .onNodesAndEdges(view, network, this.annotationManager, this.annotationFactory, this.taskManager,
                     annotation.getName(), nodesToAnnotate, edgesToAnnotate)
                 .setAnnotationDescription(annotation.getDescription())
                 .setCCDAnnotationID(annotation.getId())
