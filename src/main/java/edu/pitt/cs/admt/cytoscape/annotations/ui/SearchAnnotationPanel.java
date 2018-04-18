@@ -25,10 +25,10 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import org.cytoscape.work.TaskIterator;
 import org.cytoscape.work.TaskManager;
 
 /**
@@ -47,6 +47,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
   private final JTextField filterField = new JTextField();
   private final JButton searchButton = new JButton("Search");
   private final JButton clearButton = new JButton("Clear");
+  private final JLabel resultLabel = new JLabel();
   private final JComboBox<String> filterComparisonField = new JComboBox<>(
       new DefaultComboBoxModel<>(
           new Vector(Arrays.asList(new String[]{"", "equals", "not equals", "starts with", "ends with", ">", "≥", "<", "≤"}))
@@ -55,8 +56,8 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
   private Long networkSUID = null;
   //  private List<String> annotationNames = new LinkedList<>();
 //  private JPanel resultContainer = new JPanel(new GridLayout(0, 1));
-//  private JScrollPane resultPane = new JScrollPane(resultContainer, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
   private JPanel resultPane = new JPanel();
+  private JScrollPane resultScroll = new JScrollPane(resultPane, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
   private Set<ResultItem> results = new LinkedHashSet<>();
 
   public SearchAnnotationPanel(final TaskManager taskManager, final ComponentHighlightTaskFactory highlightTaskFactory) {
@@ -65,12 +66,18 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     setBorder(new EmptyBorder(10, 10, 10, 10));
     setPreferredSize(new Dimension(300, 800));
     setMaximumSize(new Dimension(400, 1000));
+    resultPane.setSize(new Dimension(250, 55));
+    resultPane.setPreferredSize(new Dimension(250, 400));
+    resultScroll.setSize(new Dimension(250, 400));
+    resultScroll.setPreferredSize(new Dimension(250, 400));
+    resultScroll.setMaximumSize(new Dimension(250, 400));
 
     // actions
     searchButton.addActionListener((ActionEvent e) -> {
       String name = nameField.getText().toLowerCase();
       results.clear();
       resultPane.removeAll();
+      resultPane.setSize(new Dimension(250, 55));
 
       Function<Object, Boolean> valueFilter = buildValueFilter();
 
@@ -96,9 +103,11 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       for (ResultItem r: results) {
         height += r.getMaximumSize().height + 5;
       }
-      resultPane.setPreferredSize(new Dimension(200, height));
-      resultPane.setSize(new Dimension(200, height));
+      resultPane.setSize(new Dimension(250, height));
+      resultPane.setPreferredSize(new Dimension(250, height));
+      this.resultLabel.setText("Showing " + results.size() + " results");
       revalidate();
+      System.out.println("Processed " + results.size() + " results");
     });
 
     clearButton.addActionListener((ActionEvent e) -> {
@@ -111,10 +120,9 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
         resultPane.remove(r);
       }
       resultPane.removeAll();
-      resultPane.setPreferredSize(new Dimension(200, 35));
-      resultPane.setSize(new Dimension(200, 55));
+      resultPane.setSize(new Dimension(250, 55));
       results.clear();
-      revalidate();
+      resultLabel.setText("Showing 0 results");
     });
 
     add(title);
@@ -136,17 +144,33 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     add(filterPanel);
     add(clearButton);
     add(searchButton);
-//    resultPane.setViewportView(resultContainer);
+    add(resultLabel);
     resultPane.setBackground(Color.WHITE);
     resultPane.setPreferredSize(new Dimension(250, 55));
-    add(resultPane);
+    resultScroll.setViewportView(resultPane);
+    add(resultScroll);
     setVisible(true);
-    // do click to prepare result set
-//    searchButton.doClick();
   }
 
   public void refresh(Long suid) {
     this.networkSUID = suid;
+    this.searchButton.doClick();
+  }
+
+  public void setResults(Set<ResultItem> results) {
+    for (ResultItem item: this.results) {
+      this.resultPane.remove(item);
+    }
+    this.resultPane.removeAll();
+    this.results = results;
+    int height = 0;
+    for (ResultItem item: this.results) {
+      height += item.getMaximumSize().height + 5;
+      this.resultPane.add(item);
+    }
+    resultPane.setPreferredSize(new Dimension(200, height));
+    resultPane.setSize(new Dimension(200, height));
+    revalidate();
   }
 
   public void clearSelected() {
@@ -299,9 +323,9 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
 
   private class ResultItem extends JPanel {
 
+    private static final long serialVersionUID = 4810591818818214721L;
+
     private final SearchAnnotationPanel searchPanel;
-    private final Annotation annotation;
-    private final AnnotToEntity annotToEntity;
 
     ResultItem(
         final SearchAnnotationPanel searchPanel,
@@ -311,8 +335,6 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
         final Annotation annotation,
         final AnnotToEntity annotToEntity) {
       this.searchPanel = searchPanel;
-      this.annotation = annotation;
-      this.annotToEntity = annotToEntity;
       setBackground(Color.WHITE);
       setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.GRAY));
       int height;
@@ -320,16 +342,40 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       String description = annotation.getDescription();
       String name = annotation.getName();
       Object value = annotToEntity.getValue();
-
       if (description != null && description.length() > 10) {
-        description = description.substring(0, 11) + "<br/>" + description.substring(11, description.length());
-        height = 80;
+        if (description.length() <= 25) {
+          description = description.substring(0, 11) + "<br/>" + description
+              .substring(11, description.length());
+          height = 80;
+        } else {
+          StringBuilder fmtDescription = new StringBuilder(description.substring(0, 11));
+          fmtDescription.append("<br/>");
+          int limit = 25;
+          int parts = description.length() / (int) limit;
+          System.out.println("Description: " + description);
+          System.out.println("pars: " + parts);
+          for (int i = 0; i < parts; i++) {
+            int min = Math.min(11 + limit * (i + 1), description.length());
+            fmtDescription.append(description.substring(11 + limit * i, min));
+            if (min != description.length()) {
+              fmtDescription.append("<br/>");
+            }
+          }
+          if (description.length() > 11 + limit * parts) {
+            fmtDescription.append(description.substring(11 + limit * parts, description.length()));
+          }
+          description = fmtDescription.toString();
+          height = 80 + 10 * parts;
+        }
+      } else if (description != null) {
+        description = String.format("%1$-10s", description);
+        height = 60;
       } else {
         height = 60;
       }
 
-      setPreferredSize(new Dimension(250, height));
-      setMaximumSize(new Dimension(250, height));
+      setPreferredSize(new Dimension(200, height));
+      setMaximumSize(new Dimension(200, height));
 
       String descriptionLabel = description != null ? "Description: " + description + "<br/>" : "";
       JLabel resultLabel = new JLabel("<html>Name: " + name +
