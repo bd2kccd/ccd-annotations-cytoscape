@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import org.cytoscape.work.TaskManager;
 
@@ -154,7 +155,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
 
   public void refresh(Long suid) {
     this.networkSUID = suid;
-    this.searchButton.doClick();
+    SwingUtilities.invokeLater(() -> searchButton.doClick());
   }
 
   public void setResults(Set<ResultItem> results) {
