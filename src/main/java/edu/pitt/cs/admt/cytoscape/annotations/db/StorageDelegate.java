@@ -11,16 +11,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.hsqldb.jdbc.JDBCConnection;
-import org.hsqldb.jdbc.JDBCDriver;
 
 /**
  * @author Nikos R. Katsipoulakis
@@ -53,6 +59,10 @@ public class StorageDelegate {
     JDBCConnection connection = DBConnectionFactory.newConnection(networkSUID);
     dropDatabase(connection);
     createDatabase(connection);
+  }
+
+  public static boolean hasDatabase(final long networkSUID) {
+    return DBConnectionFactory.hasConnection(networkSUID);
   }
   
   private static void createDatabase(final JDBCConnection connection) throws SQLException {
@@ -903,7 +913,7 @@ public class StorageDelegate {
    * @throws IOException
    * @throws ClassNotFoundException
    */
-  public static Collection<AnnotToEntity> getAnnotationToEntities(final long networkSUID,
+  public static Set<AnnotToEntity> getAnnotationToEntities(final long networkSUID,
                                                                   Collection<Integer> nodes,
                                                                   Collection<Integer> edges)
       throws SQLException, IOException, ClassNotFoundException {

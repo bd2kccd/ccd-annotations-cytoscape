@@ -45,6 +45,10 @@ public enum DBConnectionFactory {
   public static JDBCConnection getConnection(final long networkSUID) {
     return index.get(networkSUID);
   }
+
+  public static boolean hasConnection(final long networkSUID) {
+    return index.contains(networkSUID);
+  }
   
   public static void closeConnection(final long networkSUID) {
     JDBCConnection connection = index.remove(networkSUID);

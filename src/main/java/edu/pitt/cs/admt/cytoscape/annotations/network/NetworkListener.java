@@ -29,6 +29,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.cytoscape.application.events.SetCurrentNetworkEvent;
 import org.cytoscape.application.events.SetCurrentNetworkListener;
+import org.cytoscape.application.events.SetCurrentNetworkViewEvent;
+import org.cytoscape.application.events.SetCurrentNetworkViewListener;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
@@ -48,7 +50,8 @@ import org.cytoscape.work.TaskManager;
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
  */
-public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetworkListener {
+public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetworkListener,
+    SetCurrentNetworkViewListener {
 
   private final AnnotationManager annotationManager;
   private final AnnotationFactory<TextAnnotation> annotationFactory;
@@ -74,8 +77,21 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     ccdControlPanel.refresh(event.getNetwork().getSUID());
   }
 
+  public void handleEvent(final SetCurrentNetworkViewEvent event) {
+    System.out.println("Current network view set to " + event.getNetworkView().getSUID());
+  }
+
   public void handleEvent(final NetworkViewAddedEvent event) {
+    System.out.println("Network view " + event.getNetworkView().getSUID() + " added");
     CyNetworkView view = event.getNetworkView();
+    Long networkSUID = view.getModel().getSUID();
+    if (!StorageDelegate.hasDatabase(networkSUID)){
+      importNetwork(view);
+    }
+  }
+
+  private void importNetwork(final CyNetworkView view) {
+    System.out.println("Importing network");
     CyNetwork network = view.getModel();
     CyTable nodeTable = network.getDefaultNodeTable();
     CyTable edgeTable = network.getDefaultEdgeTable();
@@ -118,11 +134,11 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     Map<ComponentType, List<AnnotToEntity>> annotationsByComponent;
     if (ccdAnnotationByUUID.isEmpty()) {
       annotationsByComponent = new HashMap<>();
-      annotationsByComponent.put(ComponentType.NODE, Collections.EMPTY_LIST);
-      annotationsByComponent.put(ComponentType.EDGE, Collections.EMPTY_LIST);
+      annotationsByComponent.put(ComponentType.NODE, Collections.emptyList());
+      annotationsByComponent.put(ComponentType.EDGE, Collections.emptyList());
     } else {
       annotationsByComponent = this.getAnnotationsForComponents(
-              view, network, nodeTable, edgeTable, ccdAnnotationByUUID, cytoscapeAnnotationUUIDs);
+          view, network, nodeTable, edgeTable, ccdAnnotationByUUID, cytoscapeAnnotationUUIDs);
     }
 
     try {
@@ -166,11 +182,19 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
     if (rows == null) {
       return Collections.EMPTY_MAP;
     }
-    return rows
-        .stream()
-        .map(this::parseCCDAnnotationString)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toMap(Annotation::getId, Function.identity()));
+    Map<UUID, Annotation> test = new HashMap<>(rows.size());
+    for (String row: rows) {
+      Annotation a = parseCCDAnnotationString(row);
+      if (a != null) {
+        test.put(a.getId(), a);
+      }
+    }
+//    Map<UUID, Annotation> rowMap = rows
+//        .stream()
+//        .map(this::parseCCDAnnotationString)
+//        .filter(Objects::nonNull)
+//        .collect(Collectors.toMap(Annotation::getId, Function.identity()));
+    return test;
   }
 
   private Set<UUID> getCytoscapeAnnotations(final CyNetwork network) {
@@ -316,7 +340,9 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       }
     }
 
-    this.taskManager.execute(createAnnotationTaskIterator);
+    if (createAnnotationTaskIterator.getNumTasks() > 0) {
+      this.taskManager.execute(createAnnotationTaskIterator);
+    }
 
     Map<ComponentType, List<AnnotToEntity>> entityByType = new HashMap<>();
     entityByType.put(ComponentType.NODE, new ArrayList<>());

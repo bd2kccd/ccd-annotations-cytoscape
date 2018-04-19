@@ -1,6 +1,7 @@
 package edu.pitt.cs.admt.cytoscape.annotations.action;
 
-import edu.pitt.cs.admt.cytoscape.annotations.task.AnnotationLayoutTask;
+import static edu.pitt.cs.admt.cytoscape.annotations.task.AnnotationLayoutTask.CreateAnnotationLayoutTask;
+
 import java.awt.event.ActionEvent;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.AbstractCyAction;
@@ -32,6 +33,6 @@ public class ManualAnnotationLayoutAction extends AbstractCyAction {
 
   @Override
   public void actionPerformed(ActionEvent e) {
-    taskManager.execute(AnnotationLayoutTask.CreateAnnotationLayoutTask(annotationManager, applicationManager.getCurrentNetworkView()).toTaskIterator());
+    taskManager.execute(CreateAnnotationLayoutTask(annotationManager, applicationManager.getCurrentNetworkView()).toTaskIterator());
   }
 }
