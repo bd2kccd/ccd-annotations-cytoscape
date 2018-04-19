@@ -2,25 +2,20 @@ package edu.pitt.cs.admt.cytoscape.annotations;
 
 import edu.pitt.cs.admt.cytoscape.annotations.action.AutomaticAnnotationLayoutAction;
 import edu.pitt.cs.admt.cytoscape.annotations.action.ManualAnnotationLayoutAction;
+import edu.pitt.cs.admt.cytoscape.annotations.network.ComponentListener;
 import edu.pitt.cs.admt.cytoscape.annotations.network.NetworkListener;
 import edu.pitt.cs.admt.cytoscape.annotations.network.ViewListener;
-import edu.pitt.cs.admt.cytoscape.annotations.session.SessionListener;
 import edu.pitt.cs.admt.cytoscape.annotations.task.ComponentHighlightTaskFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.task.CreateAnnotationTaskFactory;
 import edu.pitt.cs.admt.cytoscape.annotations.ui.CCDControlPanel;
 import java.util.Properties;
-import java.util.Set;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.events.SetCurrentNetworkListener;
 import org.cytoscape.application.swing.CyAction;
 import org.cytoscape.application.swing.CytoPanelComponent;
-import org.cytoscape.property.CyProperty;
-import org.cytoscape.property.CyProperty.SavePolicy;
-import org.cytoscape.property.SimpleCyProperty;
+import org.cytoscape.model.events.AddedEdgesListener;
+import org.cytoscape.model.events.AddedNodesListener;
 import org.cytoscape.service.util.AbstractCyActivator;
-import org.cytoscape.session.CySession;
-import org.cytoscape.session.CySessionManager;
-import org.cytoscape.session.events.SessionLoadedListener;
 import org.cytoscape.view.model.events.NetworkViewAddedListener;
 import org.cytoscape.view.model.events.ViewChangedListener;
 import org.cytoscape.view.presentation.annotations.AnnotationFactory;
@@ -103,6 +98,10 @@ public class CyActivator extends AbstractCyActivator {
     NetworkListener networkListener = new NetworkListener(annotationManager, textAnnotationFactory, taskManager, ccdControlPanel);
     registerService(context, networkListener, NetworkViewAddedListener.class, new Properties());
     registerService(context, networkListener, SetCurrentNetworkListener.class, new Properties());
+
+    ComponentListener componentListener = new ComponentListener();
+    registerService(context, componentListener, AddedNodesListener.class, new Properties());
+    registerService(context, componentListener, AddedEdgesListener.class, new Properties());
 
 //    SessionListener sessionListener = new SessionListener();
 //    registerService(context, sessionListener, SessionLoadedListener.class, new Properties());

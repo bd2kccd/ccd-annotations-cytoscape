@@ -119,7 +119,7 @@ public class StorageDelegate {
   /**
    * @param nodes Not nullable
    */
-  static void insertNodes(final long networkSUID, final Collection<Node> nodes)
+  public static void insertNodes(final long networkSUID, final Collection<Node> nodes)
       throws SQLException {
     JDBCConnection connection = DBConnectionFactory.getConnection(networkSUID);
     if (connection == null)
@@ -176,7 +176,7 @@ public class StorageDelegate {
     connection.commit();
   }
 
-  static void insertEdges(final long networkSUID, final Collection<Edge> edges)
+  public static void insertEdges(final long networkSUID, final Collection<Edge> edges)
       throws SQLException {
     if (edges == null)
       throw new IllegalArgumentException("empty collection of edges");
