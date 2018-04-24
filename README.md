@@ -10,7 +10,7 @@ This app aims to bring CCD annotations to Cytoscape.
 `mvn clean package` (add option `-DskipTests` to skip unit tests)
 
 ## Install
-### Cytoscape Apps Directory (Preferred)
+### Cytoscape Apps Directory (Recommended)
 1. Build the app
 1. Locate the jar file **ccd-annotations-cytoscape-0.5.0.jar** in the `target/` directory
 1. Locate your Cytscape installation directory
