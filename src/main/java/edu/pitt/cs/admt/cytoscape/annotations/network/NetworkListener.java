@@ -71,7 +71,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
 
   public void handleEvent(final SetCurrentNetworkEvent event) {
     System.out.println("Current network set to " + event.getNetwork().getSUID().toString());
-    ccdControlPanel.refresh(event.getNetwork().getSUID());
+    ccdControlPanel.refresh(event.getNetwork());
   }
 
   public void handleEvent(final SetCurrentNetworkViewEvent event) {
@@ -99,7 +99,7 @@ public class NetworkListener implements NetworkViewAddedListener, SetCurrentNetw
       e.printStackTrace();
       return;
     }
-    ccdControlPanel.refresh(networkSUID);
+    ccdControlPanel.refresh(network);
 
     // Generate columns in table panel
     if (network.getDefaultNetworkTable().getColumn(CCD_NETWORK_ANNOTATIONS) == null) {

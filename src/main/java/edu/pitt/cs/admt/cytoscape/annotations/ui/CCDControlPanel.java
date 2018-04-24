@@ -17,6 +17,7 @@ import javax.swing.JTabbedPane;
 import org.cytoscape.application.CyApplicationManager;
 import org.cytoscape.application.swing.CytoPanelComponent;
 import org.cytoscape.application.swing.CytoPanelName;
+import org.cytoscape.model.CyNetwork;
 import org.cytoscape.work.TaskManager;
 
 /**
@@ -66,12 +67,12 @@ public class CCDControlPanel extends JPanel implements CytoPanelComponent, Seria
 
   /**
    * Update panel state to reflect change in selected network
-   * @param suid Network SUID
+   * @param network Newly selected network
    */
-  public void refresh(Long suid) {
-    this.networkSUID = suid;
-    this.createPanel.refresh(suid);
-    this.searchPanel.refresh(suid);
+  public void refresh(CyNetwork network) {
+    this.networkSUID = network.getSUID();
+    this.createPanel.refresh(networkSUID);
+    this.searchPanel.refresh(network);
     this.updateView();
   }
 

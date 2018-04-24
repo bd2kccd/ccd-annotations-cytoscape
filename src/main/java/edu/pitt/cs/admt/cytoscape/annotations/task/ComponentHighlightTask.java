@@ -37,8 +37,7 @@ public class ComponentHighlightTask extends AbstractTask {
     return new TaskIterator(this);
   }
 
-  @Override
-  public void run(TaskMonitor monitor) {
+  public void run() {
     for (CyNode node: this.network.getNodeList()) {
       CyRow row = this.network.getRow(node);
       row.set(SELECTED, suids.contains(node.getSUID()));
@@ -48,5 +47,10 @@ public class ComponentHighlightTask extends AbstractTask {
       CyRow row = this.network.getRow(edge);
       row.set(SELECTED, suids.contains(edge.getSUID()));
     }
+  }
+
+  @Override
+  public void run(TaskMonitor monitor) {
+    run();
   }
 }

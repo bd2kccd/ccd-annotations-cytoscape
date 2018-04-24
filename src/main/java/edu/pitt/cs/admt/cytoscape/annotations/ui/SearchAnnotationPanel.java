@@ -1,5 +1,8 @@
 package edu.pitt.cs.admt.cytoscape.annotations.ui;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
@@ -9,16 +12,19 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -30,6 +36,10 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import org.cytoscape.model.CyEdge;
+import org.cytoscape.model.CyNetwork;
+import org.cytoscape.model.CyNode;
+import org.cytoscape.model.CyTableUtil;
 import org.cytoscape.work.TaskManager;
 
 /**
@@ -54,7 +64,18 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
           new Vector(Arrays.asList(new String[]{"", "equals", "not equals", "starts with", "ends with", ">", "≥", "<", "≤"}))
       )
   );
+  private final JComboBox<String> componentSetSelection = new JComboBox<>(
+      new DefaultComboBoxModel<>(
+          new Vector(Arrays.asList(new String[]{"All", "Selected"}))
+      )
+  );
+  private final JComboBox<String> annotationSetSelection = new JComboBox<>(
+      new DefaultComboBoxModel<>(
+          new Vector(Arrays.asList(new String[]{"Union", "Intersection"}))
+      )
+  );
   private Long networkSUID = null;
+  private CyNetwork network = null;
   //  private List<String> annotationNames = new LinkedList<>();
 //  private JPanel resultContainer = new JPanel(new GridLayout(0, 1));
   private JPanel resultPane = new JPanel();
@@ -68,14 +89,24 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     setPreferredSize(new Dimension(300, 800));
     setMaximumSize(new Dimension(400, 1000));
     resultPane.setSize(new Dimension(250, 55));
-    resultPane.setPreferredSize(new Dimension(250, 400));
-    resultScroll.setSize(new Dimension(250, 400));
-    resultScroll.setPreferredSize(new Dimension(250, 400));
-    resultScroll.setMaximumSize(new Dimension(250, 400));
+    resultPane.setPreferredSize(new Dimension(250, 350));
+    resultScroll.setSize(new Dimension(250, 350));
+    resultScroll.setPreferredSize(new Dimension(250, 350));
+    resultScroll.setMaximumSize(new Dimension(250, 350));
+    annotationSetSelection.setEnabled(false);
+
+    componentSetSelection.addActionListener((ActionEvent e) -> {
+      int index = ((JComboBox) e.getSource()).getSelectedIndex();
+      if (index == 0) {
+        annotationSetSelection.setSelectedIndex(0);
+        annotationSetSelection.setEnabled(false);
+      } else {
+        annotationSetSelection.setEnabled(true);
+      }
+    });
 
     // actions
     searchButton.addActionListener((ActionEvent e) -> {
-      String name = nameField.getText().toLowerCase();
       results.clear();
       resultPane.removeAll();
       resultPane.setSize(new Dimension(250, 55));
@@ -83,8 +114,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       Function<Object, Boolean> valueFilter = buildValueFilter();
 
       try {
-        Collection<AnnotToEntity> res = StorageDelegate
-            .searchEntitiesWithPredicate(this.networkSUID, name, valueFilter);
+        Collection<AnnotToEntity> res = buildSearchResults(valueFilter);
         HashMap<UUID, Annotation> annotationNameMap = new HashMap<>();
         for (AnnotToEntity r: res) {
           if (!annotationNameMap.containsKey(r.getAnnotationId())) {
@@ -108,15 +138,17 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       resultPane.setPreferredSize(new Dimension(250, height));
       this.resultLabel.setText("Showing " + results.size() + " results");
       revalidate();
-      System.out.println("Processed " + results.size() + " results");
+//      System.out.println("Processed " + results.size() + " results");
     });
 
     clearButton.addActionListener((ActionEvent e) -> {
       this.clearSelected();
-      taskManager.execute(highlightTaskFactory.clearComponentHighlight().toTaskIterator());
+      highlightTaskFactory.clearComponentHighlight().run();
       nameField.setText("");
       filterField.setText("");
       filterComparisonField.setSelectedIndex(0);
+      componentSetSelection.setSelectedIndex(0);
+      annotationSetSelection.setSelectedIndex(0);
       for (ResultItem r : results) {
         resultPane.remove(r);
       }
@@ -124,6 +156,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
       resultPane.setSize(new Dimension(250, 55));
       results.clear();
       resultLabel.setText("Showing 0 results");
+      SwingUtilities.invokeLater(() -> searchButton.doClick());
     });
 
     add(title);
@@ -143,6 +176,8 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     filterField.setHorizontalAlignment(JTextField.RIGHT);
     filterPanel.add(filterField);
     add(filterPanel);
+    add(componentSetSelection);
+    add(annotationSetSelection);
     add(clearButton);
     add(searchButton);
     add(resultLabel);
@@ -153,8 +188,9 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     setVisible(true);
   }
 
-  public void refresh(Long suid) {
-    this.networkSUID = suid;
+  public void refresh(CyNetwork network) {
+    this.networkSUID = network.getSUID();
+    this.network = network;
     SwingUtilities.invokeLater(() -> searchButton.doClick());
   }
 
@@ -178,6 +214,32 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
     for (ResultItem r: this.results) {
       r.deselect();
     }
+  }
+
+  private Collection<AnnotToEntity> buildSearchResults(Function<Object, Boolean> valueFilter) throws SQLException, IOException, ClassNotFoundException {
+    String name = nameField.getText().toLowerCase();
+    // start with union query
+    Collection<AnnotToEntity> results = StorageDelegate.searchEntitiesWithPredicate(this.networkSUID, name, valueFilter);
+    // filter out non-selected if set
+    if (componentSetSelection.getSelectedIndex() == 1) {
+      Set<Long> selected = CyTableUtil.getNodesInState(this.network, "SELECTED", true)
+          .stream()
+          .map(CyNode::getSUID)
+          .collect(Collectors.toSet());
+      selected.addAll(CyTableUtil.getEdgesInState(this.network, "SELECTED", true)
+          .stream()
+          .map(CyEdge::getSUID)
+          .collect(Collectors.toSet()));
+      results.removeIf(e -> !selected.contains(new Long(e.getEntityId())));
+      // perform intersection if set (only on selected)
+      if (annotationSetSelection.getSelectedIndex() == 1) {
+        Map<UUID, Long> cyIdCount = results.stream().collect(
+            groupingBy(AnnotToEntity::getCytoscapeAnnotationId, counting()));
+        Long unique = results.stream().map(AnnotToEntity::getEntityId).distinct().count();
+        results.removeIf(e -> cyIdCount.get(e.getCytoscapeAnnotationId()) < unique);
+      }
+    }
+    return results;
   }
 
   private Function<Object, Boolean> buildValueFilter() {
@@ -402,7 +464,7 @@ public class SearchAnnotationPanel extends JPanel implements Serializable {
           UUID cyId = annotToEntity.getCytoscapeAnnotationId();
           try {
             Collection<Integer> components = StorageDelegate.getNetworkComponentsOnCytoscapeAnnotUUID(networkSUID, cyId);
-            taskManager.execute(highlightTaskFactory.createComponentHighlightTask(components).toTaskIterator());
+            highlightTaskFactory.createComponentHighlightTask(components).run();
           } catch (SQLException ex) {
             ex.printStackTrace();
           }
