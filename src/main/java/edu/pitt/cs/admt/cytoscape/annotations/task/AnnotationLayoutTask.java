@@ -5,13 +5,8 @@ import edu.pitt.cs.admt.cytoscape.annotations.db.entity.AnnotToEntity;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import org.cytoscape.model.CyEdge;
 import org.cytoscape.model.CyNetwork;
@@ -208,46 +203,17 @@ public class AnnotationLayoutTask extends AbstractTask {
         y.add(targetView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION));
       }
     });
-
-    Double avgX = x.stream().mapToDouble(a -> a).average().getAsDouble();
-    Double avgY = y.stream().mapToDouble(a -> a).average().getAsDouble();
-
-    return new Point2D.Double(avgX, avgY);
-
-//    Double x2 = 0.0, y2 = 0.0;
-//    int count = 0;
-//    for (Integer suid : suids) {
-//      CyNode node = network.getNode(suid.longValue());
-//      CyEdge edge = network.getEdge(suid.longValue());
-//
-//      if (node != null) {
-//        View<CyNode> nodeView = this.view.getNodeView(node);
-//        x2 += nodeView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-//        y2 += nodeView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
-//        count++;
-//      } else if (edge != null) {
-//        View<CyNode> sourceView = this.view.getNodeView(edge.getSource());
-//        View<CyNode> targetView = this.view.getNodeView(edge.getTarget());
-//        x2 = x2 + sourceView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION)
-//            + targetView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-//        y2 = y2 + sourceView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION)
-//            + targetView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
-//        count += 2;
-//      }
-//    }
-//
-//    x2 = x2 / count;
-//    y2 = y2 / count;
-//
-//    if (!avgX.equals(x2) || !avgY.equals(y2)) {
-//      System.out.println("Discrepancy in averages");
-//      System.out.print(avgX + " vs ");
-//      System.out.println(x2);
-//      System.out.print(avgY + " vs ");
-//      System.out.println(y2);
-//    } else {
-//      System.out.println("Averages match");
-//    }
-//    return new Point2D.Double(x2, y2);
+  
+    OptionalDouble optionalX = x.stream().mapToDouble(a -> a).average();
+    OptionalDouble optionalY = y.stream().mapToDouble(a -> a).average();
+    if (optionalX.isPresent() && optionalY.isPresent()) {
+      Double avgX = x.stream().mapToDouble(a -> a).average().getAsDouble() + ThreadLocalRandom
+          .current().nextDouble(40);
+      Double avgY = y.stream().mapToDouble(a -> a).average().getAsDouble() + ThreadLocalRandom
+          .current().nextDouble(40);
+      return new Point2D.Double(avgX, avgY);
+    } else {
+      throw new RuntimeException("coordinates not available.");
+    }
   }
 }
