@@ -161,7 +161,7 @@ When the app reads the **__CCD_Annotations_Set** list(s), it will generate Cytos
 
 In this way, flexibility in Cytoscape annotation generation is provided to users who wish to utilize CCD Annotations via cyjs files.
 
-###Internal Overview
+### Internal Overview
 
 #### Annotation Semantic View
 
