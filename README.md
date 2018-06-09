@@ -159,7 +159,9 @@ When the app reads the **__CCD_Annotations_Set** list(s), it will generate Cytos
 2. All annotations with the same **a_id** value and the same **cy_id** value will be mapped to the same Cytoscape annotation; i.e., one visual annotation will be created per **a_id** and **cy_id** pair
 3. All annotations with a unique **cy_id** value, regardless of **a_id**, will be mapped to a unique Cytoscape annotation; i.e., one visual annotation will be created per unique **cy_id**
 
-In this way, flexibility in Cytoscape annotation generation is provided to users who wish to utilize CCD Annotations via cyjs files without having to provide all of the required information to create a Cytoscape annotation. 
+In this way, flexibility in Cytoscape annotation generation is provided to users who wish to utilize CCD Annotations via cyjs files without having to provide all of the required information to create a Cytoscape annotation.
+
+For an example of a cyjs file that requires Cytoscape annotation generation, see `sample_files/ExampleMissingCytoAnno.cyjs`.
 
 ### Internal Overview
 
