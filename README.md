@@ -37,9 +37,9 @@ This app aims to bring CCD annotations to Cytoscape.
   - [CCD Annotations Panel](#ccd-annotations-panel)
   - [Creation](#creation)
   - [Search](#search)
-  - [Union & Intersection](#union-&-intersection)
+  - [Union and Intersection](#union-and-intersection)
   - [Relayouting](#relayouting)
-  - [Import & Export](#import-&-export)
+  - [Import and Export](#import-and-export)
 - [Technical Details](#technical-details)
   - [Database](#database)
   - [Cyjs File Format](#cyjs-file-format)
@@ -80,7 +80,7 @@ Searching for annotations is done in the *Search* tab of the CCD Annotations pan
 
 Additionally, the search scope can be narrowed from all of the nodes and edges of a graph to a sub-graph of selected components.
 
-#### Union & Intersection
+#### Union and Intersection
 
 When searching for annotations on a subset of nodes and/or edges, users can choose whether they want the search results to return the *union* (default) of annotations across the set of select components or the *intersection*. 
 
@@ -88,7 +88,7 @@ When searching for annotations on a subset of nodes and/or edges, users can choo
 
 Newly created annotations are placed relative to the components which they are annotating. When a network component is moved, associated annotations are re-layouted to maintain a relative position to the component. This is called *Automatic Annotation Relayouting*. This can be enabled or disabled via the *Layout* menu item. When disabled, users can still choose to have their annotations relayouted by clicking *Layout -> Relayout CCD Annotations*.
 
-#### Import & Export
+#### Import and Export
 
 The CCD Annotations app supports importing and exporting of annotations using Cytoscape's built-in Cytoscape JSON (cyjs) file format. When a user exports a network using this file format, annotations will be included. Another user can then import this network from the cyjs file and view the CCD annotations. Users without this app can still view CCD annotations, but will lose out on the relative layouting and other features provided by the app. 
 
