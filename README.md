@@ -76,21 +76,21 @@ When a new annotation is created, it is positioned relative to its associated gr
 
 #### Search
 
-Searching for annotations is done in the *Search* tab of the CCD Annotations panel. Users can search via annotation name and description, then choose to further filter the results list by value. Clicking on a search result will select the annotated graph components.
+Searching for annotations is done in the *Search* tab of the CCD Annotations panel. Users can search via annotation name and description, then choose to further filter the results list by value. Clicking on a search result will highlight and select the associated graph components.
 
-Additionally, the search scope can be narrowed from all of the nodes and edges of a graph to a sub-graph of selected components.
+Additionally, the search scope can be narrowed from all of the nodes and edges of a graph to a sub-graph of selected components. Simply choose the *Selected* option and select the desired components.
 
 #### Union and Intersection
 
-When searching for annotations on a subset of nodes and/or edges, users can choose whether they want the search results to return the *union* (default) of annotations across the set of select components or the *intersection*. 
+When searching for annotations over a subset of nodes and/or edges, users can choose whether they want the search results to return the *union* (default) of annotations across the set of selected components or the *intersection*. 
 
 #### Relayouting
 
-Newly created annotations are placed relative to the components which they are annotating. When a network component is moved, associated annotations are re-layouted to maintain a relative position to the component. This is called *Automatic Annotation Relayouting*. This can be enabled or disabled via the *Layout* menu item. When disabled, users can still choose to have their annotations relayouted by clicking *Layout -> Relayout CCD Annotations*.
+Newly created annotations are placed relative to the components which they are annotating. When a network component is moved, associated annotations are re-layouted to maintain a position relative to the component. This is called *Automatic Annotation Relayouting*. This can be enabled or disabled by clicking the *Automatic CCD Annotation Relayout* button in the *Layout* menu. When disabled, users can still have their annotations relayouted by clicking *Layout -> Relayout CCD Annotations*.
 
 #### Import and Export
 
-The CCD Annotations app supports importing and exporting of annotations using Cytoscape's built-in Cytoscape JSON (cyjs) file format. When a user exports a network using this file format, annotations will be included. Another user can then import this network from the cyjs file and view the CCD annotations. Users without this app can still view CCD annotations, but will lose out on the relative layouting and other features provided by the app. 
+The CCD Annotations app supports importing and exporting of annotations using Cytoscape's built-in Cytoscape JSON (cyjs) file format. When a user exports a network using this file format, annotations will be included. Another user can then import this network from the cyjs file and view the CCD annotations. Users without the app can still view CCD annotations, but they will not have access to relative layouting and other features provided by the app. 
 
 For more information regarding our additions to the cyjs file format, see the [Cyjs File Format](#cyjs-file-format) section of our [Technical Details](#technical-details).
 
@@ -130,7 +130,7 @@ corresponding entity's id (either `Node` or `Edge`) and `value` holds a value fo
 
 #### Cyjs File Format
 
-The CCD Annotations app adds two attributes to the cyjs file format. These additions allow the app to support annotation information and annotation-to-component associations, which is not provided by Cytoscape by default.
+The CCD Annotations app adds two attributes to the cyjs file format, both prefixed by **__CCD**. These additions allow the app to support additional annotation information and annotation-to-component associations, which is not provided by Cytoscape.
 
 The **__CCD_Annotations** attribute in the **data** attribute holds a list of all CCD Annotations that have been created on the network. Each CCD Annotation has four fields:
 
@@ -139,19 +139,19 @@ The **__CCD_Annotations** attribute in the **data** attribute holds a list of al
 - **type** - the type accepted by this annotation when supplying a value
 - **description** - a description of the annotation
 
-This list supplies the set of annotation names available when creating a new annotation instance. Newly added annotations are appended to this list upon export of the network. Similarly, the cyjs file format include an **__Annotations** attribute that lists every Cytoscape annotation found on the network.
+This list supplies the set of annotation names available when creating a new annotation instance. Newly added annotations are appended to this list upon export of the network. Similarly, the standard cyjs file format include an **__Annotations** attribute that lists every Cytoscape annotation found on the network.
 
-A **__CCD_Annotation_Set** attribute can be found for every node and edge of the network. The **elements** list holds the set of all nodes and edges. The purpose of the **__CCD_Annotation_Set** is to provide the mapping(s) between instances of CCD Annotations and their visual representation on the network – the built-in Cytoscape text annotations are used to visually show the annotation. Each item in the **__CCD_Annotation_Set** includes three fields:
+The **__CCD_Annotation_Set** attribute can be found for every node and edge of the network. The **elements** list holds the set of all nodes and edges. The purpose of the **__CCD_Annotation_Set** is to provide the association(s) between instances of CCD Annotations and their visual representation on the network – the built-in Cytoscape text annotations are used to visually display the annotation. Each item in the **__CCD_Annotation_Set** includes three fields:
 
 - **a_id** - the CCD Annotation ID (found in **__CCD_Annotations**)
 - **cy_id** - the Cytoscape annotation ID (found in **__Annotations**)
-- **value** - the value this annotation instance supplies
+- **value** - the value of the annotation instance (supplied by the creating user)
 
-Multiple components can share the same **a_id** and **cy_id** fields, which means that there is one visual annotation representing a CCD Annotation that is associated with both components. This occurs when creating a new annotation on two selected components. In this case, the value will also be the same.
+Multiple components can have an item in their **__CCD_Annotation_Set** with the same **a_id** and **cy_id** fields. This means that there is one visual annotation representing a single CCD Annotation that is associated with those components. This occurs whenever a user creates a new annotation on two selected components. In this case, the value will also be the same.
 
 #### Cyjs Cytoscape Annotation Generation
 
-For applications that wish to utilize CCD Annotations by creating cyjs files, our app can automatically generate Cytoscape annotations. This is done by creating CCD Annotations, adding them to the **__CCD_Annotations** and **__CCD_Annotations_Set** attributes, and either setting the **cy_id** field to some desired UUID or leaving it *blank*. It is important to note that, if the **cy_id** field is set, then it must *not* exist in the **__Annotations** list for our app to generate a Cytoscape annotation for you. If the ID already exists, then the existing Cytoscape annotation will be used.
+For applications that wish to utilize CCD Annotations by creating cyjs files, our app can automatically generate Cytoscape annotations. This is done by creating CCD Annotations, adding them to the **__CCD_Annotations** and **__CCD_Annotations_Set** attributes, and either setting the **cy_id** field to some desired UUID or leaving it *blank*. It is important to note that if the **cy_id** field is set, then it must *not* exist in the **__Annotations** list for our app to generate a Cytoscape annotation for it. If the ID already exists, then the existing Cytoscape annotation will be used.
 
 When the app reads the **__CCD_Annotations_Set** list(s), it will generate Cytoscape annotations in the following manner:
 
@@ -159,7 +159,7 @@ When the app reads the **__CCD_Annotations_Set** list(s), it will generate Cytos
 2. All annotations with the same **a_id** value and the same **cy_id** value will be mapped to the same Cytoscape annotation; i.e., one visual annotation will be created per **a_id** and **cy_id** pair
 3. All annotations with a unique **cy_id** value, regardless of **a_id**, will be mapped to a unique Cytoscape annotation; i.e., one visual annotation will be created per unique **cy_id**
 
-In this way, flexibility in Cytoscape annotation generation is provided to users who wish to utilize CCD Annotations via cyjs files.
+In this way, flexibility in Cytoscape annotation generation is provided to users who wish to utilize CCD Annotations via cyjs files without having to provide all of the required information to create a Cytoscape annotation. 
 
 ### Internal Overview
 
