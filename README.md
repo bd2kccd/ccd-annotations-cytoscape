@@ -66,7 +66,7 @@ The aforementioned views appear in the storage engine of the plugin and on impor
 
 #### CCD Annotations Panel
 
-The CCD Annotations app provides a panel in Cytoscape's left Control Panel. This panel provides most of the functionality of the app, including creation, searching, sorting, and union/intersection.
+The CCD Annotations app provides a panel in Cytoscape's left Control Panel. This panel contains most of the functionality of the app, including creation, searching, and union/intersection.
 
 #### Creation
 
