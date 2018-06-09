@@ -66,11 +66,11 @@ The aforementioned views appear in the storage engine of the plugin and on impor
 
 #### CCD Annotations Panel
 
-The CCD Annotations app provides a panel in Cytoscape's left Control Panel. This panel contains most of the functionality of the app, including creation, searching, and union/intersection.
+The CCD Annotations app provides a panel in Cytoscape's left Control Panel. This panel contains most of the functionality of the app, including creation, search, and union/intersection.
 
 #### Creation
 
-Creating an annotation is done in the *Create* tab of the CCD Annotations panel. Users can select from a list of pre-existing annotations in which they provide the value or create a new annotation. Once an annotation is chosen and a value is provided, select a set of nodes and/or edges from the network and click the *Create* button. At least one network component is required.
+Creating an annotation is done in the *Create* tab of the CCD Annotations panel. Users can select from a list of pre-existing annotations in which they provide the value or create a new annotation. Once an annotation is chosen and a value is provided, select a set of nodes and/or edges from the network and click the *Create* button to generate the annotation. At least one network component is required.
 
 When a new annotation is created, it is positioned relative to the annotated graph components using their average location. Annotations can be moved, but will be re-positioned if *Automatic CCD Annotation Relayout* is enabled.
 
