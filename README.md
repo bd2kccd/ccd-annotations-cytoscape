@@ -118,7 +118,7 @@ be included. Another user can then import this network from the cyjs file and vi
 annotations. Users without the app can still view CCD annotations, but they will not have 
 access to relative layouting and other features provided by the app. 
 For more information regarding our additions to the cyjs file format, see 
-the [Cyjs File Format](#cyjs-file-format) section of [Technical Details](#technical-details). 
+the [Cyjs File Format](#ccd-cyjs-file-format) section of [Technical Details](#technical-details). 
 The plugin __does not support persistence of session objects__ as this would lead to violation 
 of the OSGi standard, under which Cytoscape is built on.
 
