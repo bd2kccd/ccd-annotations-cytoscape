@@ -154,4 +154,10 @@ class AnnotationSchema {
   static final String NETWORK_COMPONENTS_BASED_ON_CY_ID = "SELECT suid FROM " +
       ANNOT_TO_NODE_TABLE + " WHERE cy_a_id = ? UNION SELECT suid FROM " + ANNOT_TO_EDGE_TABLE +
       " WHERE cy_a_id = ?";
+  
+  static final String SELECT_ANNOT_TO_NODES_ON_ANNOT_ID = "SELECT a_id, cy_a_id, suid, value FROM" +
+      " " + ANNOT_TO_NODE_TABLE + " WHERE suid = ?";
+  
+  static final String SELECT_ANNOT_TO_EDGES_ON_ANNOT_ID = "SELECT a_id, cy_a_id, suid, value FROM" +
+      " " + ANNOT_TO_EDGE_TABLE + " WHERE suid = ?";
 }

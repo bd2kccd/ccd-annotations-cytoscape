@@ -11,16 +11,19 @@ import org.cytoscape.work.TaskManager;
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
  */
-public class AnnotationLayoutAction extends AbstractCyAction {
+public class ManualAnnotationLayoutAction extends AbstractCyAction {
 
-  private static final long serialVersionUID = 4125398496302851531L;
+  private static final long serialVersionUID = 5766792268697737966L;
 
   private final CyApplicationManager applicationManager;
   private final AnnotationManager annotationManager;
   private final TaskManager taskManager;
 
-  public AnnotationLayoutAction(final CyApplicationManager applicationManager, final AnnotationManager annotationManager, final TaskManager taskManager) {
-    super("Annotation Relayout");
+  public ManualAnnotationLayoutAction(
+      final CyApplicationManager applicationManager,
+      final AnnotationManager annotationManager,
+      final TaskManager taskManager) {
+    super("Relayout CCD Annotations");
     this.setPreferredMenu("Layout");
 
     this.applicationManager = applicationManager;
@@ -30,6 +33,6 @@ public class AnnotationLayoutAction extends AbstractCyAction {
 
   @Override
   public void actionPerformed(ActionEvent e) {
-    taskManager.execute(CreateAnnotationLayoutTask(this.annotationManager, this.applicationManager.getCurrentNetworkView()).toTaskIterator());
+    taskManager.execute(CreateAnnotationLayoutTask(annotationManager, applicationManager.getCurrentNetworkView()).toTaskIterator());
   }
 }

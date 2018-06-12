@@ -9,6 +9,7 @@ import org.cytoscape.view.presentation.annotations.AnnotationManager;
 import org.cytoscape.view.presentation.annotations.TextAnnotation;
 import org.cytoscape.work.AbstractTaskFactory;
 import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.TaskManager;
 
 /**
  * @author Mark Silvis (marksilvis@pitt.edu)
@@ -18,13 +19,16 @@ public class CreateAnnotationTaskFactory extends AbstractTaskFactory {
   private final CyApplicationManager applicationManager;
   private final AnnotationManager annotationManager;
   private final AnnotationFactory<TextAnnotation> annotationFactory;
+  private final TaskManager taskManager;
 
   public CreateAnnotationTaskFactory(final CyApplicationManager applicationManager,
       final AnnotationManager annotationManager,
-      final AnnotationFactory<TextAnnotation> annotationFactory) {
+      final AnnotationFactory<TextAnnotation> annotationFactory,
+      final TaskManager taskManager) {
     this.applicationManager = applicationManager;
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
+    this.taskManager = taskManager;
   }
 
   @Override
@@ -43,6 +47,7 @@ public class CreateAnnotationTaskFactory extends AbstractTaskFactory {
         this.applicationManager,
         this.annotationManager,
         this.annotationFactory,
+        this.taskManager,
         name);
   }
 
@@ -51,6 +56,7 @@ public class CreateAnnotationTaskFactory extends AbstractTaskFactory {
         this.applicationManager,
         this.annotationManager,
         this.annotationFactory,
+        this.taskManager,
         name,
         nodes);
   }
@@ -60,6 +66,7 @@ public class CreateAnnotationTaskFactory extends AbstractTaskFactory {
         this.applicationManager,
         this.annotationManager,
         this.annotationFactory,
+        this.taskManager,
         name,
         edges);
   }
@@ -71,6 +78,7 @@ public class CreateAnnotationTaskFactory extends AbstractTaskFactory {
         this.applicationManager,
         this.annotationManager,
         this.annotationFactory,
+        this.taskManager,
         name,
         nodes,
         edges);

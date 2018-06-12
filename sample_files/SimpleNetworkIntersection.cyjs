@@ -1,0 +1,158 @@
+{
+  "format_version" : "1.0",
+  "generated_by" : "cytoscape-3.5.1",
+  "target_cytoscapejs_version" : "~2.1",
+  "data" : {
+    "shared_name" : "SimpleNetwork",
+    "__Annotations" : [ "canvas=foreground|fontFamily=Arial|color=-16777216|x=-0.41813492303595434|y=-0.41391639718618156|zoom=1.0|z=-1|fontSize=12|text=double: 2|type=org.cytoscape.view.presentation.annotations.TextAnnotation|fontStyle=0|uuid=0bdaa735-c014-420a-afc0-5257170f1f43", "canvas=foreground|fontFamily=Arial|color=-16777216|x=-0.41813492303595434|y=-0.41391639718618156|zoom=1.0|z=-1|fontSize=12|text=single: 1|type=org.cytoscape.view.presentation.annotations.TextAnnotation|fontStyle=0|uuid=c7cc16c9-2c0f-402e-b8b9-59611257009a", "canvas=foreground|fontFamily=Arial|color=-16777216|x=-0.41813492303595434|y=-0.41391639718618156|zoom=1.0|z=-1|fontSize=12|text=single: 1|type=org.cytoscape.view.presentation.annotations.TextAnnotation|fontStyle=0|uuid=e6e5efbe-9c30-4aa3-9ce3-96e44d28637a" ],
+    "name" : "SimpleNetwork",
+    "SUID" : 52,
+    "shared_name" : "SampleNetwork",
+    "__CCD_Annotations" : [ "uuid=25c98d5e-20f6-491d-a090-15b7e45176e3|name=single|type=INT|description=this will only show up in the union", "uuid=004f49f2-6951-4d4c-9045-b82ba8b0591a|name=double|type=INT|description=this will show up in the union and intersection" ],
+    "selected" : true
+  },
+  "elements" : {
+    "nodes" : [ {
+      "data" : {
+        "id" : "65",
+        "shared_name" : "Node A",
+        "name" : "Node A",
+        "SUID" : 65,
+        "shared_name" : "Node A",
+        "id_original" : "64",
+        "__CCD_Annotation_Set" : [ "a_id=004f49f2-6951-4d4c-9045-b82ba8b0591a|cy_id=0bdaa735-c014-420a-afc0-5257170f1f43|value=2", "a_id=25c98d5e-20f6-491d-a090-15b7e45176e3|cy_id=c7cc16c9-2c0f-402e-b8b9-59611257009a|value=1" ],
+        "selected" : true
+      },
+      "position" : {
+        "x" : -517.1654327179328,
+        "y" : -152.41722414241872
+      },
+      "selected" : true
+    }, {
+      "data" : {
+        "id" : "64",
+        "shared_name" : "Node B",
+        "name" : "Node B",
+        "SUID" : 64,
+        "shared_name" : "Node B",
+        "id_original" : "66",
+        "__CCD_Annotation_Set" : [ ],
+        "selected" : false
+      },
+      "position" : {
+        "x" : -359.0,
+        "y" : -40.0
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "63",
+        "shared_name" : "Node C",
+        "name" : "Node C",
+        "SUID" : 63,
+        "shared_name" : "Node C",
+        "id_original" : "68",
+        "__CCD_Annotation_Set" : [ "a_id=004f49f2-6951-4d4c-9045-b82ba8b0591a|cy_id=0bdaa735-c014-420a-afc0-5257170f1f43|value=2", "a_id=25c98d5e-20f6-491d-a090-15b7e45176e3|cy_id=e6e5efbe-9c30-4aa3-9ce3-96e44d28637a|value=1" ],
+        "selected" : true
+      },
+      "position" : {
+        "x" : -371.16543271793284,
+        "y" : -205.41722414241872
+      },
+      "selected" : true
+    }, {
+      "data" : {
+        "id" : "62",
+        "shared_name" : "Node D",
+        "name" : "Node D",
+        "SUID" : 62,
+        "shared_name" : "Node D",
+        "id_original" : "74",
+        "__CCD_Annotation_Set" : [ ],
+        "selected" : false
+      },
+      "position" : {
+        "x" : -220.0,
+        "y" : -99.0
+      },
+      "selected" : false
+    } ],
+    "edges" : [ {
+      "data" : {
+        "id" : "69",
+        "source" : "65",
+        "target" : "64",
+        "shared_name" : "Node A (interacts with) Node B",
+        "shared_interaction" : "interacts with",
+        "shared_interaction" : "interacts with",
+        "name" : "Node A (interacts with) Node B",
+        "interaction" : "interacts with",
+        "SUID" : 69,
+        "source_original" : "64",
+        "shared_name" : "Node A (interacts with) Node B",
+        "id_original" : "70",
+        "__CCD_Annotation_Set" : [ ],
+        "selected" : false,
+        "target_original" : "66"
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "68",
+        "source" : "64",
+        "target" : "63",
+        "shared_name" : "Node B (interacts with) Node C",
+        "shared_interaction" : "interacts with",
+        "shared_interaction" : "interacts with",
+        "name" : "Node B (interacts with) Node C",
+        "interaction" : "interacts with",
+        "SUID" : 68,
+        "source_original" : "66",
+        "shared_name" : "Node B (interacts with) Node C",
+        "id_original" : "72",
+        "__CCD_Annotation_Set" : [ ],
+        "selected" : false,
+        "target_original" : "68"
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "67",
+        "source" : "64",
+        "target" : "62",
+        "shared_name" : "Node B (interacts with) Node D",
+        "shared_interaction" : "interacts with",
+        "shared_interaction" : "interacts with",
+        "name" : "Node B (interacts with) Node D",
+        "interaction" : "interacts with",
+        "SUID" : 67,
+        "source_original" : "66",
+        "shared_name" : "Node B (interacts with) Node D",
+        "id_original" : "78",
+        "__CCD_Annotation_Set" : [ ],
+        "selected" : false,
+        "target_original" : "74"
+      },
+      "selected" : false
+    }, {
+      "data" : {
+        "id" : "66",
+        "source" : "63",
+        "target" : "62",
+        "shared_name" : "Node C (interacts with) Node D",
+        "shared_interaction" : "interacts with",
+        "shared_interaction" : "interacts with",
+        "name" : "Node C (interacts with) Node D",
+        "interaction" : "interacts with",
+        "SUID" : 66,
+        "source_original" : "68",
+        "shared_name" : "Node C (interacts with) Node D",
+        "id_original" : "76",
+        "__CCD_Annotation_Set" : [ ],
+        "selected" : false,
+        "target_original" : "74"
+      },
+      "selected" : false
+    } ]
+  }
+}

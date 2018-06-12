@@ -2,6 +2,7 @@ package edu.pitt.cs.admt.cytoscape.annotations.task;
 
 import static edu.pitt.cs.admt.cytoscape.annotations.CCDAnnotation.CCD_ANNOTATION_SET;
 import static edu.pitt.cs.admt.cytoscape.annotations.CCDAnnotation.CCD_NETWORK_ANNOTATIONS;
+import static edu.pitt.cs.admt.cytoscape.annotations.task.AnnotationLayoutTask.CreateAnnotationLayoutTask;
 
 import edu.pitt.cs.admt.cytoscape.annotations.db.StorageDelegate;
 import edu.pitt.cs.admt.cytoscape.annotations.db.entity.Annotation;
@@ -30,6 +31,7 @@ import org.cytoscape.view.presentation.annotations.TextAnnotation;
 import org.cytoscape.view.presentation.property.BasicVisualLexicon;
 import org.cytoscape.work.AbstractTask;
 import org.cytoscape.work.TaskIterator;
+import org.cytoscape.work.TaskManager;
 import org.cytoscape.work.TaskMonitor;
 
 /**
@@ -53,6 +55,7 @@ public class CreateAnnotationTask extends AbstractTask {
   private CyApplicationManager applicationManager;
   private final AnnotationManager annotationManager;
   private final AnnotationFactory<TextAnnotation> annotationFactory;
+  private final TaskManager taskManager;
   private CyNetwork network;
   private final CyNetworkView networkView;
   private final Long networkSUID;
@@ -70,10 +73,12 @@ public class CreateAnnotationTask extends AbstractTask {
       final CyApplicationManager applicationManager,
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
+      final TaskManager taskManager,
       final String annotationName) {
     this.applicationManager = applicationManager;
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
+    this.taskManager = taskManager;
     this.annotationName = annotationName;
     this.network = applicationManager.getCurrentNetwork();
     this.networkView = applicationManager.getCurrentNetworkView();
@@ -85,11 +90,13 @@ public class CreateAnnotationTask extends AbstractTask {
       final CyNetwork network,
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
+      final TaskManager taskManager,
       final String annotationName) {
     this.networkView = networkView;
     this.network = network;
     this.annotationManager = annotationManager;
     this.annotationFactory = annotationFactory;
+    this.taskManager = taskManager;
     this.annotationName = annotationName;
     this.networkSUID = this.network.getSUID();
   }
@@ -98,10 +105,12 @@ public class CreateAnnotationTask extends AbstractTask {
       final CyApplicationManager applicationManager,
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
+      final TaskManager taskManager,
       final String annotationName) {
     CreateAnnotationTask task = new CreateAnnotationTask(applicationManager,
         annotationManager,
         annotationFactory,
+        taskManager,
         annotationName);
     task.nodes.addAll(CyTableUtil.getNodesInState(task.network, SELECTED, true));
     task.edges.addAll(CyTableUtil.getEdgesInState(task.network, SELECTED, true));
@@ -113,11 +122,13 @@ public class CreateAnnotationTask extends AbstractTask {
       final CyApplicationManager applicationManager,
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
+      final TaskManager taskManager,
       final String annotationName,
       final Collection<CyNode> nodes) {
     CreateAnnotationTask task = new CreateAnnotationTask(applicationManager,
         annotationManager,
         annotationFactory,
+        taskManager,
         annotationName);
     task.nodes.addAll(nodes);
     return task;
@@ -127,11 +138,13 @@ public class CreateAnnotationTask extends AbstractTask {
       final CyApplicationManager applicationManager,
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
+      final TaskManager taskManager,
       final String annotationName,
       final Collection<CyEdge> edges) {
     CreateAnnotationTask task = new CreateAnnotationTask(applicationManager,
         annotationManager,
         annotationFactory,
+        taskManager,
         annotationName);
     task.edges.addAll(edges);
     return task;
@@ -141,12 +154,14 @@ public class CreateAnnotationTask extends AbstractTask {
       final CyApplicationManager applicationManager,
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
+      final TaskManager taskManager,
       final String annotationName,
       final Collection<CyNode> nodes,
       final Collection<CyEdge> edges) {
     CreateAnnotationTask task = new CreateAnnotationTask(applicationManager,
         annotationManager,
         annotationFactory,
+        taskManager,
         annotationName);
     task.nodes.addAll(nodes);
     task.edges.addAll(edges);
@@ -158,11 +173,12 @@ public class CreateAnnotationTask extends AbstractTask {
       final CyNetwork network,
       final AnnotationManager annotationManager,
       final AnnotationFactory<TextAnnotation> annotationFactory,
+      final TaskManager taskManager,
       final String annotationName,
       final Collection<CyNode> nodes,
       final Collection<CyEdge> edges) {
     CreateAnnotationTask task = new CreateAnnotationTask(
-        networkView, network, annotationManager, annotationFactory, annotationName);
+        networkView, network, annotationManager, annotationFactory, taskManager, annotationName);
     task.nodes.addAll(nodes);
     task.edges.addAll(edges);
     return task;
@@ -236,10 +252,9 @@ public class CreateAnnotationTask extends AbstractTask {
     }
 
     // Set annotation parameters
-    final Coordinates location = calculateAverageLocation();
     Map<String, String> args = new HashMap<>();
-    args.put("x", String.valueOf(location.x));
-    args.put("y", String.valueOf(location.y));
+    args.put("x", String.valueOf(0));
+    args.put("y", String.valueOf(0));
     args.put("zoom", String.valueOf(ZOOM));
     args.put("fontFamily", FONT_FAMILY);
     args.put("color", String.valueOf(COLOR));
@@ -259,6 +274,7 @@ public class CreateAnnotationTask extends AbstractTask {
       updateDatabase();
     }
     updateNetworkTable(annotation);
+    taskManager.execute(CreateAnnotationLayoutTask(annotationManager, this.networkView).toTaskIterator());
   }
 
   private void updateDatabase() {
@@ -332,38 +348,6 @@ public class CreateAnnotationTask extends AbstractTask {
     CyColumn y = this.network.getDefaultNodeTable().getColumn(CCD_ANNOTATION_SET);
   }
 
-  private Coordinates calculateAverageLocation() {
-    Double x = 0.0;
-    Double y = 0.0;
-
-    // Get x and y coordinates for nodes
-    for (CyNode node : this.nodes) {
-      final View<CyNode> cyNodeView = this.networkView.getNodeView(node);
-      x += cyNodeView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-      y += cyNodeView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
-    }
-
-    // Get x and y coordinates for edges
-    for (CyEdge edge : this.edges) {
-      final View<CyNode> sourceView = this.networkView.getNodeView(edge.getSource());
-      final View<CyNode> targetView = this.networkView.getNodeView(edge.getTarget());
-      x += sourceView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-      x += targetView.getVisualProperty(BasicVisualLexicon.NODE_X_LOCATION);
-      y += sourceView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
-      y += targetView.getVisualProperty(BasicVisualLexicon.NODE_Y_LOCATION);
-    }
-
-    /*
-     * Calculate average per coordinate
-     * Edge size is doubled to account for
-     * both source and target nodes
-     */
-    x = x / (this.nodes.size() + this.edges.size() * 2);
-    y = y / (this.nodes.size() + this.edges.size() * 2);
-
-    return new Coordinates(x, y);
-  }
-
   /**
    * Thrown when there are no graph components to annotate
    */
@@ -371,21 +355,6 @@ public class CreateAnnotationTask extends AbstractTask {
 
     public MissingComponentsException() {
       super("At least one graph component (node or edge) must be selected");
-    }
-  }
-
-  /**
-   * Coordinates pair
-   * (x, y) tuple
-   */
-  private class Coordinates {
-
-    public final Double x;
-    public final Double y;
-
-    public Coordinates(Double x, Double y) {
-      this.x = x;
-      this.y = y;
     }
   }
 }
