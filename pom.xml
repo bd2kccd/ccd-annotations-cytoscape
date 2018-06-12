@@ -8,15 +8,15 @@
     <packaging>bundle</packaging>
 
     <name>CCD Annotations Cytoscape</name>
-    <description>CCD Annotations Cytoscape App</description>
-    <url>https://github.com/bd2kccd/ccd-annotations-cytoscape</url>
+    <description>CCD Annotations Cytoscape App developed by ADMT Lab for the BD2K
+        project</description>
+    <url>https://github.com/admtlab/ccd-annotations-cytoscape</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <bundle.symbolicName>edu.pitt.cs.admt.CCDAnnotationsCytoscapeApp</bundle.symbolicName>
         <bundle.namespace>edu.pitt.cs.admt.cytoscape.annotations</bundle.namespace>
-        <!--<cytoscape.api.version>3.3.0</cytoscape.api.version>-->
         <cytoscape.api.version>3.5.0</cytoscape.api.version>
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
         <maven-bundle-plugin.version>3.3.0</maven-bundle-plugin.version>
